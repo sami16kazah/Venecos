@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme {
+  --color-venecos-gold: #D4AF37;
+  --color-venecos-yellow: #FFDF00;
+  --color-venecos-white: #FFFFFF;
+  --color-venecos-black: #0A0A0A;
+  --color-venecos-dark: #1A1A1A;
+}
+
+@custom-variant rtl (&:dir(rtl));
+@custom-variant dark (&:is(.dark *));
+
+@layer base {
+  body {
+    @apply bg-venecos-white text-venecos-black transition-colors duration-300;
+  }
+  
+  .dark body {
+    @apply bg-venecos-black text-venecos-white;
+  }
+}
