@@ -4,6 +4,7 @@ import { Button, IconButton, Drawer, List, Box } from '@mui/material';
 import { MdMenu, MdClose } from 'react-icons/md';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { usePathname } from 'next/navigation';
 
 interface HomeNavbarProps {
   locale: string;
@@ -14,6 +15,17 @@ interface HomeNavbarProps {
 export default function HomeNavbar({ locale, locales, session }: HomeNavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const tNav = useTranslations('Navigation');
+  const pathname = usePathname();
+
+  const getPathForLocale = (newLocale: string) => {
+    if (!pathname) return `/${newLocale}`;
+    const segments = pathname.split('/').filter(Boolean);
+    if (segments.length > 0 && segments[0] === locale) {
+      segments[0] = newLocale;
+      return `/${segments.join('/')}`;
+    }
+    return `/${newLocale}`;
+  };
 
   const navLinks = [
     { label: tNav('home'), href: `/${locale}` },
@@ -49,7 +61,7 @@ export default function HomeNavbar({ locale, locales, session }: HomeNavbarProps
         
         <div className="flex gap-3 text-base border-gray-600 border-s-2 ps-4 ms-2">
           {locales.map((l) => (
-            <Link key={l} href={`/${l}`} className={`transition-colors hover:text-venecos-yellow ${locale === l ? 'text-venecos-gold border-b-2 border-venecos-gold pb-1' : 'text-gray-400'}`}>
+            <Link key={l} href={getPathForLocale(l)} className={`transition-colors hover:text-venecos-yellow ${locale === l ? 'text-venecos-gold border-b-2 border-venecos-gold pb-1' : 'text-gray-400'}`}>
               {l.toUpperCase()}
             </Link>
           ))}
@@ -104,7 +116,7 @@ export default function HomeNavbar({ locale, locales, session }: HomeNavbarProps
 
             <div className="flex justify-center gap-4 border-t border-white/10 pt-6 mt-2">
               {locales.map((l) => (
-                <Link key={l} href={`/${l}`} onClick={() => setMobileOpen(false)} className={`text-lg font-bold ${locale === l ? 'text-venecos-gold' : 'text-gray-500'}`}>
+                <Link key={l} href={getPathForLocale(l)} onClick={() => setMobileOpen(false)} className={`text-lg font-bold ${locale === l ? 'text-venecos-gold' : 'text-gray-500'}`}>
                   {l.toUpperCase()}
                 </Link>
               ))}

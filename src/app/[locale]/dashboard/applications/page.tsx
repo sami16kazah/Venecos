@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { useParams } from 'next/navigation';
 import {
   Button, Chip, CircularProgress, Tooltip,
-  Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions
+  Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
+  TextField, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton,
+  Switch, FormControlLabel
 } from '@mui/material';
-import { MdCheckCircle, MdCancel, MdOpenInNew, MdPerson, MdWork, MdCalendarToday, MdFilterList, MdWarning } from 'react-icons/md';
+import { MdCheckCircle, MdCancel, MdOpenInNew, MdPerson, MdWork, MdCalendarToday, MdFilterList, MdWarning, MdSettings, MdAdd, MdDelete, MdArrowUpward, MdArrowDownward } from 'react-icons/md';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
@@ -31,7 +33,7 @@ interface ConfirmModal {
   open: boolean;
   appId: string;
   appName: string;
-  actionType: 'accepted' | 'rejected' | null;
+  actionType: 'accepted' | 'rejected' | 'delete' | null;
 }
 
 export default function ApplicationsPage() {
@@ -52,6 +54,19 @@ export default function ApplicationsPage() {
     appName: '',
     actionType: null,
   });
+
+  const [rolesModalOpen, setRolesModalOpen] = useState(false);
+  const [jobRoles, setJobRoles] = useState<{ _id: string; name: string; order?: number }[]>([]);
+  const [newRoleName, setNewRoleName] = useState('');
+  const [rolesLoading, setRolesLoading] = useState(false);
+  const [sortAlpha, setSortAlpha] = useState(false);
+
+  const displayedRoles = useMemo(() => {
+    if (sortAlpha) {
+      return [...jobRoles].sort((a, b) => a.name.localeCompare(b.name));
+    }
+    return jobRoles;
+  }, [jobRoles, sortAlpha]);
 
   const role = (session?.user as any)?.role;
 
@@ -80,7 +95,78 @@ export default function ApplicationsPage() {
     fetchApplications();
   }, [fetchApplications]);
 
-  const openModal = (app: Application, actionType: 'accepted' | 'rejected') => {
+  const fetchRoles = useCallback(async () => {
+    setRolesLoading(true);
+    try {
+      const res = await fetch('/api/job-roles');
+      const data = await res.json();
+      if (res.ok) {
+        setJobRoles(data.roles);
+      }
+    } catch (err) {
+      console.error('Failed to fetch job roles', err);
+    } finally {
+      setRolesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (rolesModalOpen) {
+      fetchRoles();
+    }
+  }, [rolesModalOpen, fetchRoles]);
+
+  const handleAddRole = async () => {
+    if (!newRoleName.trim()) return;
+    try {
+      const res = await fetch('/api/job-roles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newRoleName })
+      });
+      if (res.ok) {
+        setNewRoleName('');
+        fetchRoles();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleDeleteRole = async (id: string) => {
+    try {
+      const res = await fetch(`/api/job-roles/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        fetchRoles();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSwap = async (index: number, direction: 'up' | 'down') => {
+    if (sortAlpha) return;
+    const newRoles = [...jobRoles];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= newRoles.length) return;
+
+    [newRoles[index], newRoles[targetIndex]] = [newRoles[targetIndex], newRoles[index]];
+    
+    const payload = newRoles.map((r, i) => ({ _id: r._id, order: i }));
+    setJobRoles(newRoles.map((r, i) => ({ ...r, order: i })));
+
+    try {
+      await fetch('/api/job-roles', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roles: payload })
+      });
+    } catch {
+      fetchRoles();
+    }
+  };
+
+  const openModal = (app: Application, actionType: 'accepted' | 'rejected' | 'delete') => {
     setModal({
       open: true,
       appId: app._id,
@@ -100,14 +186,16 @@ export default function ApplicationsPage() {
     setActionLoading(appId + actionType);
 
     try {
-      const res = await fetch(`/api/applications/${appId}`, {
-        method: 'PATCH',
+      const isDelete = actionType === 'delete';
+      const url = `/api/applications/${appId}`;
+      const res = await fetch(url, {
+        method: isDelete ? 'DELETE' : 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: actionType }),
+        body: isDelete ? undefined : JSON.stringify({ status: actionType }),
       });
       const data = await res.json();
       if (res.ok) {
-        setFeedback({ id: appId, type: 'success', msg: t('updateSuccess') });
+        setFeedback({ id: appId, type: 'success', msg: isDelete ? 'Application removed' : t('updateSuccess') });
         fetchApplications();
         setTimeout(() => setFeedback(null), 3000);
       } else {
@@ -136,9 +224,19 @@ export default function ApplicationsPage() {
   return (
     <div className="w-full max-w-6xl">
       {/* Header */}
-      <div className="mb-8">
-        <h2 className="text-2xl md:text-3xl font-extrabold text-venecos-black">{t('title')}</h2>
-        <p className="text-gray-400 text-sm mt-1">{t('subtitle')}</p>
+      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-venecos-black">{t('title')}</h2>
+          <p className="text-gray-400 text-sm mt-1">{t('subtitle')}</p>
+        </div>
+        <Button
+          variant="outlined"
+          startIcon={<MdSettings />}
+          onClick={() => setRolesModalOpen(true)}
+          sx={{ borderRadius: 9999, borderColor: '#D4AF37', color: '#D4AF37', '&:hover': { borderColor: '#FFDF00', bgcolor: 'transparent' } }}
+        >
+          {t('manageRoles') || 'Manage Roles'}
+        </Button>
       </div>
 
       {/* Filter Tabs */}
@@ -272,6 +370,21 @@ export default function ApplicationsPage() {
                       {t('reject')}
                     </Button>
                   )}
+
+                  {/* Delete / Remove (Only when rejected) */}
+                  {app.status === 'rejected' && (
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      color="error"
+                      startIcon={actionLoading === app._id + 'delete' ? <CircularProgress size={12} color="inherit" /> : <MdDelete />}
+                      disabled={!!actionLoading}
+                      onClick={() => openModal(app, 'delete')}
+                      sx={{ borderRadius: 9999, fontSize: '0.75rem' }}
+                    >
+                      Remove
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
@@ -294,13 +407,13 @@ export default function ApplicationsPage() {
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5, fontWeight: 'bold', pb: 1 }}>
           <MdWarning
             size={24}
-            color={modal.actionType === 'accepted' ? '#16a34a' : '#dc2626'}
+            color={modal.actionType === 'accepted' ? '#16a34a' : modal.actionType === 'rejected' ? '#dc2626' : '#991b1b'}
           />
-          {modal.actionType === 'accepted' ? t('accept') : t('reject')} — {modal.appName}
+          {modal.actionType === 'accepted' ? t('accept') : modal.actionType === 'delete' ? 'Remove Application' : t('reject')} — {modal.appName}
         </DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ color: '#555', fontSize: '0.95rem' }}>
-            {modal.actionType === 'accepted' ? t('confirmAccept') : t('confirmReject')}
+            {modal.actionType === 'accepted' ? t('confirmAccept') : modal.actionType === 'delete' ? 'Are you sure you want to permanently delete this application? This action cannot be reversed.' : t('confirmReject')}
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
@@ -317,7 +430,83 @@ export default function ApplicationsPage() {
             color={modal.actionType === 'accepted' ? 'success' : 'error'}
             sx={{ borderRadius: 9999, fontWeight: 'bold' }}
           >
-            {modal.actionType === 'accepted' ? t('accept') : t('reject')}
+            {modal.actionType === 'accepted' ? t('accept') : modal.actionType === 'delete' ? 'Remove' : t('reject')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Roles Modal */}
+      <Dialog
+        open={rolesModalOpen}
+        onClose={() => setRolesModalOpen(false)}
+        PaperProps={{
+          sx: { borderRadius: 3, p: 1, minWidth: { xs: '90vw', sm: 500 } }
+        }}
+      >
+        <DialogTitle sx={{ fontWeight: 'bold' }}>{t('rolesDialogTitle') || 'Manage Job Roles'}</DialogTitle>
+        <DialogContent sx={{ minHeight: 300 }}>
+          <div className="flex gap-2 mb-4 mt-2">
+            <TextField
+              size="small"
+              fullWidth
+              label={t('newRoleName') || 'New Role Name'}
+              value={newRoleName}
+              onChange={(e) => setNewRoleName(e.target.value)}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleAddRole}
+              disabled={!newRoleName.trim() || rolesLoading}
+              sx={{ borderRadius: 2 }}
+            >
+              <MdAdd size={20} />
+            </Button>
+          </div>
+          
+          <div className="mb-2 flex justify-between items-center bg-gray-50 p-2 rounded-lg border border-gray-100">
+            <FormControlLabel
+              control={<Switch checked={sortAlpha} onChange={(e) => setSortAlpha(e.target.checked)} color="primary" />}
+              label={<span className="text-sm font-medium text-gray-700">{t('sortAlphabetically') || 'Sort Alphabetically'}</span>}
+            />
+          </div>
+
+          {rolesLoading ? (
+            <div className="flex justify-center p-4">
+              <CircularProgress size={24} sx={{ color: '#D4AF37' }} />
+            </div>
+          ) : (
+            <List sx={{ mt: 1 }}>
+              {displayedRoles.map((role, idx) => (
+                <ListItem key={role._id} sx={{ bgcolor: '#ffffff', mb: 1, borderRadius: 2, border: '1px solid #efefef', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                  <ListItemText primary={role.name} primaryTypographyProps={{ fontWeight: 'medium' }} />
+                  <ListItemSecondaryAction sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    {!sortAlpha && (
+                      <>
+                        <IconButton size="small" onClick={() => handleSwap(idx, 'up')} disabled={idx === 0} sx={{ color: '#888' }}>
+                          <MdArrowUpward fontSize="1.1rem" />
+                        </IconButton>
+                        <IconButton size="small" onClick={() => handleSwap(idx, 'down')} disabled={idx === displayedRoles.length - 1} sx={{ color: '#888' }}>
+                          <MdArrowDownward fontSize="1.1rem" />
+                        </IconButton>
+                        <div className="w-px h-6 bg-gray-200 mx-1"></div>
+                      </>
+                    )}
+                    <IconButton size="small" edge="end" onClick={() => handleDeleteRole(role._id)} color="error">
+                      <MdDelete fontSize="1.2rem" />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+              ))}
+              {displayedRoles.length === 0 && (
+                <p className="text-center text-gray-400 text-sm py-4">{t('noRolesFound') || 'No roles found.'}</p>
+              )}
+            </List>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          <Button onClick={() => setRolesModalOpen(false)} sx={{ color: '#666', fontWeight: 'bold' }}>
+            {t('closeButton') || 'Close'}
           </Button>
         </DialogActions>
       </Dialog>

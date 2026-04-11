@@ -70,3 +70,19 @@ export const sendPasswordResetEmail = async (email: string, token: string) => {
 
   await sendEmail({ to: email, subject: "Reset Your Venecos Password", html });
 };
+
+export const sendAccountSetupEmail = async (email: string, token: string) => {
+  const resetLink = `${process.env.NEXTAUTH_URL}/en/reset-password?token=${token}`;
+  
+  const html = `
+    <div style="font-family: sans-serif; padding: 20px;">
+      <h1>Welcome to Venecos!</h1>
+      <p>Congratulations! Your application has been accepted and an account has been created for you.</p>
+      <p>Please click the button below to set up your password and access your new Employee Dashboard:</p>
+      <a href="\${resetLink}" style="display: inline-block; padding: 10px 20px; background-color: #D4AF37; color: #1a1a1a; text-decoration: none; border-radius: 5px; font-weight: bold; margin-top: 10px;">Set Password</a>
+      <p style="margin-top: 20px; color: #666; font-size: 14px;">The link will expire in 1 hour.</p>
+    </div>
+  `;
+
+  await sendEmail({ to: email, subject: "Welcome to Venecos - Set up your password", html });
+};

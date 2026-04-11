@@ -1,8 +1,10 @@
 import {getTranslations, setRequestLocale} from 'next-intl/server';
 import Button from '@mui/material/Button';
-import { FaCode, FaPaintBrush, FaVideo } from 'react-icons/fa';
+import * as Icons from 'react-icons/fa';
 import Link from 'next/link';
 import { routing } from '@/i18n/routing';
+import connectToDatabase from '@/lib/mongodb';
+import ServiceContent from '@/models/ServiceContent';
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import HomeNavbar from '@/components/HomeNavbar';
@@ -20,6 +22,9 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
   const tFooter = await getTranslations({locale, namespace: 'Footer'});
   const tJoinUs = await getTranslations({locale, namespace: 'JoinUs'});
   const session = await getServerSession(authOptions);
+
+  await connectToDatabase();
+  const services = await ServiceContent.find({ locale }).sort({ order: 1 }).lean();
 
   return (
     <div className="min-h-screen flex flex-col font-sans">
@@ -45,9 +50,11 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
           <Button variant="contained" color="primary" size="large" sx={{ borderRadius: 9999, px: 6, py: 1.5, fontWeight: 'bold' }}>
             {t('getStarted')}
           </Button>
-          <Button variant="outlined" color="inherit" size="large" sx={{ borderRadius: 9999, px: 6, py: 1.5, fontWeight: 'bold', borderColor: 'white', '&:hover': { background: 'rgba(255,255,255,0.1)' } }}>
-            {t('learnMore')}
-          </Button>
+          <Link href={`/${locale}/about`} passHref>
+            <Button variant="outlined" color="inherit" size="large" sx={{ borderRadius: 9999, px: 6, py: 1.5, fontWeight: 'bold', borderColor: 'white', '&:hover': { background: 'rgba(255,255,255,0.1)' } }}>
+              {t('learnMore')}
+            </Button>
+          </Link>
         </div>
       </main>
 
@@ -59,50 +66,28 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-7xl mx-auto w-full">
-          {/* Coding Service */}
-          <div className="bg-white border rounded-2xl p-10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-gray-100 group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-venecos-gold/20 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="w-16 h-16 rounded-2xl bg-black/5 flex items-center justify-center text-venecos-black mb-8 group-hover:bg-venecos-gold group-hover:text-white transition-colors duration-300 group-hover:shadow-[0_0_20px_rgba(212,175,55,0.4)]">
-              <FaCode size={28} />
-            </div>
-            <h3 className="text-2xl font-bold mb-4">{tServices('coding')}</h3>
-            <p className="text-gray-600 mb-8 pb-6 border-b border-gray-100 leading-relaxed min-h-[80px]">
-              {tServices('codingDesc')}
-            </p>
-            <Button variant="text" size="large" sx={{ color: '#0A0A0A', fontWeight: 700, p: 0, '&:hover': { color: '#D4AF37', background: 'transparent' } }}>
-              {t('learnMore')} →
-            </Button>
-          </div>
-
-          {/* UI Design Service */}
-          <div className="bg-white border rounded-2xl p-6 md:p-10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-gray-100 group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-venecos-gold/20 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="w-16 h-16 rounded-2xl bg-black/5 flex items-center justify-center text-venecos-black mb-8 group-hover:bg-venecos-gold group-hover:text-white transition-colors duration-300 group-hover:shadow-[0_0_20px_rgba(212,175,55,0.4)]">
-              <FaPaintBrush size={28} />
-            </div>
-            <h3 className="text-2xl font-bold mb-4">{tServices('ui_design')}</h3>
-            <p className="text-gray-600 mb-8 pb-6 border-b border-gray-100 leading-relaxed min-h-[80px]">
-              {tServices('ui_designDesc')}
-            </p>
-            <Button variant="text" size="large" sx={{ color: '#0A0A0A', fontWeight: 700, p: 0, '&:hover': { color: '#D4AF37', background: 'transparent' } }}>
-              {t('learnMore')} →
-            </Button>
-          </div>
-
-          {/* Video Design Service */}
-          <div className="bg-white border rounded-2xl p-6 md:p-10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-gray-100 group relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-venecos-gold/20 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="w-16 h-16 rounded-2xl bg-black/5 flex items-center justify-center text-venecos-black mb-8 group-hover:bg-venecos-gold group-hover:text-white transition-colors duration-300 group-hover:shadow-[0_0_20px_rgba(212,175,55,0.4)]">
-              <FaVideo size={28} />
-            </div>
-            <h3 className="text-2xl font-bold mb-4">{tServices('video_design')}</h3>
-            <p className="text-gray-600 mb-8 pb-6 border-b border-gray-100 leading-relaxed min-h-[80px]">
-              {tServices('video_designDesc')}
-            </p>
-            <Button variant="text" size="large" sx={{ color: '#0A0A0A', fontWeight: 700, p: 0, '&:hover': { color: '#D4AF37', background: 'transparent' } }}>
-              {t('learnMore')} →
-            </Button>
-          </div>
+          {services.map((svc: any) => {
+            const GenericIcon = (Icons as any)[svc.iconName] || Icons.FaCode;
+            return (
+              <div key={svc._id.toString()} className="bg-white border rounded-2xl p-6 md:p-10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-gray-100 group relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-venecos-gold/20 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="w-16 h-16 rounded-2xl bg-black/5 flex items-center justify-center text-venecos-black mb-8 group-hover:bg-venecos-gold group-hover:text-white transition-colors duration-300 group-hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] overflow-hidden">
+                  {svc.iconType === 'image' && svc.iconUrl ? (
+                    <img src={svc.iconUrl} alt={svc.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <GenericIcon size={28} />
+                  )}
+                </div>
+                <h3 className="text-2xl font-bold mb-4">{svc.title}</h3>
+                <p className="text-gray-600 mb-8 pb-6 border-b border-gray-100 leading-relaxed min-h-[80px]">
+                  {svc.description}
+                </p>
+                <Button variant="text" size="large" sx={{ color: '#0A0A0A', fontWeight: 700, p: 0, '&:hover': { color: '#D4AF37', background: 'transparent' } }}>
+                  {t('learnMore')} →
+                </Button>
+              </div>
+            );
+          })}
         </div>
       </section>
 

@@ -23,8 +23,7 @@ const ApplicationSchema: Schema = new Schema({
   phone: { type: String },
   position: { 
     type: String, 
-    required: true,
-    enum: ['Developer', 'UI/UX Designer', 'Video Editor', 'Project Manager']
+    required: true
   },
   message: { type: String },
   cvUrl: { type: String, required: true },

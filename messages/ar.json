@@ -11,7 +11,20 @@
     "contact": "اتصل بنا",
     "join": "انضم إلينا",
     "signIn": "تسجيل الدخول",
-    "dashboard": "لوحة التحكم"
+    "dashboard": "لوحة التحكم",
+    "aboutContent": "إدارة المحتوى"
+  },
+  "AboutAdmin": {
+    "manageAbout": "إدارة محتوى صفحة من نحن",
+    "manageAboutDesc": "قم بتحديث القصة المرئية علنًا عن Venecos ديناميكيًا عن طريق تحديد السلاسل عبر اللغات أدناه.",
+    "pageTitle": "عنوان القسم",
+    "pageContent": "محتوى النص الأساسي",
+    "formattingHint": "سيتم الاحتفاظ بالتباعد وفواصل الأسطر تلقائيًا للجمهور.",
+    "saveChanges": "حفظ المحتوى",
+    "updateSuccess": "تم نشر محتوى من نحن بنجاح!"
+  },
+  "About": {
+    "loading": "جاري تحميل تفاصيل المنصة..."
   },
   "Services": {
     "title": "خدماتنا المميزة",
@@ -141,6 +154,52 @@
     "confirmAccept": "قبول هذا الطلب وترقية المتقدم إلى موظف؟",
     "confirmReject": "رفض هذا الطلب؟",
     "updateSuccess": "تم تحديث حالة الطلب.",
-    "manageSidebar": "الطلبات"
+    "manageSidebar": "الطلبات",
+    "manageRoles": "إدارة الأدوار",
+    "rolesDialogTitle": "إدارة أدوار العمل",
+    "newRoleName": "اسم الدور الجديد",
+    "noRolesFound": "لم يتم العثور على أية أدوار.",
+    "closeButton": "إغلاق",
+    "sortAlphabetically": "الترتيب الأبجدي"
+  },
+  "Users": {
+    "manageDesc": "عرض وتحديث الإدوار وإدارة جميع مستخدمي المنصة المسجلين.",
+    "user": "المستخدم",
+    "role": "الدور",
+    "joined": "تاريخ الانضمام",
+    "actions": "الإجراءات",
+    "updateRoleSuccess": "تم تحديث دور المستخدم بنجاح!",
+    "deleteSuccess": "تم حذف المستخدم نهائياً من النظام.",
+    "deleteConfirmTitle": "حذف حساب المستخدم؟",
+    "deleteConfirmMsg": "هل أنت متأكد أنك تريد حذف هذا المستخدم نهائياً؟ لا يمكن التراجع عن هذا الإجراء وسيفقد المستخدم كل صلاحيات الوصول.",
+    "cancel": "إلغاء",
+    "deleteBtn": "حذف نهائي",
+    "filterAll": "جميع الأدوار",
+    "roleAdmin": "مدير",
+    "roleEmployee": "موظف",
+    "roleClient": "عميل",
+    "searchPlaceholder": "بحث بالاسم أو البريد...",
+    "searchLabel": "البحث عن مستخدم"
+  },
+  "Settings": {
+    "title": "إعدادات المنصة",
+    "desc": "إدارة محتوى الموقع العالمي ومعايير عرض الخدمات.",
+    "adminMode": "وضع المسؤول",
+    "tabAbout": "محتوى من نحن",
+    "tabServices": "خدمات الصفحة الرئيسية",
+    "newService": "خدمة جديدة",
+    "editService": "تعديل الخدمة",
+    "onboardService": "إضافة خدمة جديدة",
+    "deleteService": "حذف نهائي؟",
+    "deleteServiceConfirm": "تأكيد حذف خدمة {title}؟ لا يمكن التراجع عن هذا الإجراء.",
+    "iconSource": "مصدر أيقونة الخدمة",
+    "vectorIcon": "أيقونة متجهة",
+    "customUpload": "تحميل مخصص",
+    "uploadHint": "انقر لتحميل صورة الأيقونة",
+    "syncChanges": "مزامنة التعديلات",
+    "return": "العودة",
+    "displayTitle": "عنوان العرض",
+    "sortOrder": "ترتيب العرض",
+    "publicDesc": "الوصف العام"
   }
 }

@@ -11,7 +11,20 @@
     "contact": "Contact",
     "join": "Rejoignez-nous",
     "signIn": "Se Connecter",
-    "dashboard": "Tableau de bord"
+    "dashboard": "Tableau de bord",
+    "aboutContent": "Contenu À Propos"
+  },
+  "AboutAdmin": {
+    "manageAbout": "Gérer le contenu À propos de nous",
+    "manageAboutDesc": "Mettez à jour publiquement l'histoire visible de Venecos de manière dynamique en sélectionnant les chaînes dans les langues ci-dessous.",
+    "pageTitle": "Titre de section",
+    "pageContent": "Corps du contenu principal",
+    "formattingHint": "Vos espacements et sauts de ligne seront automatiquement maintenus publiquement.",
+    "saveChanges": "Enregistrer le contenu",
+    "updateSuccess": "Le contenu À propos de nous a été publié avec succès !"
+  },
+  "About": {
+    "loading": "Chargement des détails de la plateforme..."
   },
   "Services": {
     "title": "Nos Services Premium",
@@ -141,6 +154,52 @@
     "confirmAccept": "Accepter et promouvoir en employé ?",
     "confirmReject": "Rejeter cette candidature ?",
     "updateSuccess": "Statut mis à jour.",
-    "manageSidebar": "Candidatures"
+    "manageSidebar": "Candidatures",
+    "manageRoles": "Gérer les rôles",
+    "rolesDialogTitle": "Gérer les rôles professionnels",
+    "newRoleName": "Nom du nouveau rôle",
+    "noRolesFound": "Aucun rôle trouvé.",
+    "closeButton": "Fermer",
+    "sortAlphabetically": "Trier par ordre alphabétique"
+  },
+  "Users": {
+    "manageDesc": "Afficher, mettre à jour les rôles et gérer tous les utilisateurs de la plateforme.",
+    "user": "Utilisateur",
+    "role": "Rôle",
+    "joined": "Rejoint le",
+    "actions": "Actions",
+    "updateRoleSuccess": "Rôle mis à jour avec succès !",
+    "deleteSuccess": "Utilisateur supprimé définitivement du système.",
+    "deleteConfirmTitle": "Supprimer le compte ?",
+    "deleteConfirmMsg": "Êtes-vous sûr de vouloir supprimer définitivement cet utilisateur ? Cette action est irréversible et il perdra tout accès.",
+    "cancel": "Annuler",
+    "deleteBtn": "Supprimer définitivement",
+    "filterAll": "Tous les rôles",
+    "roleAdmin": "Administrateur",
+    "roleEmployee": "Employé",
+    "roleClient": "Client",
+    "searchPlaceholder": "Rechercher par nom ou email...",
+    "searchLabel": "Trouver un utilisateur"
+  },
+  "Settings": {
+    "title": "Paramètres de la Plateforme",
+    "desc": "Gestion du contenu global et paramètres de visualisation des services.",
+    "adminMode": "Mode Administrateur",
+    "tabAbout": "Contenu À Propos",
+    "tabServices": "Services d'Accueil",
+    "newService": "Nouveau Service",
+    "editService": "Affiner le Service",
+    "onboardService": "Ajouter un Nouveau Service",
+    "deleteService": "Purge Permanente ?",
+    "deleteServiceConfirm": "Confirmer la suppression de {title} ? Cette opération est irréversible.",
+    "iconSource": "Visualisation de la Source d'Icône",
+    "vectorIcon": "Icône Vectorielle",
+    "customUpload": "Téléchargement Personnalisé",
+    "uploadHint": "Cliquez pour télécharger une image",
+    "syncChanges": "Synchroniser les Changements",
+    "return": "Retour",
+    "displayTitle": "Titre d'Affichage",
+    "sortOrder": "Ordre de Tri",
+    "publicDesc": "Description Publique"
   }
 }

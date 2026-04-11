@@ -11,7 +11,20 @@
     "contact": "Contact",
     "join": "Join Us",
     "signIn": "Sign In",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "aboutContent": "About Content"
+  },
+  "AboutAdmin": {
+    "manageAbout": "Manage About Us Content",
+    "manageAboutDesc": "Update the publicly visible story of Venecos dynamically by selecting strings across the locales below.",
+    "pageTitle": "Section Title",
+    "pageContent": "Primary Content Body",
+    "formattingHint": "Your spacing and line breaks will automatically be maintained publicly.",
+    "saveChanges": "Save Content",
+    "updateSuccess": "About Us content has been successfully published!"
+  },
+  "About": {
+    "loading": "Loading amazing things about Venecos..."
   },
   "Services": {
     "title": "Our Premium Services",
@@ -141,6 +154,52 @@
     "confirmAccept": "Accept this application and promote applicant to Employee?",
     "confirmReject": "Reject this application?",
     "updateSuccess": "Application status updated.",
-    "manageSidebar": "Applications"
+    "manageSidebar": "Applications",
+    "manageRoles": "Manage Roles",
+    "rolesDialogTitle": "Manage Job Roles",
+    "newRoleName": "New Role Name",
+    "noRolesFound": "No roles found.",
+    "closeButton": "Close",
+    "sortAlphabetically": "Sort Alphabetically (A-Z)"
+  },
+  "Users": {
+    "manageDesc": "View, update roles, and manage all registered platform users.",
+    "user": "User",
+    "role": "Role",
+    "joined": "Joined",
+    "actions": "Actions",
+    "updateRoleSuccess": "User role updated successfully!",
+    "deleteSuccess": "User deleted permanently from the system.",
+    "deleteConfirmTitle": "Delete User Account?",
+    "deleteConfirmMsg": "Are you sure you want to permanently remove this user? This action cannot be undone and they will lose all access.",
+    "cancel": "Cancel",
+    "deleteBtn": "Delete Permanently",
+    "filterAll": "All Roles",
+    "roleAdmin": "Admin",
+    "roleEmployee": "Employee",
+    "roleClient": "Client",
+    "searchPlaceholder": "Search by name or email...",
+    "searchLabel": "Find user"
+  },
+  "Settings": {
+    "title": "Platform Settings",
+    "desc": "Global content management and service visualization parameters.",
+    "adminMode": "Administrator Mode",
+    "tabAbout": "About Content",
+    "tabServices": "Home Services",
+    "newService": "New Service",
+    "editService": "Refine Service",
+    "onboardService": "Onboard New Service",
+    "deleteService": "Permanent Purge?",
+    "deleteServiceConfirm": "Confirm deletion of {title}? This operation cannot be reversed.",
+    "iconSource": "Icon Source Visualization",
+    "vectorIcon": "Vector Icon",
+    "customUpload": "Custom Upload",
+    "uploadHint": "Click to upload image",
+    "syncChanges": "Sync Changes",
+    "return": "Return",
+    "displayTitle": "Display Title",
+    "sortOrder": "Sort Order",
+    "publicDesc": "Public Description"
   }
 }

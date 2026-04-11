@@ -9,8 +9,6 @@ import { MdCheckCircle, MdUploadFile, MdArrowBack } from 'react-icons/md';
 import { MuiTelInput } from 'mui-tel-input';
 import Link from 'next/link';
 
-const POSITIONS = ['Developer', 'UI/UX Designer', 'Video Editor', 'Project Manager'];
-
 export default function ApplyPage() {
   const { data: session } = useSession();
   const t = useTranslations('Apply');
@@ -40,6 +38,8 @@ export default function ApplyPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
 
+  const [positions, setPositions] = useState<{ _id: string; name: string }[]>([]);
+
   const user = session?.user as any;
 
   // Auto-fill from session
@@ -57,6 +57,21 @@ export default function ApplyPage() {
       }
     }
   }, [session]);
+
+  useEffect(() => {
+    async function fetchPositions() {
+      try {
+        const res = await fetch('/api/job-roles');
+        const data = await res.json();
+        if (res.ok) {
+          setPositions(data.roles);
+        }
+      } catch (err) {
+        console.error('Failed to fetch positions:', err);
+      }
+    }
+    fetchPositions();
+  }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -242,9 +257,9 @@ export default function ApplyPage() {
               value={form.position}
               onChange={e => setForm({ ...form, position: e.target.value })}
             >
-              {POSITIONS.map(pos => (
-                <MenuItem key={pos} value={pos}>
-                  {pos}
+              {positions.map(pos => (
+                <MenuItem key={pos._id} value={pos.name}>
+                  {pos.name}
                 </MenuItem>
               ))}
             </Select>

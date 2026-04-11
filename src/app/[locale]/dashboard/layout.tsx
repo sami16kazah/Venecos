@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { getTranslations } from "next-intl/server";
 import SignOutButton from "@/components/SignOutButton";
 import DashboardSidebar from "@/components/DashboardSidebar";
+import DashboardLanguageSwitcher from "@/components/DashboardLanguageSwitcher";
 
 export default async function DashboardLayout({
   children,
@@ -44,13 +45,7 @@ export default async function DashboardLayout({
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-6 w-full lg:w-auto">
             {/* Language Switcher - Responsive Grid */}
-            <div className="grid grid-cols-4 gap-1 p-1 bg-white rounded-lg shadow-sm border border-gray-200">
-              {['en', 'ar', 'fr', 'de'].map((l) => (
-                <Link key={l} href={`/${l}/dashboard`} className={`p-1.5 w-7 md:w-8 h-7 md:h-8 flex items-center justify-center rounded-md font-bold text-[10px] md:text-xs transition-all ${locale === l ? 'bg-venecos-black text-venecos-gold shadow-md scale-105' : 'text-gray-400 hover:bg-gray-50'}`}>
-                  {l.toUpperCase()}
-                </Link>
-              ))}
-            </div>
+            <DashboardLanguageSwitcher currentLocale={locale} />
 
             {/* Profile & SignOut */}
             <div className="flex items-center gap-3 md:gap-4 bg-white px-4 py-2 rounded-2xl shadow-sm border border-gray-100 w-full sm:w-auto justify-between sm:justify-start">

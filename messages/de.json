@@ -11,7 +11,20 @@
     "contact": "Kontakt",
     "join": "Mach mit",
     "signIn": "Anmelden",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "aboutContent": "Über Inhalt"
+  },
+  "AboutAdmin": {
+    "manageAbout": "Über uns Inhalt verwalten",
+    "manageAboutDesc": "Aktualisieren Sie die öffentlich sichtbare Geschichte von Venecos dynamisch, indem Sie Zeichenfolgen über die untigen Sprachen auswählen.",
+    "pageTitle": "Abschnittstitel",
+    "pageContent": "Hauptinhalt",
+    "formattingHint": "Ihre Abstände und Zeilenumbrüche werden öffentlich automatisch beibehalten.",
+    "saveChanges": "Inhalt speichern",
+    "updateSuccess": "Der Inhalt Über uns wurde erfolgreich veröffentlicht!"
+  },
+  "About": {
+    "loading": "Plattformdetails werden geladen..."
   },
   "Services": {
     "title": "Unsere Premium-Dienste",
@@ -141,6 +154,52 @@
     "confirmAccept": "Annehmen und zum Mitarbeiter befördern?",
     "confirmReject": "Diese Bewerbung ablehnen?",
     "updateSuccess": "Status aktualisiert.",
-    "manageSidebar": "Bewerbungen"
+    "manageSidebar": "Bewerbungen",
+    "manageRoles": "Rollen verwalten",
+    "rolesDialogTitle": "Berufsrollen verwalten",
+    "newRoleName": "Neuer Rollenname",
+    "noRolesFound": "Keine Rollen gefunden.",
+    "closeButton": "Schließen",
+    "sortAlphabetically": "Alphabetisch sortieren"
+  },
+  "Users": {
+    "manageDesc": "Rollen anzeigen, aktualisieren und alle registrierten Plattformbenutzer verwalten.",
+    "user": "Benutzer",
+    "role": "Rolle",
+    "joined": "Beigetreten",
+    "actions": "Aktionen",
+    "updateRoleSuccess": "Benutzerrolle erfolgreich aktualisiert!",
+    "deleteSuccess": "Benutzer dauerhaft aus dem System gelöscht.",
+    "deleteConfirmTitle": "Benutzerkonto löschen?",
+    "deleteConfirmMsg": "Sind Sie sicher, dass Sie diesen Benutzer dauerhaft entfernen möchten? Diese Aktion kann nicht rückgängig gemacht werden und der Zugriff wird vollständig entzogen.",
+    "cancel": "Abbrechen",
+    "deleteBtn": "Dauerhaft löschen",
+    "filterAll": "Alle Rollen",
+    "roleAdmin": "Administrator",
+    "roleEmployee": "Mitarbeiter",
+    "roleClient": "Kunde",
+    "searchPlaceholder": "Suche nach Name oder E-Mail...",
+    "searchLabel": "Benutzer finden"
+  },
+  "Settings": {
+    "title": "Plattform-Einstellungen",
+    "desc": "Globale Inhaltsverwaltung und Parameter für die Dienstvisualisierung.",
+    "adminMode": "Administrator-Modus",
+    "tabAbout": "Über uns Inhalt",
+    "tabServices": "Home-Services",
+    "newService": "Neuer Dienst",
+    "editService": "Dienst verfeinern",
+    "onboardService": "Neuen Dienst hinzufügen",
+    "deleteService": "Dauerhafte Löschung?",
+    "deleteServiceConfirm": "Löschen von {title} bestätigen? Dieser Vorgang kann nicht rückgängig gemacht werden.",
+    "iconSource": "Visualisierung der Symbolquelle",
+    "vectorIcon": "Vektor-Symbol",
+    "customUpload": "Eigener Upload",
+    "uploadHint": "Klicken, um ein Bild hochzuladen",
+    "syncChanges": "Änderungen synchronisieren",
+    "return": "Zurück",
+    "displayTitle": "Anzeigetitel",
+    "sortOrder": "Sortierreihenfolge",
+    "publicDesc": "Öffentliche Beschreibung"
   }
 }
