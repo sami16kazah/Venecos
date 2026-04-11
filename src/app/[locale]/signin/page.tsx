@@ -1,7 +1,7 @@
 'use client';
 import { signIn, useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
-import { Button, TextField, IconButton, InputAdornment } from "@mui/material";
+import { useState, useEffect, Suspense } from "react";
+import { Button, TextField, IconButton, InputAdornment, CircularProgress } from "@mui/material";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import Link from 'next/link';
 import { useSearchParams, useParams } from 'next/navigation';
@@ -9,6 +9,17 @@ import { useTranslations } from 'next-intl';
 
 export default function SignInPage() {
   const { data: session, status } = useSession();
+  const params = useParams() as { locale: string };
+  const locale = params?.locale || "en";
+  
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-24"><CircularProgress sx={{ color: '#D4AF37' }} /></div>}>
+      <SignInForm status={status} locale={locale} />
+    </Suspense>
+  );
+}
+
+function SignInForm({ status, locale }: { status: string, locale: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -16,8 +27,6 @@ export default function SignInPage() {
   
   const searchParams = useSearchParams();
   const tAuth = useTranslations('Auth');
-  const params = useParams() as { locale: string };
-  const locale = params?.locale || "en";
   const isRtl = locale === 'ar';
   
   useEffect(() => {

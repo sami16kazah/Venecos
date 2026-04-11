@@ -1,17 +1,25 @@
 'use client';
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
+import { useSearchParams, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Button } from '@mui/material';
+import { Button, CircularProgress } from '@mui/material';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 
 export default function VerifyEmailPage() {
+  const params = useParams() as { locale: string };
+  const locale = params?.locale || "en";
+  
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-24"><CircularProgress sx={{ color: '#D4AF37' }} /></div>}>
+      <VerifyEmailContent locale={locale} />
+    </Suspense>
+  );
+}
+
+function VerifyEmailContent({ locale }: { locale: string }) {
   const searchParams = useSearchParams();
   const token = searchParams?.get('token');
   const tAuth = useTranslations('Auth');
-  const params = useParams() as { locale: string };
-  const locale = params?.locale || "en";
   
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');

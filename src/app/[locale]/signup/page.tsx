@@ -1,7 +1,7 @@
 'use client';
 import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
-import { Button, TextField, IconButton, InputAdornment, Alert } from "@mui/material";
+import { useState, useEffect, Suspense } from "react";
+import { Button, TextField, IconButton, InputAdornment, Alert, CircularProgress } from "@mui/material";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 import { MuiTelInput } from 'mui-tel-input';
 import Link from 'next/link';
@@ -27,6 +27,17 @@ const countryCodes = [
 
 export default function SignUpPage() {
   const { data: session, status } = useSession();
+  const params = useParams() as { locale: string };
+  const locale = params?.locale || "en";
+  
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center py-24"><CircularProgress sx={{ color: '#D4AF37' }} /></div>}>
+      <SignUpForm status={status} locale={locale} />
+    </Suspense>
+  );
+}
+
+function SignUpForm({ status, locale }: { status: string, locale: string }) {
   const [formData, setFormData] = useState({
     firstName: "", lastName: "", username: "", email: "", password: "", confirmPassword: "", phone: "", 
     postCode: "", city: "", street: "", house: ""
@@ -38,10 +49,8 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
 
   const tAuth = useTranslations('Auth');
-  const params = useParams() as { locale: string };
-  const locale = params?.locale || "en";
-  const isRtl = locale === 'ar';
   const searchParams = useSearchParams();
+  const isRtl = locale === 'ar';
   const [googlePrefilled, setGooglePrefilled] = useState(false);
 
   // Read Google pre-fill params from URL (when unregistered Google email redirects here)

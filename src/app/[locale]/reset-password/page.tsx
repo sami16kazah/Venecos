@@ -1,10 +1,10 @@
 'use client';
-import { useState } from 'react';
-import { Button, TextField } from '@mui/material';
+import { useState, Suspense } from 'react';
+import { Button, TextField, CircularProgress } from '@mui/material';
 import { useSearchParams, useRouter, useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams?.get('token');
   const router = useRouter();
@@ -17,7 +17,7 @@ export default function ResetPasswordPage() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
-  if (!token) return <div className="p-10 text-center text-red-500 text-xl font-bold w-full mt-24">Invalid Missing Token</div>;
+  if (!token) return <div className="p-10 text-center text-red-500 text-xl font-bold w-full mt-24">Invalid / Missing Token</div>;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,23 +49,31 @@ export default function ResetPasswordPage() {
   };
 
   return (
+    <div className="bg-white max-w-md w-full p-8 rounded-2xl shadow-xl border border-gray-100">
+      <h1 className="text-2xl font-bold mb-6 text-center text-venecos-black">{tAuth('resetPasswordTitle')}</h1>
+      
+      {status === 'success' ? (
+        <p className="text-green-600 bg-green-50 p-4 border border-green-200 rounded-md font-semibold text-center">Password successfully reset. Redirecting...</p>
+      ) : (
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          <TextField label={tAuth('newPasswordLabel')} type="password" required fullWidth value={password} onChange={e => setPassword(e.target.value)} disabled={status === 'loading'}/>
+          <TextField label={`Confirm Password`} type="password" required fullWidth value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} disabled={status === 'loading'}/>
+          {status === 'error' && <p className="text-red-500 text-sm font-semibold">{errorMsg}</p>}
+          <Button type="submit" variant="contained" color="primary" disabled={status === 'loading'} sx={{ py: 1.5, fontWeight: 'bold', mt: 2 }}>
+            {tAuth('resetPasswordTitle')}
+          </Button>
+        </form>
+      )}
+    </div>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="bg-white max-w-md w-full p-8 rounded-2xl shadow-xl border border-gray-100">
-        <h1 className="text-2xl font-bold mb-6 text-center text-venecos-black">{tAuth('resetPasswordTitle')}</h1>
-        
-        {status === 'success' ? (
-          <p className="text-green-600 bg-green-50 p-4 border border-green-200 rounded-md font-semibold text-center">Password successfully reset. Redirecting...</p>
-        ) : (
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-            <TextField label={tAuth('newPasswordLabel')} type="password" required fullWidth value={password} onChange={e => setPassword(e.target.value)} disabled={status === 'loading'}/>
-            <TextField label={`Confirm Password`} type="password" required fullWidth value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} disabled={status === 'loading'}/>
-            {status === 'error' && <p className="text-red-500 text-sm font-semibold">{errorMsg}</p>}
-            <Button type="submit" variant="contained" color="primary" disabled={status === 'loading'} sx={{ py: 1.5, fontWeight: 'bold', mt: 2 }}>
-              {tAuth('resetPasswordTitle')}
-            </Button>
-          </form>
-        )}
-      </div>
+      <Suspense fallback={<div className="flex items-center justify-center py-24"><CircularProgress sx={{ color: '#D4AF37' }} /></div>}>
+        <ResetPasswordForm />
+      </Suspense>
     </div>
   );
 }
