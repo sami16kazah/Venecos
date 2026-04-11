@@ -18,7 +18,6 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
   const t = await getTranslations({locale, namespace: 'Index'});
   const tNav = await getTranslations({locale, namespace: 'Navigation'});
   const tServices = await getTranslations({locale, namespace: 'Services'});
-  const tContact = await getTranslations({locale, namespace: 'Contact'});
   const tFooter = await getTranslations({locale, namespace: 'Footer'});
   const tJoinUs = await getTranslations({locale, namespace: 'JoinUs'});
   const session = await getServerSession(authOptions);
@@ -117,17 +116,6 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
             </Button>
           </Link>
         </div>
-      </section>
-
-      {/* Contact Section */}
-      <section id="contact" className="py-24 px-4 bg-gray-50 text-venecos-black text-center">
-        <h2 className="text-4xl font-extrabold mb-6 text-venecos-black">{tContact('title')}</h2>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-10">
-          {tContact('description')}
-        </p>
-        <Button variant="contained" color="primary" size="large" sx={{ borderRadius: 9999, px: 8, py: 2, fontWeight: 'bold' }}>
-          {tContact('button')}
-        </Button>
       </section>
 
       {/* Footer */}
