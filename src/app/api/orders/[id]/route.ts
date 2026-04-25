@@ -6,7 +6,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: '2025-02-24.acacia',
+  apiVersion: '2026-04-22.dahlia',
 });
 
 // Update an order's status (Admin only)
@@ -63,7 +63,7 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
           customer_email: order.customerDetails.email,
         });
 
-        stripeCheckoutUrl = stripeSession.url;
+        stripeCheckoutUrl = stripeSession.url ?? undefined;
         stripeSessionId = stripeSession.id;
       } catch (stripeErr: any) {
         console.error('Stripe error:', stripeErr);
