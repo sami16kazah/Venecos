@@ -29,12 +29,12 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div>
-        <h2 className="text-2xl font-bold text-venecos-gold mb-10 tracking-widest flex flex-col">
-          VENECOS
-          <span className="block text-xs font-light text-white/50 tracking-normal mt-1 border-t border-white/10 pt-1">
+        <div className="mb-10 flex flex-col">
+          <img src="/Venecos.png" alt="Venecos" className="h-14 md:h-16 w-auto object-contain self-start" />
+          <span className="block text-xs font-light text-white/50 tracking-normal mt-2 border-t border-white/10 pt-1">
             {role.toUpperCase()} PANEL
           </span>
-        </h2>
+        </div>
         
         <nav className="flex flex-col gap-1">
           <Link 
@@ -136,7 +136,9 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
         className="md:hidden flex items-center justify-between bg-venecos-black p-4 text-white sticky top-0 z-30 shadow-lg"
         dir={isRtl ? 'rtl' : 'ltr'}
       >
-        <div className="text-xl font-bold text-venecos-gold tracking-widest">VENECOS</div>
+        <div className="flex items-center">
+          <img src="/Venecos Logo.png" alt="Venecos" className="h-10 w-auto object-contain" />
+        </div>
         <IconButton onClick={() => setMobileOpen(true)} sx={{ color: '#D4AF37' }}>
           <MdMenu size={28} />
         </IconButton>

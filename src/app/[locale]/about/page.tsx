@@ -55,7 +55,9 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
 
       {/* Footer minimal */}
       <footer className="bg-venecos-black text-white/50 py-10 text-center border-t border-white/10 mt-auto">
-        <div className="text-xl font-extrabold text-white/20 tracking-widest">VENECOS</div>
+        <div className="flex justify-center">
+          <img src="/Venecos.png" alt="Venecos" className="h-16 md:h-20 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity" />
+        </div>
       </footer>
     </div>
   );

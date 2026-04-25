@@ -35,7 +35,10 @@ export default function HomeNavbar({ locale, locales, session }: HomeNavbarProps
 
   return (
     <nav className="w-full flex items-center justify-between p-6 shadow-sm bg-venecos-black text-venecos-white sticky top-0 z-50">
-      <div className="text-3xl font-extrabold text-venecos-gold tracking-wider">VENECOS</div>
+      <Link href={`/${locale}`} className="flex items-center shrink-0">
+        <img src="/Venecos Logo.png" alt="Venecos Icon" className="h-10 w-auto object-contain md:hidden" />
+        <img src="/Venecos.png" alt="Venecos" className="hidden md:block h-16 md:h-20 w-auto object-contain" />
+      </Link>
       
       {/* Desktop Navigation */}
       <div className="hidden md:flex gap-8 items-center text-base font-medium">
@@ -127,3 +130,4 @@ export default function HomeNavbar({ locale, locales, session }: HomeNavbarProps
     </nav>
   );
 }
+

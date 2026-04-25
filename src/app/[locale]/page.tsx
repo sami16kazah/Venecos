@@ -35,9 +35,12 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
 
       {/* Hero Section */}
       <main className="flex-grow flex flex-col items-center justify-center text-center px-6 py-20 md:py-32 bg-gradient-to-b from-venecos-black via-[#111] to-venecos-dark text-venecos-white relative overflow-hidden">
-        {/* Abstract shapes in background */}
+        {/* Abstract shapes and watermark in background */}
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-venecos-gold/5 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150%] md:w-[800px] opacity-[0.02] pointer-events-none mix-blend-overlay flex justify-center items-center">
+          <img src="/Venecos Logo.png" alt="Watermark" className="w-full h-auto object-contain grayscale" />
+        </div>
 
         <h1 className="text-5xl md:text-7xl font-extrabold mb-8 relative z-10 leading-tight tracking-tight">
           {t('title')}
@@ -120,7 +123,9 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
 
       {/* Footer */}
       <footer className="bg-venecos-black text-white/50 py-12 text-center border-t border-white/10">
-        <div className="text-2xl font-extrabold text-white/20 mb-4 tracking-widest">VENECOS</div>
+        <div className="flex justify-center mb-6">
+          <img src="/Venecos.png" alt="Venecos" className="h-16 md:h-20 w-auto object-contain opacity-60 hover:opacity-100 transition-opacity" />
+        </div>
         <p>{tFooter('copyright')}</p>
       </footer>
     </div>
