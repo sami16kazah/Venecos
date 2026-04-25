@@ -238,7 +238,10 @@
     "homePageChip": "Home Page",
     "deletePermanently": "Delete permanently",
     "untitledPackage": "Untitled Package",
-    "noDescProvided": "No description provided"
+    "noDescProvided": "No description provided",
+    "manageServices": "Manage Services",
+    "manageDesc": "Add, edit, or delete the services and packages offered on the platform.",
+    "save": "Save Changes"
   },
   "Order": {
     "backToPackages": "Back to Packages",

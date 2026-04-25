@@ -224,7 +224,7 @@
     "customUpload": "تحميل مخصص",
     "uploadHint": "انقر لتحميل صورة الأيقونة",
     "syncChanges": "مزامنة التعديلات",
-    "return": "العودة",
+    "return": "رجوع",
     "displayTitle": "عنوان العرض",
     "sortOrder": "ترتيب العرض",
     "publicDesc": "الوصف العام",
@@ -238,7 +238,10 @@
     "homePageChip": "الصفحة الرئيسية",
     "deletePermanently": "حذف نهائياً",
     "untitledPackage": "باقة بدون عنوان",
-    "noDescProvided": "لا يوجد وصف"
+    "noDescProvided": "لا يوجد وصف",
+    "manageServices": "إدارة الخدمات",
+    "manageDesc": "إضافة أو تعديل أو حذف الخدمات والباقات المقدمة على المنصة.",
+    "save": "حفظ التغييرات"
   },
   "Order": {
     "backToPackages": "العودة للباقات",

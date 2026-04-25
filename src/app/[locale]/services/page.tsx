@@ -7,6 +7,8 @@ import connectToDatabase from '@/lib/mongodb';
 import ServiceContent from '@/models/ServiceContent';
 import * as Icons from 'react-icons/fa';
 import Link from 'next/link';
+import JoinUsSection from '@/components/JoinUsSection';
+import CommonFooter from '@/components/CommonFooter';
 
 export default async function ServicesPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -74,12 +76,8 @@ export default async function ServicesPage({ params }: { params: Promise<{ local
         )}
       </main>
 
-      {/* Footer minimal */}
-      <footer className="bg-venecos-black text-white/50 py-10 text-center border-t border-white/10 mt-auto">
-        <div className="flex justify-center">
-          <img src="/Venecos Logo.png" alt="Venecos" className="h-10 w-auto object-contain opacity-60" />
-        </div>
-      </footer>
+      <JoinUsSection locale={locale} />
+      <CommonFooter />
     </div>
   );
 }

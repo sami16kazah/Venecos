@@ -4,37 +4,43 @@ const path = require('path');
 const locales = ['en', 'ar', 'de', 'fr'];
 const data = {
   en: {
-    Dashboard: {
-      "payNow": "Pay Now",
-      "paidStatus": "Paid",
-      "unpaidStatus": "Unpaid"
+    Settings: {
+      "manageServices": "Manage Services",
+      "manageDesc": "Add, edit, or delete the services and packages offered on the platform.",
+      "return": "Return",
+      "save": "Save Changes"
     }
   },
   ar: {
-    Dashboard: {
-      "payNow": "ادفع الآن",
-      "paidStatus": "تم الدفع",
-      "unpaidStatus": "لم يتم الدفع"
+    Settings: {
+      "manageServices": "إدارة الخدمات",
+      "manageDesc": "إضافة أو تعديل أو حذف الخدمات والباقات المقدمة على المنصة.",
+      "return": "رجوع",
+      "save": "حفظ التغييرات"
     }
   },
   fr: {
-    Dashboard: {
-      "payNow": "Payer maintenant",
-      "paidStatus": "Payé",
-      "unpaidStatus": "Non payé"
+    Settings: {
+      "manageServices": "Gérer les services",
+      "manageDesc": "Ajouter, modifier ou supprimer les services et forfaits proposés sur la plateforme.",
+      "return": "Retour",
+      "save": "Enregistrer les modifications"
     }
   },
   de: {
-    Dashboard: {
-      "payNow": "Jetzt bezahlen",
-      "paidStatus": "Bezahlt",
-      "unpaidStatus": "Unbezahlt"
+    Settings: {
+      "manageServices": "Dienste verwalten",
+      "manageDesc": "Hinzufügen, Bearbeiten oder Löschen der auf der Plattform angebotenen Dienste und Pakete.",
+      "return": "Zurück",
+      "save": "Änderungen speichern"
     }
   }
 };
 
 locales.forEach(loc => {
   const filePath = path.join(__dirname, 'messages', `${loc}.json`);
+  if (!fs.existsSync(filePath)) return;
+
   let fileContent = fs.readFileSync(filePath, 'utf8').trim();
   const lastBrace = fileContent.lastIndexOf('}');
   if (lastBrace !== fileContent.length - 1) {
@@ -42,10 +48,10 @@ locales.forEach(loc => {
   }
   
   let fileData = JSON.parse(fileContent);
-  if (!fileData.Dashboard) fileData.Dashboard = {};
-  Object.assign(fileData.Dashboard, data[loc].Dashboard);
+  if (!fileData.Settings) fileData.Settings = {};
+  Object.assign(fileData.Settings, data[loc].Settings);
   
   fs.writeFileSync(filePath, JSON.stringify(fileData, null, 2), 'utf8');
 });
 
-console.log("Translations updated with 'payNow' and status keys.");
+console.log("Settings translations successfully updated.");

@@ -238,7 +238,10 @@
     "homePageChip": "Page d'accueil",
     "deletePermanently": "Supprimer définitivement",
     "untitledPackage": "Forfait sans titre",
-    "noDescProvided": "Aucune description fournie"
+    "noDescProvided": "Aucune description fournie",
+    "manageServices": "Gérer les services",
+    "manageDesc": "Ajouter, modifier ou supprimer les services et forfaits proposés sur la plateforme.",
+    "save": "Enregistrer les modifications"
   },
   "Order": {
     "backToPackages": "Retour aux forfaits",

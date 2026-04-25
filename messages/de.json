@@ -238,7 +238,10 @@
     "homePageChip": "Startseite",
     "deletePermanently": "Dauerhaft löschen",
     "untitledPackage": "Unbenanntes Paket",
-    "noDescProvided": "Keine Beschreibung"
+    "noDescProvided": "Keine Beschreibung",
+    "manageServices": "Dienste verwalten",
+    "manageDesc": "Hinzufügen, Bearbeiten oder Löschen der auf der Plattform angebotenen Dienste und Pakete.",
+    "save": "Änderungen speichern"
   },
   "Order": {
     "backToPackages": "Zurück zu Paketen",
