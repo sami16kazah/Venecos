@@ -7,6 +7,11 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import SignOutButton from './SignOutButton';
 
+import { 
+  MdDashboard, MdGroup, MdDesignServices, MdAssignment, 
+  MdRecentActors, MdSettings, MdAssignmentInd, MdReceipt 
+} from 'react-icons/md';
+
 interface DashboardSidebarProps {
   locale: string;
   role: string;
@@ -20,8 +25,8 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
   // RTL for Arabic
   const isRtl = locale === 'ar';
   // Use logical border that flips with direction: border-s = left in LTR, right in RTL
-  const navLinkClass = "px-4 py-3 hover:bg-white/10 rounded-md transition-colors font-medium border-s-4 border-transparent hover:border-venecos-gold";
-  const navLinkActiveClass = `${navLinkClass} bg-white/5`;
+  const navLinkClass = "flex items-center gap-4 px-6 py-4 hover:bg-white/10 rounded-xl transition-all duration-300 font-bold border-s-4 border-transparent hover:border-venecos-gold text-sm tracking-wide";
+  const navLinkActiveClass = `${navLinkClass} bg-venecos-gold/10 text-venecos-gold border-venecos-gold`;
 
   const sidebarContent = (
     <div
@@ -36,12 +41,13 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
           </span>
         </div>
         
-        <nav className="flex flex-col gap-1">
+        <nav className="flex flex-col gap-2">
           <Link 
             href={`/${locale}/dashboard`} 
             onClick={() => setMobileOpen(false)}
             className={navLinkActiveClass}
           >
+            <MdDashboard size={20} style={{ marginInlineEnd: '16px' }} />
             {t('overview')}
           </Link>
 
@@ -52,13 +58,31 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
                 onClick={() => setMobileOpen(false)}
                 className={navLinkClass}
               >
+                <MdGroup size={20} style={{ marginInlineEnd: '16px' }} />
                 {t('manageUsers')}
+              </Link>
+              <Link
+                href={`/${locale}/dashboard/services`}
+                onClick={() => setMobileOpen(false)}
+                className={navLinkClass}
+              >
+                <MdDesignServices size={20} style={{ marginInlineEnd: '16px' }} />
+                {t('manageServices')}
+              </Link>
+              <Link
+                href={`/${locale}/dashboard/orders`}
+                onClick={() => setMobileOpen(false)}
+                className={navLinkClass}
+              >
+                <MdAssignment size={20} style={{ marginInlineEnd: '16px' }} />
+                {t('manageOrders')}
               </Link>
               <Link
                 href={`/${locale}/dashboard/applications`}
                 onClick={() => setMobileOpen(false)}
                 className={navLinkClass}
               >
+                <MdRecentActors size={20} style={{ marginInlineEnd: '16px' }} />
                 {t('applications')}
               </Link>
               <Link
@@ -66,7 +90,16 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
                 onClick={() => setMobileOpen(false)}
                 className={navLinkClass}
               >
+                <MdSettings size={20} style={{ marginInlineEnd: '16px' }} />
                 {t('platformSettings')}
+              </Link>
+              <Link
+                href={`/${locale}/dashboard/assigned-orders`}
+                onClick={() => setMobileOpen(false)}
+                className={navLinkClass}
+              >
+                <MdAssignmentInd size={20} style={{ marginInlineEnd: '16px' }} />
+                {t('myAssignments') || 'My Assignments'}
               </Link>
             </>
           )}
@@ -74,18 +107,12 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
           {role === 'employee' && (
             <>
               <Link
-                href={`/${locale}/dashboard/tasks`}
+                href={`/${locale}/dashboard/assigned-orders`}
                 onClick={() => setMobileOpen(false)}
                 className={navLinkClass}
               >
-                {t('assignedTasks')}
-              </Link>
-              <Link
-                href={`/${locale}/dashboard/messages`}
-                onClick={() => setMobileOpen(false)}
-                className={navLinkClass}
-              >
-                {t('messages')}
+                <MdAssignmentInd size={20} style={{ marginInlineEnd: '24px' }} />
+                {t('myAssignments') || 'My Assignments'}
               </Link>
             </>
           )}
@@ -97,6 +124,7 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
                 onClick={() => setMobileOpen(false)}
                 className={navLinkClass}
               >
+                <MdAssignment size={20} style={{ marginInlineEnd: '24px' }} />
                 {t('myOrders')}
               </Link>
               <Link
@@ -104,6 +132,7 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
                 onClick={() => setMobileOpen(false)}
                 className={navLinkClass}
               >
+                <MdReceipt size={20} style={{ marginInlineEnd: '24px' }} />
                 {t('invoices')}
               </Link>
             </>
@@ -145,7 +174,7 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
       </div>
 
       {/* Desktop Sidebar */}
-      <aside className={`hidden md:flex w-64 fixed inset-y-0 ${sidebarPosition} z-20`}>
+      <aside className={`hidden md:flex w-72 min-w-[288px] fixed inset-y-0 ${sidebarPosition} z-20 shadow-2xl`}>
         {sidebarContent}
       </aside>
 

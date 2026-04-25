@@ -33,7 +33,15 @@
     "ui_design": "UI Design",
     "ui_designDesc": "Premium UI/UX design with a focus on modern aesthetics, user centric approaches, and responsive layouts tailored to your brand.",
     "video_design": "Video Design",
-    "video_designDesc": "High-quality video production, motion graphics, and post-processing editing to captivate your audience visually."
+    "video_designDesc": "High-quality video production, motion graphics, and post-processing editing to captivate your audience visually.",
+    "featured": "Featured",
+    "allServices": "All Services",
+    "viewPackages": "View Packages →",
+    "noServices": "No services found for this locale yet.",
+    "serviceNotFound": "Service not found.",
+    "availablePackages": "Available Packages",
+    "noPackages": "No specific packages have been listed for this service yet. Stay tuned!",
+    "orderNow": "Order Now"
   },
   "Contact": {
     "title": "Join Us",
@@ -78,7 +86,9 @@
     "dashboard": "Dashboard",
     "overview": "Overview",
     "manageUsers": "Manage Users",
+    "manageServices": "Manage Services",
     "platformSettings": "Platform Settings",
+    "manageOrders": "Manage Orders",
     "assignedTasks": "Assigned Tasks",
     "messages": "Messages",
     "myOrders": "My Orders",
@@ -96,7 +106,24 @@
     "clientDesc": "Track your ongoing projects, download invoices, and manage your applications.",
     "backToHome": "Back to Home",
     "home": "Home",
-    "applications": "Applications"
+    "applications": "Applications",
+    "myAssignments": "My Assignments",
+    "noOrdersFound": "No orders have been placed yet.",
+    "customerDetails": "Customer Details",
+    "acceptOrder": "Accept & Assign",
+    "rejectOrder": "Reject Order",
+    "paidStatus": "Paid",
+    "unpaidStatus": "Unpaid",
+    "rejectedStatus": "Rejected",
+    "manageOrdersDesc": "Accept, reject, and monitor customer service requests.",
+    "adminMode": "Administrator Mode",
+    "chat": "Chat",
+    "invoiceNumber": "Invoice Number",
+    "amountPaid": "Amount Paid",
+    "paymentDate": "Payment Date",
+    "service": "Service",
+    "noInvoices": "No paid invoices found.",
+    "payNow": "Pay Now"
   },
   "JoinUs": {
     "title": "Join Our Team",
@@ -200,6 +227,47 @@
     "return": "Return",
     "displayTitle": "Display Title",
     "sortOrder": "Sort Order",
-    "publicDesc": "Public Description"
+    "publicDesc": "Public Description",
+    "subServicesConfig": "Sub-Services Configuration",
+    "addSubService": "+ Add Sub-Service",
+    "noSubServices": "No sub-services appended. Clicking a service on the public site will result in an empty list.",
+    "subServiceTitle": "Sub-Service Title",
+    "subServicePrice": "Price ($)",
+    "subServiceDesc": "Sub-Service Description",
+    "specialService": "Special Service (Show on Home Page)",
+    "homePageChip": "Home Page",
+    "deletePermanently": "Delete permanently",
+    "untitledPackage": "Untitled Package",
+    "noDescProvided": "No description provided"
+  },
+  "Order": {
+    "backToPackages": "Back to Packages",
+    "totalFee": "Total Fee",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "requirements": "Project Requirements & Details",
+    "requirementsPlaceholder": "Tell us everything we need to know to get started...",
+    "submitRequest": "Submit Request",
+    "submitting": "Submitting...",
+    "noChargeWarning": "You won't be charged until we review and accept your order.",
+    "requestReceived": "Request Received!",
+    "requestReceivedDesc": "We've logged your request for {package}. Our team will review your requirements. You will receive a notification and a payment link in your dashboard shortly.",
+    "goToDashboard": "Go to My Dashboard",
+    "errorLoading": "Failed to fetch pricing information.",
+    "subNotFound": "The specific sub-service could not be found.",
+    "mainNotFound": "The main service could not be found."
+  },
+  "Chat": {
+    "orderChat": "Order Chat",
+    "completePayment": "Complete Payment",
+    "typeMessage": "Type your message...",
+    "paySent": "Here is your payment link. You can proceed with the checkout whenever you are ready."
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "noNotifications": "All caught up!",
+    "markAllRead": "Mark all as read"
   }
 }

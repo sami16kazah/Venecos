@@ -6,9 +6,9 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
 // Seed default services natively mapped 
 const defaultServices = [
-  { title: "Coding", description: "Expert web and mobile development using cutting edge technologies. Build scalable, high-performance applications.", iconName: "FaCode", order: 1 },
-  { title: "UI Design", description: "Premium UI/UX design focused on modern aesthetics, user-centric approaches, and responsive layouts tailored to your brand.", iconName: "FaPaintBrush", order: 2 },
-  { title: "Video Design", description: "High-quality video production, motion graphics, and post-production editing to visually captivate your audience.", iconName: "FaVideo", order: 3 }
+  { title: "Coding", description: "Expert web and mobile development using cutting edge technologies. Build scalable, high-performance applications.", iconName: "FaCode", order: 1, isSpecial: true },
+  { title: "UI Design", description: "Premium UI/UX design focused on modern aesthetics, user-centric approaches, and responsive layouts tailored to your brand.", iconName: "FaPaintBrush", order: 2, isSpecial: true },
+  { title: "Video Design", description: "High-quality video production, motion graphics, and post-production editing to visually captivate your audience.", iconName: "FaVideo", order: 3, isSpecial: true }
 ];
 
 export async function GET(req: Request) {
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    const { locale, title, description, iconType, iconName, iconUrl, order } = await req.json();
+    const { locale, title, description, iconType, iconName, iconUrl, order, isSpecial, subServices } = await req.json();
 
     if (!locale || !title || !description || (!iconName && !iconUrl)) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
@@ -57,7 +57,9 @@ export async function POST(req: Request) {
       iconType: iconType || 'react-icon', 
       iconName, 
       iconUrl, 
-      order: order || 0 
+      order: order || 0,
+      isSpecial: !!isSpecial,
+      subServices: subServices || []
     });
 
     return NextResponse.json({ message: 'Service created successfully', data: newService }, { status: 201 });
@@ -73,13 +75,13 @@ export async function PUT(req: Request) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    const { _id, title, description, iconType, iconName, iconUrl, order } = await req.json();
+    const { _id, title, description, iconType, iconName, iconUrl, order, isSpecial, subServices } = await req.json();
     if (!_id) return NextResponse.json({ message: 'ID required' }, { status: 400 });
 
     await connectToDatabase();
     const updated = await ServiceContent.findByIdAndUpdate(
       _id,
-      { title, description, iconType, iconName, iconUrl, order },
+      { title, description, iconType, iconName, iconUrl, order, isSpecial: !!isSpecial, subServices: subServices || [] },
       { new: true }
     );
 

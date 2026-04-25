@@ -23,7 +23,7 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
   const session = await getServerSession(authOptions);
 
   await connectToDatabase();
-  const services = await ServiceContent.find({ locale }).sort({ order: 1 }).lean();
+  const services = await ServiceContent.find({ locale, isSpecial: true }).sort({ order: 1 }).lean();
 
   return (
     <div className="min-h-screen flex flex-col font-sans">
@@ -49,9 +49,16 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
           {t('description')}
         </p>
         <div className="flex flex-col sm:flex-row gap-6 relative z-10">
-          <Button variant="contained" color="primary" size="large" sx={{ borderRadius: 9999, px: 6, py: 1.5, fontWeight: 'bold' }}>
-            {t('getStarted')}
-          </Button>
+          <Link href="#services" passHref>
+            <Button 
+                variant="contained" 
+                color="primary" 
+                size="large" 
+                sx={{ borderRadius: 9999, px: 6, py: 1.5, fontWeight: 'bold' }}
+            >
+                {t('getStarted')}
+            </Button>
+          </Link>
           <Link href={`/${locale}/about`} passHref>
             <Button variant="outlined" color="inherit" size="large" sx={{ borderRadius: 9999, px: 6, py: 1.5, fontWeight: 'bold', borderColor: 'white', '&:hover': { background: 'rgba(255,255,255,0.1)' } }}>
               {t('learnMore')}
@@ -71,7 +78,11 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
           {services.map((svc: any) => {
             const GenericIcon = (Icons as any)[svc.iconName] || Icons.FaCode;
             return (
-              <div key={svc._id.toString()} className="bg-white border rounded-2xl p-6 md:p-10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-gray-100 group relative overflow-hidden">
+              <Link 
+                key={svc._id.toString()} 
+                href={`/${locale}/services/${svc._id}`}
+                className="bg-white border rounded-2xl p-6 md:p-10 shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border-gray-100 group relative overflow-hidden block"
+              >
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-venecos-gold/20 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="w-16 h-16 rounded-2xl bg-black/5 flex items-center justify-center text-venecos-black mb-8 group-hover:bg-venecos-gold group-hover:text-white transition-colors duration-300 group-hover:shadow-[0_0_20px_rgba(212,175,55,0.4)] overflow-hidden">
                   {svc.iconType === 'image' && svc.iconUrl ? (
@@ -84,10 +95,10 @@ export default async function HomePage({params}: {params: Promise<{locale: strin
                 <p className="text-gray-600 mb-8 pb-6 border-b border-gray-100 leading-relaxed min-h-[80px]">
                   {svc.description}
                 </p>
-                <Button variant="text" size="large" sx={{ color: '#0A0A0A', fontWeight: 700, p: 0, '&:hover': { color: '#D4AF37', background: 'transparent' } }}>
-                  {t('learnMore')} →
-                </Button>
-              </div>
+                <div className="text-[#0A0A0A] font-bold group-hover:text-venecos-gold transition-colors inline-flex items-center gap-2">
+                  {t('learnMore')} <Icons.FaChevronRight size={12} />
+                </div>
+              </Link>
             );
           })}
         </div>

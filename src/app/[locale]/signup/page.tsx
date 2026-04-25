@@ -134,6 +134,9 @@ function SignUpForm({ status, locale }: { status: string, locale: string }) {
         ))}
       </div>
       <div className="bg-white max-w-2xl w-full p-6 sm:p-12 rounded-2xl shadow-xl border border-gray-100 mt-16 sm:mt-0 relative z-0">
+        <div className="flex justify-center mb-6">
+          <img src="/Venecos Logo.png" alt="Venecos" className="h-10 w-auto object-contain" />
+        </div>
         <h1 className="text-3xl font-extrabold text-venecos-black mb-2 text-center">{tAuth('signUpTitle')}</h1>
         <p className="text-center text-gray-500 mb-8">{tAuth('signUpDesc')}</p>
         

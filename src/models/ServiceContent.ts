@@ -1,5 +1,12 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+export interface ISubService {
+  _id?: string;
+  title: string;
+  description: string;
+  price: number;
+}
+
 export interface IServiceContent extends Document {
   locale: string;
   title: string;
@@ -8,6 +15,8 @@ export interface IServiceContent extends Document {
   iconName?: string;
   iconUrl?: string;
   order: number;
+  isSpecial: boolean;
+  subServices: ISubService[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,7 +28,13 @@ const ServiceContentSchema: Schema = new Schema({
   iconType: { type: String, enum: ['react-icon', 'image'], default: 'react-icon' },
   iconName: { type: String },
   iconUrl: { type: String },
-  order: { type: Number, default: 0 }
+  order: { type: Number, default: 0 },
+  isSpecial: { type: Boolean, default: false },
+  subServices: [{
+    title: { type: String, required: true },
+    description: { type: String, required: true },
+    price: { type: Number, required: true }
+  }]
 }, {
   timestamps: true
 });

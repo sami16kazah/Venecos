@@ -70,6 +70,9 @@ function SignInForm({ status, locale }: { status: string, locale: string }) {
         ))}
       </div>
       <div className="bg-white max-w-md w-full p-6 md:p-8 rounded-2xl shadow-xl border border-gray-100 mt-16 sm:mt-0 relative z-0">
+        <div className="flex justify-center mb-6">
+          <img src="/Venecos Logo.png" alt="Venecos" className="h-10 w-auto object-contain" />
+        </div>
         <h1 className="text-3xl font-extrabold text-venecos-black mb-2 text-center">{tAuth('signInTitle')}</h1>
         <p className="text-center text-gray-500 mb-8">{tAuth('signInDesc')}</p>
         

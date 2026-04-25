@@ -33,7 +33,15 @@
     "ui_design": "تصميم الواجهات",
     "ui_designDesc": "تصميم UI/UX مميز مع التركيز على الجماليات الحديثة والنهج الموجه نحو المستخدم والتخطيطات المتجاوبة المصممة خصيصًا لعلامتك التجارية.",
     "video_design": "تصميم الفيديو",
-    "video_designDesc": "إنتاج فيديو عالي الجودة، ورسومات متحركة، ومونتاج لجذب جمهورك بصريًا."
+    "video_designDesc": "إنتاج فيديو عالي الجودة، ورسومات متحركة، ومونتاج لجذب جمهورك بصريًا.",
+    "featured": "مميز",
+    "allServices": "جميع الخدمات",
+    "viewPackages": "عرض الباقات ←",
+    "noServices": "لم يتم العثور على خدمات حتى الآن.",
+    "serviceNotFound": "الخدمة غير موجودة.",
+    "availablePackages": "الباقات المتاحة",
+    "noPackages": "لم يتم إدراج باقات محددة لهذه الخدمة بعد. ابق على تواصل!",
+    "orderNow": "اطلب الآن"
   },
   "Contact": {
     "title": "انضم إلينا",
@@ -78,7 +86,9 @@
     "dashboard": "لوحة التحكم",
     "overview": "نظرة عامة",
     "manageUsers": "إدارة المستخدمين",
+    "manageServices": "إدارة الخدمات",
     "platformSettings": "إعدادات المنصة",
+    "manageOrders": "إدارة الطلبات",
     "assignedTasks": "المهام المعينة",
     "messages": "الرسائل",
     "myOrders": "طلباتي",
@@ -96,7 +106,24 @@
     "clientDesc": "تتبع مشاريعك الجارية، وتحميل الفواتير، وإدارة طلباتك.",
     "backToHome": "العودة للرئيسية",
     "home": "الرئيسية",
-    "applications": "الطلبات"
+    "applications": "الطلبات",
+    "myAssignments": "طلباتي المكلف بها",
+    "noOrdersFound": "لم يتم تقديم أي طلبات بعد.",
+    "customerDetails": "تفاصيل العميل",
+    "acceptOrder": "قبول وتكليف",
+    "rejectOrder": "رفض الطلب",
+    "paidStatus": "تم الدفع",
+    "unpaidStatus": "لم يتم الدفع",
+    "rejectedStatus": "مرفوض",
+    "manageOrdersDesc": "قبول أو رفض ومراقبة طلبات خدمة العملاء.",
+    "adminMode": "وضع المسؤول",
+    "chat": "الدردشة",
+    "invoiceNumber": "رقم الفاتورة",
+    "amountPaid": "المبلغ المدفوع",
+    "paymentDate": "تاريخ الدفع",
+    "service": "الخدمة",
+    "noInvoices": "لا توجد فواتير مدفوعة.",
+    "payNow": "ادفع الآن"
   },
   "JoinUs": {
     "title": "انضم إلى فريقنا",
@@ -200,6 +227,47 @@
     "return": "العودة",
     "displayTitle": "عنوان العرض",
     "sortOrder": "ترتيب العرض",
-    "publicDesc": "الوصف العام"
+    "publicDesc": "الوصف العام",
+    "subServicesConfig": "إعدادات الباقات الفرعية",
+    "addSubService": "+ إضافة باقة",
+    "noSubServices": "لم يتم إرفاق باقات. النقر سيظهر قائمة فارغة للعميل.",
+    "subServiceTitle": "عنوان الباقة",
+    "subServicePrice": "السعر ($)",
+    "subServiceDesc": "توصيف الباقة",
+    "specialService": "خدمة خاصة (عرض على الصفحة الرئيسية)",
+    "homePageChip": "الصفحة الرئيسية",
+    "deletePermanently": "حذف نهائياً",
+    "untitledPackage": "باقة بدون عنوان",
+    "noDescProvided": "لا يوجد وصف"
+  },
+  "Order": {
+    "backToPackages": "العودة للباقات",
+    "totalFee": "إجمالي الرسوم",
+    "firstName": "الاسم الأول",
+    "lastName": "الاسم الأخير",
+    "email": "البريد الإلكتروني",
+    "phone": "رقم الهاتف",
+    "requirements": "متطلبات المشروع والتفاصيل",
+    "requirementsPlaceholder": "أخبرنا بكل ما نحتاج لمعرفته للبدء...",
+    "submitRequest": "إرسال الطلب",
+    "submitting": "جاري الإرسال...",
+    "noChargeWarning": "لن يتم تحصيل أي مبالغ حتى نراجع ونقبل طلبك.",
+    "requestReceived": "تم استلام الطلب!",
+    "requestReceivedDesc": "لقد سجلنا طلبك لـ {package}. سيقوم فريقنا بمراجعة متطلباتك. ستتلقى إشعارًا ورابط دفع في لوحة التحكم الخاصة بك قريبًا.",
+    "goToDashboard": "الذهاب للوحة التحكم",
+    "errorLoading": "فشل في جلب معلومات الأسعار.",
+    "subNotFound": "تعذر العثور على الباقة الفرعية المحددة.",
+    "mainNotFound": "تعذر العثور على الخدمة الرئيسية."
+  },
+  "Chat": {
+    "orderChat": "دردشة الطلب",
+    "completePayment": "إكمال الدفع",
+    "typeMessage": "اكتب رسالتك...",
+    "paySent": "إليك رابط الدفع. يمكنك المتابعة لإتمام عملية الشراء عندما تكون مستعدًا."
+  },
+  "Notifications": {
+    "title": "التنبيهات",
+    "noNotifications": "لا توجد تنبيهات جديدة!",
+    "markAllRead": "تحديد الكل كمقروء"
   }
 }

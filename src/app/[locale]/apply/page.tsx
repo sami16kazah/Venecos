@@ -189,7 +189,8 @@ export default function ApplyPage() {
           <MdArrowBack size={18} />
           {t('backHome')}
         </Link>
-        <div className="bg-venecos-gold/10 border border-venecos-gold/20 rounded-2xl p-8 text-center">
+        <div className="bg-venecos-gold/10 border border-venecos-gold/20 rounded-2xl p-8 text-center flex flex-col items-center">
+          <img src="/Venecos Logo.png" alt="Venecos" className="h-12 w-auto object-contain mb-4" />
           <h1 className="text-3xl md:text-4xl font-extrabold text-venecos-black mb-2">{t('title')}</h1>
           <p className="text-gray-500 text-lg">{t('subtitle')}</p>
         </div>

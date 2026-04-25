@@ -33,7 +33,15 @@
     "ui_design": "UI-Design",
     "ui_designDesc": "Premium UI/UX-Design mit Fokus auf moderne Ästhetik, nutzerzentrierte Ansätze und reaktionsschnelle Layouts, zugeschnitten auf Ihre Marke.",
     "video_design": "Videodesign",
-    "video_designDesc": "Hochwertige Videoproduktion, Motion Graphics und Nachbearbeitung, um Ihr Publikum visuell zu fesseln."
+    "video_designDesc": "Hochwertige Videoproduktion, Motion Graphics und Nachbearbeitung, um Ihr Publikum visuell zu fesseln.",
+    "featured": "Hervorgehoben",
+    "allServices": "Alle Dienste",
+    "viewPackages": "Pakete anzeigen →",
+    "noServices": "Noch keine Dienste gefunden.",
+    "serviceNotFound": "Dienst nicht gefunden.",
+    "availablePackages": "Verfügbare Pakete",
+    "noPackages": "Für diesen Dienst wurden anscheinend noch keine speziellen Pakete aufgeführt.",
+    "orderNow": "Jetzt bestellen"
   },
   "Contact": {
     "title": "Mach mit",
@@ -78,7 +86,9 @@
     "dashboard": "Dashboard",
     "overview": "Übersicht",
     "manageUsers": "Benutzer verwalten",
+    "manageServices": "Dienste verwalten",
     "platformSettings": "Systemeinstellungen",
+    "manageOrders": "Bestellungen verwalten",
     "assignedTasks": "Zugewiesene Aufgaben",
     "messages": "Nachrichten",
     "myOrders": "Meine Bestellungen",
@@ -96,7 +106,24 @@
     "clientDesc": "Verfolgen Sie Ihre laufenden Projekte, laden Sie Rechnungen herunter und verwalten Sie Ihre Bewerbungen.",
     "backToHome": "Zurück zur Startseite",
     "home": "Home",
-    "applications": "Bewerbungen"
+    "applications": "Bewerbungen",
+    "myAssignments": "Meine Aufgaben",
+    "noOrdersFound": "Es wurden noch keine Bestellungen aufgegeben.",
+    "customerDetails": "Kundendetails",
+    "acceptOrder": "Annehmen & Zuweisen",
+    "rejectOrder": "Bestellung ablehnen",
+    "paidStatus": "Bezahlt",
+    "unpaidStatus": "Unbezahlt",
+    "rejectedStatus": "Abgelehnt",
+    "manageOrdersDesc": "Kundenserviceanfragen annehmen, ablehnen und überwachen.",
+    "adminMode": "Administrator Modus",
+    "chat": "Chat",
+    "invoiceNumber": "Rechnungsnummer",
+    "amountPaid": "Gezahlter Betrag",
+    "paymentDate": "Zahlungsdatum",
+    "service": "Dienstleistung",
+    "noInvoices": "Keine bezahlten Rechnungen gefunden.",
+    "payNow": "Jetzt bezahlen"
   },
   "JoinUs": {
     "title": "Treten Sie Unserem Team Bei",
@@ -200,6 +227,47 @@
     "return": "Zurück",
     "displayTitle": "Anzeigetitel",
     "sortOrder": "Sortierreihenfolge",
-    "publicDesc": "Öffentliche Beschreibung"
+    "publicDesc": "Öffentliche Beschreibung",
+    "subServicesConfig": "Unterdienste / Pakete",
+    "addSubService": "+ Paket hinzufügen",
+    "noSubServices": "Keine Pakete hinzugefügt.",
+    "subServiceTitle": "Paket Name",
+    "subServicePrice": "Preis ($)",
+    "subServiceDesc": "Beschreibung",
+    "specialService": "Besonderer Service (Auf der Startseite anzeigen)",
+    "homePageChip": "Startseite",
+    "deletePermanently": "Dauerhaft löschen",
+    "untitledPackage": "Unbenanntes Paket",
+    "noDescProvided": "Keine Beschreibung"
+  },
+  "Order": {
+    "backToPackages": "Zurück zu Paketen",
+    "totalFee": "Gesamtgebühr",
+    "firstName": "Vorname",
+    "lastName": "Nachname",
+    "email": "E-Mail-Adresse",
+    "phone": "Telefonnummer",
+    "requirements": "Projektanforderungen & Details",
+    "requirementsPlaceholder": "Teilen Sie uns alles mit, was wir wissen müssen, um loszulegen...",
+    "submitRequest": "Anfrage einreichen",
+    "submitting": "Wird eingereicht...",
+    "noChargeWarning": "Es werden keine Gebühren berechnet, bis wir Ihre Bestellung prüfen und annehmen.",
+    "requestReceived": "Anfrage erhalten!",
+    "requestReceivedDesc": "Wir haben Ihre Anfrage für {package} protokolliert. Unser Team wird Ihre Anforderungen prüfen. Sie erhalten in Kürze eine Benachrichtigung und einen Zahlungslink auf Ihrem Dashboard.",
+    "goToDashboard": "Zu meinem Dashboard",
+    "errorLoading": "Fehler beim Abrufen der Preisinformationen.",
+    "subNotFound": "Der spezifische Unterdienst wurde nicht gefunden.",
+    "mainNotFound": "Der Hauptdienst wurde nicht gefunden."
+  },
+  "Chat": {
+    "orderChat": "Bestell-Chat",
+    "completePayment": "Zahlung abschließen",
+    "typeMessage": "Schreiben Sie eine Nachricht...",
+    "paySent": "Hier ist Ihr Zahlungslink. Sie können mit dem Checkout fortfahren, wenn Sie bereit sind."
+  },
+  "Notifications": {
+    "title": "Benachrichtigungen",
+    "noNotifications": "Alles erledigt!",
+    "markAllRead": "Alle als gelesen markieren"
   }
 }

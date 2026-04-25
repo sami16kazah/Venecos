@@ -33,7 +33,15 @@
     "ui_design": "Design UI",
     "ui_designDesc": "Design UI/UX premium axé sur l'esthétique moderne et des mises en page réactives adaptées à votre marque.",
     "video_design": "Montage Vidéo",
-    "video_designDesc": "Production vidéo de haute qualité, animations graphiques et montage post-production pour captiver visuellement votre public."
+    "video_designDesc": "Production vidéo de haute qualité, animations graphiques et montage post-production pour captiver visuellement votre public.",
+    "featured": "En vedette",
+    "allServices": "Tous les services",
+    "viewPackages": "Voir les forfaits →",
+    "noServices": "Aucun service trouvé pour le moment.",
+    "serviceNotFound": "Service non trouvé.",
+    "availablePackages": "Forfaits disponibles",
+    "noPackages": "Aucun forfait n'a encore été listé pour ce service. Restez à l'écoute!",
+    "orderNow": "Commander"
   },
   "Contact": {
     "title": "Rejoignez-nous",
@@ -78,7 +86,9 @@
     "dashboard": "Tableau de bord",
     "overview": "Aperçu",
     "manageUsers": "Gérer les utilisateurs",
+    "manageServices": "Gérer les services",
     "platformSettings": "Paramètres",
+    "manageOrders": "Gérer les commandes",
     "assignedTasks": "Tâches assignées",
     "messages": "Messages",
     "myOrders": "Mes Commandes",
@@ -96,7 +106,24 @@
     "clientDesc": "Suivez vos projets en cours, téléchargez des factures et gérez vos applications.",
     "backToHome": "Retour à l'accueil",
     "home": "Accueil",
-    "applications": "Candidatures"
+    "applications": "Candidatures",
+    "myAssignments": "Mes Missions",
+    "noOrdersFound": "Aucune commande n'a encore été passée.",
+    "customerDetails": "Détails du Client",
+    "acceptOrder": "Accepter & Assigner",
+    "rejectOrder": "Rejeter la commande",
+    "paidStatus": "Payé",
+    "unpaidStatus": "Non payé",
+    "rejectedStatus": "Rejeté",
+    "manageOrdersDesc": "Accepter, rejeter et surveiller les demandes de service client.",
+    "adminMode": "Mode Administrateur",
+    "chat": "Chat",
+    "invoiceNumber": "Numéro de facture",
+    "amountPaid": "Montant payé",
+    "paymentDate": "Date de paiement",
+    "service": "Service",
+    "noInvoices": "Aucune facture payée trouvée.",
+    "payNow": "Payer maintenant"
   },
   "JoinUs": {
     "title": "Rejoignez Notre Équipe",
@@ -199,7 +226,48 @@
     "syncChanges": "Synchroniser les Changements",
     "return": "Retour",
     "displayTitle": "Titre d'Affichage",
-    "sortOrder": "Ordre de Tri",
-    "publicDesc": "Description Publique"
+    "sortOrder": "Ordre de tri",
+    "publicDesc": "Description publique",
+    "subServicesConfig": "Configuration des sous-services",
+    "addSubService": "+ Ajouter Inscription",
+    "noSubServices": "Aucun sous-service rattaché.",
+    "subServiceTitle": "Titre du sous-service",
+    "subServicePrice": "Prix ($)",
+    "subServiceDesc": "Description du forfait",
+    "specialService": "Service spécial (Afficher sur la page d'accueil)",
+    "homePageChip": "Page d'accueil",
+    "deletePermanently": "Supprimer définitivement",
+    "untitledPackage": "Forfait sans titre",
+    "noDescProvided": "Aucune description fournie"
+  },
+  "Order": {
+    "backToPackages": "Retour aux forfaits",
+    "totalFee": "Frais totaux",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Adresse e-mail",
+    "phone": "Numéro de téléphone",
+    "requirements": "Exigences du projet & détails",
+    "requirementsPlaceholder": "Dites-nous tout ce que nous devons savoir pour commencer...",
+    "submitRequest": "Soumettre la demande",
+    "submitting": "Soumission...",
+    "noChargeWarning": "Vous ne serez pas facturé avant que nous n'examinions et n'acceptions votre commande.",
+    "requestReceived": "Demande reçue!",
+    "requestReceivedDesc": "Nous avons enregistré votre demande pour {package}. Notre équipe examinera vos exigences. Vous recevrez une notification et un lien de paiement sur votre tableau de bord sous peu.",
+    "goToDashboard": "Aller à mon tableau de bord",
+    "errorLoading": "Échec de la récupération des informations de tarification.",
+    "subNotFound": "Le sous-service spécifique n'a pas pu être trouvé.",
+    "mainNotFound": "Le service principal n'a pas pu être trouvé."
+  },
+  "Chat": {
+    "orderChat": "Chat de commande",
+    "completePayment": "Finaliser le paiement",
+    "typeMessage": "Tapez votre message...",
+    "paySent": "Voici votre lien de paiement. Vous pouvez procéder au paiement quand vous serez prêt."
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "noNotifications": "Tout est à jour !",
+    "markAllRead": "Tout marquer comme lu"
   }
 }

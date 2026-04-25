@@ -6,6 +6,7 @@ import { getTranslations } from "next-intl/server";
 import SignOutButton from "@/components/SignOutButton";
 import DashboardSidebar from "@/components/DashboardSidebar";
 import DashboardLanguageSwitcher from "@/components/DashboardLanguageSwitcher";
+import NotificationBell from "@/components/NotificationBell";
 
 export default async function DashboardLayout({
   children,
@@ -35,7 +36,7 @@ export default async function DashboardLayout({
       />
 
       {/* Main Content */}
-      <main className={`flex-1 ${isRtl ? 'md:mr-64' : 'md:ml-64'} p-4 md:p-10 overflow-y-auto relative w-full`}>
+      <main className={`flex-1 ${isRtl ? 'md:mr-72' : 'md:ml-72'} p-4 md:p-10 overflow-y-auto relative w-full`}>
         {/* Header - Adaptive for mobile */}
         <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-10 border-b border-gray-200 pb-6 gap-4 mt-6 md:mt-0">
           <div className="flex flex-col">
@@ -44,8 +45,11 @@ export default async function DashboardLayout({
           </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-6 w-full lg:w-auto">
-            {/* Language Switcher - Responsive Grid */}
-            <DashboardLanguageSwitcher currentLocale={locale} />
+            {/* Notifications & Language */}
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+               <NotificationBell />
+               <DashboardLanguageSwitcher currentLocale={locale} />
+            </div>
 
             {/* Profile & SignOut */}
             <div className="flex items-center gap-3 md:gap-4 bg-white px-4 py-2 rounded-2xl shadow-sm border border-gray-100 w-full sm:w-auto justify-between sm:justify-start">

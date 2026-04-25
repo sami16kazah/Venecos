@@ -29,7 +29,7 @@ export default function HomeNavbar({ locale, locales, session }: HomeNavbarProps
 
   const navLinks = [
     { label: tNav('home'), href: `/${locale}` },
-    { label: tNav('services'), href: '#services' },
+    { label: tNav('services'), href: `/${locale}/services` },
     { label: tNav('join'), href: '#join' },
   ];
 
