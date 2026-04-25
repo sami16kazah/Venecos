@@ -5,7 +5,8 @@ import { useTranslations } from 'next-intl';
 import { useSession } from 'next-auth/react';
 import { 
   Box, Typography, CircularProgress, Card, CardContent, 
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip 
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip,
+  Tooltip, IconButton
 } from '@mui/material';
 import { MdReceipt, MdCheckCircle, MdDownload } from 'react-icons/md';
 
