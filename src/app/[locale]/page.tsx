@@ -29,12 +29,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     console.error('Database connection / seed error:', err);
   }
 
-  // Fetch dynamic DB collections for homepage
-  const slidersRaw = await Slider.find({ active: true }).sort({ order: 1 }).lean();
-  const offersRaw = await Offer.find({ active: true }).lean();
-  const galleryRaw = await Gallery.find({ active: true }).lean();
-  const branchesRaw = await Branch.find({ status: 'active' }).lean();
-  const servicesRaw = await ServiceContent.find({ locale, isSpecial: true }).sort({ order: 1 }).lean();
+  // Fetch dynamic DB collections without overly strict filters
+  let slidersRaw = await Slider.find({}).sort({ order: 1 }).lean();
+  let offersRaw = await Offer.find({}).lean();
+  let galleryRaw = await Gallery.find({}).lean();
+  let branchesRaw = await Branch.find({}).lean();
+  let servicesRaw = await ServiceContent.find({}).sort({ order: 1 }).lean();
 
   const sliders = JSON.parse(JSON.stringify(slidersRaw));
   const offers = JSON.parse(JSON.stringify(offersRaw));
