@@ -22,8 +22,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
   const tJoinUs = await getTranslations({ locale, namespace: 'JoinUs' });
   const session = await getServerSession(authOptions);
 
-  await connectToDatabase();
-  await seedDatabase();
+  try {
+    await connectToDatabase();
+    await seedDatabase();
+  } catch (err) {
+    console.error('Database connection / seed error:', err);
+  }
 
   // Fetch dynamic DB collections for homepage
   const slidersRaw = await Slider.find({ active: true }).sort({ order: 1 }).lean();

@@ -2,18 +2,17 @@
 
 import { useState } from 'react';
 import { Drawer, IconButton } from '@mui/material';
-import { MdMenu, MdClose } from 'react-icons/md';
+import { 
+  MdMenu, MdClose, MdDashboard, MdGroup, MdDesignServices, 
+  MdAssignment, MdRecentActors, MdSettings, MdAssignmentInd, 
+  MdReceipt, MdSlideshow, MdLocalOffer, MdPhotoLibrary, 
+  MdSupervisorAccount, MdAdminPanelSettings, MdAccountTree, 
+  MdCurrencyExchange, MdLocationOn, MdDescription, MdGavel, 
+  MdExpandMore, MdChevronLeft, MdLaptop, MdPalette, MdPrint, MdStar
+} from 'react-icons/md';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-
-import { 
-  MdDashboard, MdGroup, MdDesignServices, MdAssignment, 
-  MdRecentActors, MdSettings, MdAssignmentInd, MdReceipt,
-  MdSlideshow, MdLocalOffer, MdPhotoLibrary, MdSupervisorAccount,
-  MdBadge, MdAdminPanelSettings, MdPeople, MdAccountTree,
-  MdCurrencyExchange, MdLocationOn, MdDescription, MdGavel, MdWork
-} from 'react-icons/md';
 
 interface DashboardSidebarProps {
   locale: string;
@@ -23,13 +22,15 @@ interface DashboardSidebarProps {
 
 export default function DashboardSidebar({ locale, role, userName }: DashboardSidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [servicesDropOpen, setServicesDropOpen] = useState(true);
+  const [activeCategory, setActiveCategory] = useState<string | null>('tech');
+
   const t = useTranslations('Dashboard');
   const pathname = usePathname();
-
   const isRtl = locale === 'ar';
   
-  const baseLinkClass = "flex items-center gap-3 px-4 py-2.5 hover:bg-white/10 rounded-xl transition-all duration-300 font-semibold border-s-4 border-transparent text-sm tracking-wide text-white/80 hover:text-white";
-  const activeLinkClass = "flex items-center gap-3 px-4 py-2.5 bg-venecos-gold/15 text-venecos-gold border-s-4 border-venecos-gold rounded-xl font-bold text-sm tracking-wide";
+  const baseLinkClass = "flex items-center gap-3 px-4 py-2.5 hover:bg-white/10 rounded-xl transition-all duration-200 font-medium text-xs tracking-wide text-white/70 hover:text-white";
+  const activeLinkClass = "flex items-center gap-3 px-4 py-2.5 bg-venecos-gold/20 text-venecos-gold border-s-4 border-venecos-gold rounded-xl font-bold text-xs tracking-wide shadow-md";
 
   const isLinkActive = (path: string) => {
     if (path === `/${locale}/dashboard`) {
@@ -38,7 +39,7 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
     return pathname.startsWith(path);
   };
 
-  const renderLink = (href: string, label: string, icon: React.ReactNode) => {
+  const renderLink = (href: string, label: string, icon: React.ReactNode, badge?: string) => {
     const active = isLinkActive(href);
     return (
       <Link
@@ -47,8 +48,13 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
         onClick={() => setMobileOpen(false)}
         className={active ? activeLinkClass : baseLinkClass}
       >
-        <span className="text-lg flex-shrink-0" style={{ marginInlineEnd: '10px' }}>{icon}</span>
-        <span className="truncate">{label}</span>
+        <span className="text-base flex-shrink-0">{icon}</span>
+        <span className="truncate flex-1">{label}</span>
+        {badge && (
+          <span className="bg-venecos-gold/20 text-venecos-gold border border-venecos-gold/40 text-[10px] font-bold px-2 py-0.5 rounded-full">
+            {badge}
+          </span>
+        )}
       </Link>
     );
   };
@@ -59,6 +65,10 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
     </div>
   );
 
+  const toggleCategory = (cat: string) => {
+    setActiveCategory(activeCategory === cat ? null : cat);
+  };
+
   const sidebarContent = (
     <div
       className="flex flex-col h-full bg-venecos-black text-white p-5 overflow-y-auto"
@@ -66,8 +76,8 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
     >
       <div>
         <div className="mb-6 flex flex-col">
-          <img src="/Venecos.png" alt="Venecos" className="h-12 w-auto object-contain self-start" />
-          <span className="block text-[11px] font-light text-white/50 tracking-normal mt-1 border-t border-white/10 pt-1">
+          <img src="/Venecos.png" alt="Venecos" className="h-10 w-auto object-contain self-start" />
+          <span className="block text-[10px] font-bold text-venecos-gold tracking-widest mt-2 border-t border-white/10 pt-1">
             {role.toUpperCase()} PANEL
           </span>
         </div>
@@ -82,22 +92,115 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
               {/* Content Section */}
               {renderSectionHeader(isRtl ? 'المحتوى' : 'CONTENT')}
               {renderLink(`/${locale}/dashboard/slider`, t('slider'), <MdSlideshow />)}
-              {renderLink(`/${locale}/dashboard/services`, t('manageServices'), <MdDesignServices />)}
+
+              {/* Nested Services Submenu matching Legacy */}
+              <div className="rounded-xl overflow-hidden bg-white/5 border border-white/10">
+                <button
+                  onClick={() => setServicesDropOpen(!servicesDropOpen)}
+                  className="w-full flex items-center justify-between px-4 py-2.5 text-xs font-bold text-white/80 hover:text-venecos-gold hover:bg-white/5 transition-all"
+                >
+                  <div className="flex items-center gap-3">
+                    <MdDesignServices className="text-venecos-gold text-base" />
+                    <span>{t('manageServices')}</span>
+                  </div>
+                  <MdExpandMore className={`transition-transform duration-200 ${servicesDropOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {servicesDropOpen && (
+                  <div className="p-2 space-y-1 bg-black/40 border-t border-white/5 text-xs">
+                    {/* Tech Services */}
+                    <div>
+                      <button
+                        onClick={() => toggleCategory('tech')}
+                        className="w-full flex items-center justify-between px-3 py-1.5 text-white/60 hover:text-white font-semibold"
+                      >
+                        <div className="flex items-center gap-2">
+                          <MdLaptop className="text-venecos-gold" />
+                          <span>الخدمات التقنية</span>
+                        </div>
+                        <MdChevronLeft className={`transition-transform ${activeCategory === 'tech' ? '-rotate-90' : ''}`} />
+                      </button>
+                      {activeCategory === 'tech' && (
+                        <div className="ps-6 py-1 space-y-1 text-[11px]">
+                          <Link href={`/${locale}/dashboard/services`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
+                            • البرمجة والمواقع
+                          </Link>
+                          <Link href={`/${locale}/dashboard/services`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
+                            • Shared Hosting & VPS
+                          </Link>
+                          <Link href={`/${locale}/dashboard/services`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
+                            • الدومينات والدعم الفني
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Design Services */}
+                    <div>
+                      <button
+                        onClick={() => toggleCategory('design')}
+                        className="w-full flex items-center justify-between px-3 py-1.5 text-white/60 hover:text-white font-semibold"
+                      >
+                        <div className="flex items-center gap-2">
+                          <MdPalette className="text-venecos-gold" />
+                          <span>خدمات التصميم</span>
+                        </div>
+                        <MdChevronLeft className={`transition-transform ${activeCategory === 'design' ? '-rotate-90' : ''}`} />
+                      </button>
+                      {activeCategory === 'design' && (
+                        <div className="ps-6 py-1 space-y-1 text-[11px]">
+                          <Link href={`/${locale}/dashboard/services`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
+                            • التصميم الفوتوغرافي
+                          </Link>
+                          <Link href={`/${locale}/dashboard/services`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
+                            • إنتاج الفيديو 3D
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Print Services */}
+                    <div>
+                      <button
+                        onClick={() => toggleCategory('print')}
+                        className="w-full flex items-center justify-between px-3 py-1.5 text-white/60 hover:text-white font-semibold"
+                      >
+                        <div className="flex items-center gap-2">
+                          <MdPrint className="text-venecos-gold" />
+                          <span>خدمات الطباعة</span>
+                        </div>
+                        <MdChevronLeft className={`transition-transform ${activeCategory === 'print' ? '-rotate-90' : ''}`} />
+                      </button>
+                      {activeCategory === 'print' && (
+                        <div className="ps-6 py-1 space-y-1 text-[11px]">
+                          <Link href={`/${locale}/dashboard/services`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
+                            • الطباعة الورقية والملصقات
+                          </Link>
+                          <Link href={`/${locale}/dashboard/services`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
+                            • الطباعة ثلاثية الأبعاد 3D
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {renderLink(`/${locale}/dashboard/offers`, t('offers'), <MdLocalOffer />)}
               {renderLink(`/${locale}/dashboard/gallery`, t('gallery'), <MdPhotoLibrary />)}
 
               {/* Permissions Section */}
               {renderSectionHeader(isRtl ? 'الصلاحيات' : 'PERMISSIONS')}
-              {renderLink(`/${locale}/dashboard/admins`, t('admins'), <MdAdminPanelSettings />)}
+              {renderLink(`/${locale}/dashboard/admins`, t('admins'), <MdAdminPanelSettings />, 'Super')}
               {renderLink(`/${locale}/dashboard/supervisors`, t('supervisors'), <MdSupervisorAccount />)}
               {renderLink(`/${locale}/dashboard/users`, t('manageUsers'), <MdGroup />)}
 
               {/* Operations Section */}
               {renderSectionHeader(isRtl ? 'العمليات' : 'OPERATIONS')}
-              {renderLink(`/${locale}/dashboard/orders`, t('manageOrders'), <MdAssignment />)}
+              {renderLink(`/${locale}/dashboard/orders`, t('manageOrders'), <MdAssignment />, 'جديد')}
               {renderLink(`/${locale}/dashboard/projects`, t('projects'), <MdAccountTree />)}
               {renderLink(`/${locale}/dashboard/invoices`, t('invoices'), <MdReceipt />)}
-              {renderLink(`/${locale}/dashboard/applications`, t('recruitment'), <MdRecentActors />)}
+              {renderLink(`/${locale}/dashboard/applications`, t('recruitment'), <MdRecentActors />, '5')}
 
               {/* Analytics & Finance */}
               {renderSectionHeader(isRtl ? 'المالية والإحصائيات' : 'FINANCE & ANALYTICS')}
@@ -140,7 +243,7 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
       <div className="mt-8 pt-4 border-t border-white/10">
         <Link
           href={`/${locale}`}
-          className="flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm font-semibold group"
+          className="flex items-center gap-2 text-white/70 hover:text-white transition-colors text-xs font-semibold group"
         >
           <span className={`transition-transform ${isRtl ? 'group-hover:translate-x-1' : 'group-hover:-translate-x-1'}`}>
             {isRtl ? '→' : '←'}
