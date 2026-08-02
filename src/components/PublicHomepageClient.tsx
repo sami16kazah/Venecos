@@ -299,9 +299,9 @@ export default function PublicHomepageClient({
 
                     <Link
                       href={`/${locale}/services`}
-                      className="w-full py-3 bg-venecos-gold/20 hover:bg-venecos-gold text-venecos-gold hover:text-black font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all"
+                      className="w-full py-3 bg-gradient-to-r from-venecos-gold to-yellow-500 hover:opacity-90 text-black font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 transition-all shadow-md"
                     >
-                      {locale === 'ar' ? 'اطلب الباقة الآن' : 'Get Package'}
+                      {locale === 'ar' ? 'اطلب الباقة والحصول على العرض' : 'Order Offer Package'}
                     </Link>
                   </div>
                 </div>
@@ -358,14 +358,19 @@ export default function PublicHomepageClient({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {branches.map((b) => (
-              <div key={b._id} className="bg-venecos-black/80 border border-white/10 p-6 rounded-2xl space-y-3">
-                <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                  <MdLocationOn className="text-venecos-gold" /> {getLocString(b.cityName, locale)}
-                </h3>
-                <p className="text-xs text-white/60">{b.address}</p>
+              <div key={b._id} className="bg-venecos-black/80 border border-white/10 p-6 rounded-2xl space-y-3 shadow-xl hover:-translate-y-1 transition-all">
+                <div className="flex justify-between items-start">
+                  <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                    <MdLocationOn className="text-venecos-gold text-xl" /> {b.city || getLocString(b.name, locale)}
+                  </h3>
+                  <span className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-venecos-gold/20 text-venecos-gold border border-venecos-gold/30">
+                    {b.countryName || b.countryCode}
+                  </span>
+                </div>
+                <p className="text-xs text-white/60 leading-relaxed">{b.address}</p>
                 <div className="pt-2 text-xs space-y-1 border-t border-white/10 text-venecos-gold font-mono">
-                  <div>📞 {b.phone}</div>
-                  <div>✉️ {b.email}</div>
+                  {b.phone && <div>📞 {b.phone}</div>}
+                  {b.email && <div>✉️ {b.email}</div>}
                 </div>
               </div>
             ))}
