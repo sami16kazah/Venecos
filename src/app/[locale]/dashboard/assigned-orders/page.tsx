@@ -119,7 +119,7 @@ export default function AssignedOrdersPage() {
           onClose={() => setChatDialog({ open: false, order: null })}
           fullWidth
           maxWidth="sm"
-          PaperProps={{ sx: { bgcolor: 'transparent', boxShadow: 'none' } }}
+          PaperProps={{ sx: { bgcolor: 'transparent', boxShadow: 'none', m: { xs: 1, sm: 2 }, maxH: '95vh', overflow: 'hidden' } }}
         >
           <OrderChat 
             orderId={chatDialog.order._id} 

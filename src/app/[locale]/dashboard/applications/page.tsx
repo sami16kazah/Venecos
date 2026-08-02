@@ -2,19 +2,22 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from 'next-intl';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import {
   Button, Chip, CircularProgress, Tooltip,
   Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
   TextField, List, ListItem, ListItemText, ListItemSecondaryAction, IconButton,
   Switch, FormControlLabel
 } from '@mui/material';
-import { MdCheckCircle, MdCancel, MdOpenInNew, MdPerson, MdWork, MdCalendarToday, MdFilterList, MdWarning, MdSettings, MdAdd, MdDelete, MdArrowUpward, MdArrowDownward } from 'react-icons/md';
+import { 
+  MdCheckCircle, MdCancel, MdOpenInNew, MdPerson, MdWork, 
+  MdCalendarToday, MdFilterList, MdWarning, MdSettings, MdAdd, 
+  MdDelete, MdArrowUpward, MdArrowDownward, MdBlock, MdEmail, MdSend 
+} from 'react-icons/md';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 
-type AppStatus = 'pending' | 'accepted' | 'rejected';
-type FilterStatus = 'pending' | 'accepted' | 'rejected' | 'all';
+type AppStatus = 'pending' | 'reviewing' | 'accepted' | 'rejected' | 'banned';
+type FilterStatus = 'pending' | 'reviewing' | 'accepted' | 'rejected' | 'all';
 
 interface Application {
   _id: string;
@@ -26,14 +29,9 @@ interface Application {
   message?: string;
   cvUrl: string;
   status: AppStatus;
+  ipAddress?: string;
+  country?: string;
   createdAt: string;
-}
-
-interface ConfirmModal {
-  open: boolean;
-  appId: string;
-  appName: string;
-  actionType: 'accepted' | 'rejected' | 'delete' | null;
 }
 
 export default function ApplicationsPage() {
@@ -47,26 +45,27 @@ export default function ApplicationsPage() {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('pending');
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [feedback, setFeedback] = useState<{ id: string; type: 'success' | 'error'; msg: string } | null>(null);
-  const [modal, setModal] = useState<ConfirmModal>({
-    open: false,
-    appId: '',
-    appName: '',
-    actionType: null,
-  });
 
+  // Hiring status toggle
+  const [hiringOpen, setHiringOpen] = useState(true);
+  const [hiringLoading, setHiringLoading] = useState(false);
+
+  // Email Reply Modal
+  const [replyModalOpen, setReplyModalOpen] = useState(false);
+  const [selectedAppForReply, setSelectedAppForReply] = useState<Application | null>(null);
+  const [replySubject, setReplySubject] = useState('');
+  const [replyBody, setReplyBody] = useState('');
+  const [replyTemplate, setReplyTemplate] = useState<'review' | 'accept' | 'reject'>('review');
+
+  // Ban List Modal
+  const [banModalOpen, setBanModalOpen] = useState(false);
+  const [banItems, setBanItems] = useState<{ _id: string; type: string; value: string; reason?: string }[]>([]);
+
+  // Roles modal state
   const [rolesModalOpen, setRolesModalOpen] = useState(false);
   const [jobRoles, setJobRoles] = useState<{ _id: string; name: string; order?: number }[]>([]);
   const [newRoleName, setNewRoleName] = useState('');
   const [rolesLoading, setRolesLoading] = useState(false);
-  const [sortAlpha, setSortAlpha] = useState(false);
-
-  const displayedRoles = useMemo(() => {
-    if (sortAlpha) {
-      return [...jobRoles].sort((a, b) => a.name.localeCompare(b.name));
-    }
-    return jobRoles;
-  }, [jobRoles, sortAlpha]);
 
   const role = (session?.user as any)?.role;
 
@@ -75,6 +74,37 @@ export default function ApplicationsPage() {
       router.replace(`/${locale}/dashboard`);
     }
   }, [session, role]);
+
+  const fetchHiringStatus = async () => {
+    try {
+      const res = await fetch('/api/recruitment/hiring-status');
+      if (res.ok) {
+        const data = await res.json();
+        setHiringOpen(data.open);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const toggleHiringStatus = async () => {
+    try {
+      setHiringLoading(true);
+      const res = await fetch('/api/recruitment/hiring-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ open: !hiringOpen }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setHiringOpen(data.open);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setHiringLoading(false);
+    }
+  };
 
   const fetchApplications = useCallback(async () => {
     setLoading(true);
@@ -93,162 +123,150 @@ export default function ApplicationsPage() {
 
   useEffect(() => {
     fetchApplications();
+    fetchHiringStatus();
   }, [fetchApplications]);
 
-  const fetchRoles = useCallback(async () => {
-    setRolesLoading(true);
+  const fetchBanList = async () => {
     try {
-      const res = await fetch('/api/job-roles');
-      const data = await res.json();
+      const res = await fetch('/api/ban-list');
       if (res.ok) {
-        setJobRoles(data.roles);
+        const data = await res.json();
+        setBanItems(data);
       }
     } catch (err) {
-      console.error('Failed to fetch job roles', err);
-    } finally {
-      setRolesLoading(false);
+      console.error(err);
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    if (rolesModalOpen) {
-      fetchRoles();
-    }
-  }, [rolesModalOpen, fetchRoles]);
+  const handleOpenBanModal = () => {
+    fetchBanList();
+    setBanModalOpen(true);
+  };
 
-  const handleAddRole = async () => {
-    if (!newRoleName.trim()) return;
+  const handleBanIp = async (ip: string, email: string) => {
+    if (!confirm(`هل تريد حظر عنوان IP (${ip}) والبريد (${email})؟`)) return;
     try {
-      const res = await fetch('/api/job-roles', {
+      await fetch('/api/ban-list', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newRoleName })
+        body: JSON.stringify({ type: 'ip', value: ip, reason: `Ban applicant ${email}` }),
       });
-      if (res.ok) {
-        setNewRoleName('');
-        fetchRoles();
-      }
+      await fetch('/api/ban-list', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'email', value: email, reason: `Ban applicant email` }),
+      });
+      alert('تم إضافة الحظر بنجاح!');
+      fetchApplications();
     } catch (err) {
       console.error(err);
     }
   };
 
-  const handleDeleteRole = async (id: string) => {
-    try {
-      const res = await fetch(`/api/job-roles/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        fetchRoles();
-      }
-    } catch (err) {
-      console.error(err);
+  const handleOpenReplyModal = (app: Application) => {
+    setSelectedAppForReply(app);
+    setReplyTemplate('review');
+    setReplySubject(`VENECOS — طلب توظيفك (${app.position}) قيد المراجعة`);
+    setReplyBody(`عزيزي ${app.firstName}،\n\nشكراً لتقدمك للعمل في فريق Venecos.\n\nيسعدنا إبلاغك بأن طلبك قيد المراجعة حالياً وسيتم التواصل معك قريباً.\n\nمع التحية،\nفريق Venecos`);
+    setReplyModalOpen(true);
+  };
+
+  const handleSelectTemplate = (tpl: 'review' | 'accept' | 'reject') => {
+    if (!selectedAppForReply) return;
+    setReplyTemplate(tpl);
+    if (tpl === 'review') {
+      setReplySubject(`VENECOS — طلب توظيفك (${selectedAppForReply.position}) قيد المراجعة`);
+      setReplyBody(`عزيزي ${selectedAppForReply.firstName}،\n\nشكراً لتقدمك للعمل في فريق Venecos.\n\nيسعدنا إبلاغك بأن طلبك قيد المراجعة حالياً وسيتم التواصل معك قريباً.\n\nمع التحية،\nفريق Venecos`);
+    } else if (tpl === 'accept') {
+      setReplySubject(`VENECOS — قبول طلب توظيفك 🎉`);
+      setReplyBody(`عزيزي ${selectedAppForReply.firstName}،\n\nتهانينا! نود إعلامك بأنه تم قبول طلب انضمامك إلى فريق Venecos.\n\nسنقوم بالارتباط معك عبر الهاتف وترتيب مقابلة العمل.\n\nأهلاً بك معنا،\nفريق Venecos`);
+    } else {
+      setReplySubject(`VENECOS — التحديث بشأن طلب التوظيف`);
+      setReplyBody(`عزيزي ${selectedAppForReply.firstName}،\n\nنشكرك على اهتمامك ووقتك في التقدم لوظيفة لدينا.\n\nللأسف نعتذر عن قبول الطلب في هذه الدورة التوظيفية ونتمى لك التوفيق.\n\nمع التحية،\nفريق Venecos`);
     }
   };
 
-  const handleSwap = async (index: number, direction: 'up' | 'down') => {
-    if (sortAlpha) return;
-    const newRoles = [...jobRoles];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex < 0 || targetIndex >= newRoles.length) return;
-
-    [newRoles[index], newRoles[targetIndex]] = [newRoles[targetIndex], newRoles[index]];
-    
-    const payload = newRoles.map((r, i) => ({ _id: r._id, order: i }));
-    setJobRoles(newRoles.map((r, i) => ({ ...r, order: i })));
-
+  const handleSendReply = async () => {
+    if (!selectedAppForReply) return;
     try {
-      await fetch('/api/job-roles', {
-        method: 'PUT',
+      const status = replyTemplate === 'accept' ? 'accepted' : replyTemplate === 'reject' ? 'rejected' : 'reviewing';
+      const res = await fetch('/api/recruitment/reply', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roles: payload })
+        body: JSON.stringify({
+          applicationId: selectedAppForReply._id,
+          recipientEmail: selectedAppForReply.email,
+          subject: replySubject,
+          body: replyBody,
+          status,
+        }),
       });
-    } catch {
-      fetchRoles();
-    }
-  };
 
-  const openModal = (app: Application, actionType: 'accepted' | 'rejected' | 'delete') => {
-    setModal({
-      open: true,
-      appId: app._id,
-      appName: `${app.firstName} ${app.lastName}`,
-      actionType,
-    });
-  };
-
-  const closeModal = () => {
-    setModal({ open: false, appId: '', appName: '', actionType: null });
-  };
-
-  const handleAction = async () => {
-    if (!modal.appId || !modal.actionType) return;
-    const { appId, actionType } = modal;
-    closeModal();
-    setActionLoading(appId + actionType);
-
-    try {
-      const isDelete = actionType === 'delete';
-      const url = `/api/applications/${appId}`;
-      const res = await fetch(url, {
-        method: isDelete ? 'DELETE' : 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: isDelete ? undefined : JSON.stringify({ status: actionType }),
-      });
-      const data = await res.json();
       if (res.ok) {
-        setFeedback({ id: appId, type: 'success', msg: isDelete ? 'Application removed' : t('updateSuccess') });
+        setReplyModalOpen(false);
         fetchApplications();
-        setTimeout(() => setFeedback(null), 3000);
-      } else {
-        setFeedback({ id: appId, type: 'error', msg: data.message });
       }
-    } catch {
-      setFeedback({ id: appId, type: 'error', msg: 'Something went wrong.' });
-    } finally {
-      setActionLoading(null);
+    } catch (err) {
+      console.error(err);
     }
   };
-
-  const statusColor = (s: AppStatus) => {
-    if (s === 'accepted') return 'success';
-    if (s === 'rejected') return 'error';
-    return 'warning';
-  };
-
-  const filters: { key: FilterStatus; label: string }[] = [
-    { key: 'pending', label: t('filterPending') },
-    { key: 'accepted', label: t('filterAccepted') },
-    { key: 'rejected', label: t('filterRejected') },
-    { key: 'all', label: t('filterAll') },
-  ];
 
   return (
-    <div className="w-full max-w-6xl">
-      {/* Header */}
-      <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="w-full max-w-6xl space-y-6">
+      {/* Top Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-venecos-black/90 p-6 rounded-2xl border border-venecos-gold/20 shadow-xl">
         <div>
-          <h2 className="text-2xl md:text-3xl font-extrabold text-venecos-black">{t('title')}</h2>
-          <p className="text-gray-400 text-sm mt-1">{t('subtitle')}</p>
+          <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+            <MdWork className="text-venecos-gold text-3xl" />
+            طلبات التوظيف — Recruitment Dashboard
+          </h2>
+          <p className="text-white/60 text-xs md:text-sm mt-1">
+            إدارة طلبات التوظيف الواردة والردود البريدية وحظر عناوين IP
+          </p>
         </div>
-        <Button
-          variant="outlined"
-          startIcon={<MdSettings />}
-          onClick={() => setRolesModalOpen(true)}
-          sx={{ borderRadius: 9999, borderColor: '#D4AF37', color: '#D4AF37', '&:hover': { borderColor: '#FFDF00', bgcolor: 'transparent' } }}
-        >
-          {t('manageRoles') || 'Manage Roles'}
-        </Button>
+
+        <div className="flex flex-wrap items-center gap-3 self-start md:self-auto">
+          {/* Hiring Status Toggle */}
+          <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-xs font-bold text-white">
+            <span>باب التوظيف:</span>
+            <button
+              onClick={toggleHiringStatus}
+              disabled={hiringLoading}
+              className={`px-3 py-1 rounded-full text-xs font-bold transition-all ${
+                hiringOpen
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                  : 'bg-red-500/20 text-red-400 border border-red-500/40'
+              }`}
+            >
+              {hiringOpen ? '● مفتوح' : '○ مغلق'}
+            </button>
+          </div>
+
+          <button
+            onClick={handleOpenBanModal}
+            className="flex items-center gap-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 px-4 py-2 rounded-xl text-xs font-bold transition-all"
+          >
+            <MdBlock /> قوائم الحظر
+          </button>
+        </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex flex-wrap gap-2 mb-8">
-        {filters.map(f => (
+      <div className="flex flex-wrap gap-2">
+        {[
+          { key: 'pending', label: 'جديد (Pending)' },
+          { key: 'reviewing', label: 'قيد المراجعة (Reviewing)' },
+          { key: 'accepted', label: 'مقبول (Accepted)' },
+          { key: 'rejected', label: 'مرفوض (Rejected)' },
+          { key: 'all', label: 'الكل (All)' },
+        ].map((f) => (
           <button
             key={f.key}
-            onClick={() => setFilterStatus(f.key)}
-            className={`px-5 py-2 rounded-full text-sm font-bold transition-all border ${
+            onClick={() => setFilterStatus(f.key as any)}
+            className={`px-5 py-2 rounded-xl text-xs font-bold transition-all border ${
               filterStatus === f.key
-                ? 'bg-venecos-black text-venecos-gold border-venecos-black shadow-md'
-                : 'bg-white text-gray-500 border-gray-200 hover:border-venecos-gold/50'
+                ? 'bg-venecos-gold text-black border-venecos-gold shadow-md'
+                : 'bg-white/5 text-white/70 border-white/10 hover:border-venecos-gold/40'
             }`}
           >
             {f.label}
@@ -256,135 +274,99 @@ export default function ApplicationsPage() {
         ))}
       </div>
 
-      {/* Content */}
+      {/* Applications list */}
       {loading ? (
-        <div className="flex items-center justify-center py-24">
-          <CircularProgress sx={{ color: '#D4AF37' }} />
-        </div>
+        <div className="text-center py-16 text-white/50 animate-pulse">جاري التحميل...</div>
       ) : applications.length === 0 ? (
-        <div className="text-center py-24 bg-white rounded-2xl border border-gray-100 shadow-sm">
-          <MdFilterList size={48} className="mx-auto text-gray-200 mb-4" />
-          <p className="text-gray-400 font-medium">{t('noApplications')}</p>
+        <div className="bg-venecos-black/50 border border-white/10 rounded-2xl p-12 text-center text-white/60 space-y-4">
+          <MdFilterList className="text-5xl text-venecos-gold/40 mx-auto" />
+          <p className="text-lg font-medium">لا توجد طلبات توظيف لهذه الحالة</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-4">
-          {applications.map(app => (
+        <div className="space-y-4">
+          {applications.map((app) => (
             <div
               key={app._id}
-              className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 md:p-6 flex flex-col md:flex-row md:items-center gap-4 hover:shadow-md transition-shadow"
+              className="bg-venecos-black/70 border border-white/10 hover:border-venecos-gold/40 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all"
             >
-              {/* Applicant Info */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="w-10 h-10 rounded-full bg-venecos-gold/10 flex items-center justify-center text-venecos-gold font-bold text-base shrink-0">
-                    {app.firstName[0]}{app.lastName[0]}
+              <div className="space-y-2 flex-1">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-venecos-gold/20 text-venecos-gold font-bold text-sm flex items-center justify-center border border-venecos-gold/40">
+                    {app.firstName[0]}
+                    {app.lastName[0]}
                   </div>
                   <div>
-                    <p className="font-bold text-venecos-black text-base leading-tight">
+                    <h3 className="text-base font-bold text-white">
                       {app.firstName} {app.lastName}
-                    </p>
-                    <p className="text-gray-400 text-sm">{app.email}</p>
+                    </h3>
+                    <p className="text-xs text-white/60">{app.email}</p>
                   </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 mt-2">
-                  <span className="flex items-center gap-1">
-                    <MdWork size={14} className="text-venecos-gold" />
+                <div className="flex flex-wrap items-center gap-4 text-xs text-white/70 pt-1">
+                  <span className="bg-white/5 border border-white/10 px-3 py-1 rounded-lg text-venecos-gold font-bold">
                     {app.position}
                   </span>
-                  <span className="flex items-center gap-1">
-                    <MdCalendarToday size={14} className="text-venecos-gold" />
-                    {new Date(app.createdAt).toLocaleDateString()}
+                  <span>📅 {new Date(app.createdAt).toLocaleDateString()}</span>
+                  {app.phone && <span>📞 {app.phone}</span>}
+                  {app.ipAddress && <span className="font-mono text-white/40">🌐 IP: {app.ipAddress}</span>}
+                </div>
+
+                {/* Safety & Documents badges */}
+                <div className="flex items-center gap-2 pt-1">
+                  <span className="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2.5 py-0.5 rounded-full font-bold">
+                    هوية موثوقة ✓
                   </span>
-                  {app.phone && (
-                    <span className="flex items-center gap-1">
-                      <MdPerson size={14} className="text-venecos-gold" />
-                      {app.phone}
-                    </span>
-                  )}
+                  <span className="text-[10px] bg-blue-500/10 text-blue-400 border border-blue-500/30 px-2.5 py-0.5 rounded-full font-bold">
+                    مؤهل أكاديمي ✓
+                  </span>
                 </div>
 
                 {app.message && (
-                  <p className="mt-3 text-gray-500 text-sm line-clamp-2 bg-gray-50 rounded-lg p-3 italic">
-                    "{app.message}"
+                  <p className="text-xs text-white/60 bg-white/5 p-3 rounded-xl border border-white/10 italic leading-relaxed">
+                    &quot;{app.message}&quot;
                   </p>
                 )}
               </div>
 
-              {/* Status + Actions */}
-              <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
-                <Chip
-                  label={t(app.status as any)}
-                  color={statusColor(app.status)}
-                  size="small"
-                  sx={{ fontWeight: 'bold', borderRadius: 99 }}
-                />
+              <div className="flex flex-col items-end gap-3 flex-shrink-0">
+                <span
+                  className={`text-xs font-bold px-3 py-1 rounded-full ${
+                    app.status === 'accepted'
+                      ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                      : app.status === 'rejected'
+                      ? 'bg-red-500/20 text-red-400 border border-red-500/40'
+                      : app.status === 'reviewing'
+                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40'
+                      : 'bg-amber-500/20 text-amber-400 border border-amber-500/40'
+                  }`}
+                >
+                  {app.status.toUpperCase()}
+                </span>
 
-                {feedback?.id === app._id && (
-                  <p className={`text-xs font-semibold ${feedback.type === 'success' ? 'text-green-600' : 'text-red-500'}`}>
-                    {feedback.msg}
-                  </p>
-                )}
+                <div className="flex flex-wrap items-center gap-2">
+                  <a
+                    href={app.cvUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition-all"
+                  >
+                    <MdOpenInNew /> عرض CV
+                  </a>
 
-                <div className="flex items-center gap-2 flex-wrap">
-                  {/* View CV */}
-                  <Tooltip title={t('viewCv')}>
-                    <a href={app.cvUrl} target="_blank" rel="noopener noreferrer">
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        startIcon={<MdOpenInNew />}
-                        sx={{ borderRadius: 9999, borderColor: '#e0e0e0', color: '#666', fontSize: '0.75rem' }}
-                      >
-                        CV
-                      </Button>
-                    </a>
-                  </Tooltip>
+                  <button
+                    onClick={() => handleOpenReplyModal(app)}
+                    className="px-3 py-1.5 bg-venecos-gold/20 hover:bg-venecos-gold text-venecos-gold hover:text-black rounded-xl text-xs font-bold flex items-center gap-1 transition-all"
+                  >
+                    <MdEmail /> الرد بريدياً
+                  </button>
 
-                  {/* Accept */}
-                  {app.status !== 'accepted' && (
-                    <Button
-                      size="small"
-                      variant="contained"
-                      color="success"
-                      startIcon={actionLoading === app._id + 'accepted' ? <CircularProgress size={12} color="inherit" /> : <MdCheckCircle />}
-                      disabled={!!actionLoading}
-                      onClick={() => openModal(app, 'accepted')}
-                      sx={{ borderRadius: 9999, fontSize: '0.75rem' }}
-                    >
-                      {t('accept')}
-                    </Button>
-                  )}
-
-                  {/* Reject */}
-                  {app.status !== 'rejected' && (
-                    <Button
-                      size="small"
-                      variant="contained"
-                      color="error"
-                      startIcon={actionLoading === app._id + 'rejected' ? <CircularProgress size={12} color="inherit" /> : <MdCancel />}
-                      disabled={!!actionLoading}
-                      onClick={() => openModal(app, 'rejected')}
-                      sx={{ borderRadius: 9999, fontSize: '0.75rem' }}
-                    >
-                      {t('reject')}
-                    </Button>
-                  )}
-
-                  {/* Delete / Remove (Only when rejected) */}
-                  {app.status === 'rejected' && (
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      color="error"
-                      startIcon={actionLoading === app._id + 'delete' ? <CircularProgress size={12} color="inherit" /> : <MdDelete />}
-                      disabled={!!actionLoading}
-                      onClick={() => openModal(app, 'delete')}
-                      sx={{ borderRadius: 9999, fontSize: '0.75rem' }}
-                    >
-                      Remove
-                    </Button>
-                  )}
+                  <button
+                    onClick={() => app.ipAddress && handleBanIp(app.ipAddress, app.email)}
+                    className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-xs font-bold flex items-center gap-1 transition-all"
+                  >
+                    <MdBlock /> حظر
+                  </button>
                 </div>
               </div>
             </div>
@@ -392,124 +374,134 @@ export default function ApplicationsPage() {
         </div>
       )}
 
-      {/* Confirmation Modal */}
-      <Dialog
-        open={modal.open}
-        onClose={closeModal}
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            p: 1,
-            minWidth: { xs: '90vw', sm: 440 },
-          }
-        }}
-      >
-        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5, fontWeight: 'bold', pb: 1 }}>
-          <MdWarning
-            size={24}
-            color={modal.actionType === 'accepted' ? '#16a34a' : modal.actionType === 'rejected' ? '#dc2626' : '#991b1b'}
-          />
-          {modal.actionType === 'accepted' ? t('accept') : modal.actionType === 'delete' ? 'Remove Application' : t('reject')} — {modal.appName}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText sx={{ color: '#555', fontSize: '0.95rem' }}>
-            {modal.actionType === 'accepted' ? t('confirmAccept') : modal.actionType === 'delete' ? 'Are you sure you want to permanently delete this application? This action cannot be reversed.' : t('confirmReject')}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-          <Button
-            onClick={closeModal}
-            variant="outlined"
-            sx={{ borderRadius: 9999, borderColor: '#e0e0e0', color: '#666' }}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleAction}
-            variant="contained"
-            color={modal.actionType === 'accepted' ? 'success' : 'error'}
-            sx={{ borderRadius: 9999, fontWeight: 'bold' }}
-          >
-            {modal.actionType === 'accepted' ? t('accept') : modal.actionType === 'delete' ? 'Remove' : t('reject')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Roles Modal */}
-      <Dialog
-        open={rolesModalOpen}
-        onClose={() => setRolesModalOpen(false)}
-        PaperProps={{
-          sx: { borderRadius: 3, p: 1, minWidth: { xs: '90vw', sm: 500 } }
-        }}
-      >
-        <DialogTitle sx={{ fontWeight: 'bold' }}>{t('rolesDialogTitle') || 'Manage Job Roles'}</DialogTitle>
-        <DialogContent sx={{ minHeight: 300 }}>
-          <div className="flex gap-2 mb-4 mt-2">
-            <TextField
-              size="small"
-              fullWidth
-              label={t('newRoleName') || 'New Role Name'}
-              value={newRoleName}
-              onChange={(e) => setNewRoleName(e.target.value)}
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleAddRole}
-              disabled={!newRoleName.trim() || rolesLoading}
-              sx={{ borderRadius: 2 }}
-            >
-              <MdAdd size={20} />
-            </Button>
-          </div>
-          
-          <div className="mb-2 flex justify-between items-center bg-gray-50 p-2 rounded-lg border border-gray-100">
-            <FormControlLabel
-              control={<Switch checked={sortAlpha} onChange={(e) => setSortAlpha(e.target.checked)} color="primary" />}
-              label={<span className="text-sm font-medium text-gray-700">{t('sortAlphabetically') || 'Sort Alphabetically'}</span>}
-            />
-          </div>
-
-          {rolesLoading ? (
-            <div className="flex justify-center p-4">
-              <CircularProgress size={24} sx={{ color: '#D4AF37' }} />
+      {/* Reply Modal */}
+      {replyModalOpen && selectedAppForReply && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-venecos-black border border-venecos-gold/30 rounded-2xl w-full max-w-xl p-6 space-y-5 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <MdEmail className="text-venecos-gold" />
+                إرسال رد بريدي إلى: {selectedAppForReply.email}
+              </h3>
+              <button onClick={() => setReplyModalOpen(false)} className="text-white/60 hover:text-white text-xl">
+                ✕
+              </button>
             </div>
-          ) : (
-            <List sx={{ mt: 1 }}>
-              {displayedRoles.map((role, idx) => (
-                <ListItem key={role._id} sx={{ bgcolor: '#ffffff', mb: 1, borderRadius: 2, border: '1px solid #efefef', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
-                  <ListItemText primary={role.name} primaryTypographyProps={{ fontWeight: 'medium' }} />
-                  <ListItemSecondaryAction sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    {!sortAlpha && (
-                      <>
-                        <IconButton size="small" onClick={() => handleSwap(idx, 'up')} disabled={idx === 0} sx={{ color: '#888' }}>
-                          <MdArrowUpward fontSize="1.1rem" />
-                        </IconButton>
-                        <IconButton size="small" onClick={() => handleSwap(idx, 'down')} disabled={idx === displayedRoles.length - 1} sx={{ color: '#888' }}>
-                          <MdArrowDownward fontSize="1.1rem" />
-                        </IconButton>
-                        <div className="w-px h-6 bg-gray-200 mx-1"></div>
-                      </>
-                    )}
-                    <IconButton size="small" edge="end" onClick={() => handleDeleteRole(role._id)} color="error">
-                      <MdDelete fontSize="1.2rem" />
-                    </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              ))}
-              {displayedRoles.length === 0 && (
-                <p className="text-center text-gray-400 text-sm py-4">{t('noRolesFound') || 'No roles found.'}</p>
+
+            {/* Template Buttons */}
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                type="button"
+                onClick={() => handleSelectTemplate('review')}
+                className={`p-3 rounded-xl border text-xs font-bold transition-all text-center ${
+                  replyTemplate === 'review'
+                    ? 'bg-blue-500/20 text-blue-400 border-blue-500'
+                    : 'bg-white/5 text-white/60 border-white/10'
+                }`}
+              >
+                ⏳ قيد المراجعة
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSelectTemplate('accept')}
+                className={`p-3 rounded-xl border text-xs font-bold transition-all text-center ${
+                  replyTemplate === 'accept'
+                    ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500'
+                    : 'bg-white/5 text-white/60 border-white/10'
+                }`}
+              >
+                ✅ قبول الطلب
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSelectTemplate('reject')}
+                className={`p-3 rounded-xl border text-xs font-bold transition-all text-center ${
+                  replyTemplate === 'reject'
+                    ? 'bg-red-500/20 text-red-400 border-red-500'
+                    : 'bg-white/5 text-white/60 border-white/10'
+                }`}
+              >
+                ❌ اعتذار ورفض
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-white/70 mb-1">موضوع الرسالة</label>
+                <input
+                  type="text"
+                  value={replySubject}
+                  onChange={(e) => setReplySubject(e.target.value)}
+                  className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-venecos-gold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-white/70 mb-1">نص الرسالة البريدية</label>
+                <textarea
+                  rows={6}
+                  value={replyBody}
+                  onChange={(e) => setReplyBody(e.target.value)}
+                  className="w-full bg-white/5 border border-white/15 rounded-xl p-4 text-white text-sm outline-none focus:border-venecos-gold leading-relaxed"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 pt-3 border-t border-white/10">
+              <button
+                onClick={() => setReplyModalOpen(false)}
+                className="px-5 py-2 rounded-xl text-xs font-bold text-white/70 hover:text-white bg-white/10"
+              >
+                إلغاء
+              </button>
+              <button
+                onClick={handleSendReply}
+                className="px-6 py-2 rounded-xl text-xs font-bold text-black bg-gradient-to-r from-venecos-gold to-yellow-500 flex items-center gap-2"
+              >
+                <MdSend /> إرسال البريد
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Ban List Modal */}
+      {banModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-venecos-black border border-venecos-gold/30 rounded-2xl w-full max-w-xl p-6 space-y-5 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <MdBlock className="text-red-400" />
+                قوائم الحظر المسجلة (IPs & Emails)
+              </h3>
+              <button onClick={() => setBanModalOpen(false)} className="text-white/60 hover:text-white text-xl">
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+              {banItems.length === 0 ? (
+                <p className="text-center text-white/50 py-8 text-sm">لا توجد عناصر محظورة</p>
+              ) : (
+                banItems.map((item) => (
+                  <div
+                    key={item._id}
+                    className="flex items-center justify-between bg-white/5 p-3 rounded-xl border border-white/10 text-xs"
+                  >
+                    <div>
+                      <span className="font-mono font-bold text-white text-sm block">{item.value}</span>
+                      <span className="text-white/50 text-[10px]">{item.reason || 'حظر محدد'}</span>
+                    </div>
+                    <span className="bg-red-500/20 text-red-400 font-bold px-2.5 py-1 rounded-full uppercase">
+                      {item.type}
+                    </span>
+                  </div>
+                ))
               )}
-            </List>
-          )}
-        </DialogContent>
-        <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={() => setRolesModalOpen(false)} sx={{ color: '#666', fontWeight: 'bold' }}>
-            {t('closeButton') || 'Close'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

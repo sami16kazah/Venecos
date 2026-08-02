@@ -13,7 +13,11 @@ export interface IUser extends Document {
   verifyTokenExpiry?: Date;
   resetPasswordToken?: string;
   resetPasswordExpiry?: Date;
-  roles: ('admin' | 'employee' | 'client')[];
+  roles: ('admin' | 'supervisor' | 'employee' | 'client')[];
+  permissions?: string[];
+  supervisorId?: mongoose.Types.ObjectId;
+  country?: string;
+  preferredCurrency?: string;
   address?: {
     postCode: string;
     cityName: string;
@@ -38,9 +42,13 @@ const UserSchema: Schema = new Schema({
   resetPasswordExpiry: { type: Date },
   roles: { 
     type: [String], 
-    enum: ['admin', 'employee', 'client'], 
+    enum: ['admin', 'supervisor', 'employee', 'client'], 
     default: ['client'] 
   },
+  permissions: { type: [String], default: [] },
+  supervisorId: { type: Schema.Types.ObjectId, ref: 'User' },
+  country: { type: String, default: 'DE' },
+  preferredCurrency: { type: String, default: 'EUR' },
   address: {
     postCode: { type: String },
     cityName: { type: String },

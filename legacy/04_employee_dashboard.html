@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VENECOS — لوحة الموظف</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9A84C;--gold-l:#E8C96A;--gold-dim:rgba(201,168,76,0.1);--gold-border:rgba(201,168,76,0.25);
+  --bg:#0E0C08;--bg2:#161209;--bg3:#1E1810;--bg4:#272015;
+  --text:#F0E6D0;--text2:#C4A882;--text3:#7A6545;--text4:#4A3D28;
+  --border:rgba(201,168,76,0.1);--border2:rgba(201,168,76,0.2);
+  --red:#E05A18;--green:#4CAF7D;--blue:#5B8FD4;--purple:#9B72CF;
+  --radius:10px;--radius-lg:14px;--sidebar:260px;
+}
+body{font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--text);display:flex;overflow:hidden;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 80% 20%,rgba(201,168,76,.03),transparent 70%);pointer-events:none;z-index:0}
+.sidebar{width:var(--sidebar);height:100vh;background:var(--bg2);border-left:1px solid var(--border2);display:flex;flex-direction:column;flex-shrink:0;position:relative;z-index:10}
+.sidebar::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to left,transparent,var(--gold),transparent)}
+.sb-logo{padding:20px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sb-logo-text{font-family:'Amiri',serif;font-size:1.3rem;color:var(--gold)}
+.sb-badge-emp{font-size:9px;padding:2px 8px;background:rgba(91,143,212,.15);border:1px solid rgba(91,143,212,.3);border-radius:10px;color:var(--blue);margin-right:auto}
+.sb-user{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.sb-av{width:36px;height:36px;border-radius:50%;background:var(--gold-dim);border:1.5px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--gold);flex-shrink:0;overflow:hidden}
+.sb-user-name{font-size:13px;font-weight:600;color:var(--text)}
+.sb-user-role{font-size:10px;color:var(--text3)}
+.sb-online{width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:auto;box-shadow:0 0 6px var(--green)}
+.sb-nav{flex:1;overflow-y:auto;padding:10px 0}
+.sb-nav::-webkit-scrollbar{width:3px}.sb-nav::-webkit-scrollbar-thumb{background:var(--border2)}
+.sb-item{display:flex;align-items:center;gap:10px;padding:11px 18px;cursor:pointer;transition:all .2s;border-right:2px solid transparent;color:var(--text3);font-size:13px}
+.sb-item:hover{background:var(--gold-dim);color:var(--text2);border-right-color:var(--gold-border)}
+.sb-item.active{background:var(--gold-dim);color:var(--gold);border-right-color:var(--gold);font-weight:600}
+.sb-item i{width:16px;text-align:center;font-size:13px}
+.sb-badge{margin-right:auto;min-width:18px;height:18px;border-radius:9px;background:var(--red);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 5px;font-weight:700}
+.sb-cat{padding:8px 18px 4px;font-size:10px;color:var(--text4);letter-spacing:.1em}
+.sb-footer{padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:8px}
+.sb-footer-btn{flex:1;padding:7px;border-radius:var(--radius);border:1px solid var(--border2);background:none;color:var(--text3);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;gap:5px;font-family:'Tajawal',sans-serif;transition:all .2s}
+.sb-footer-btn:hover{border-color:var(--gold-border);color:var(--gold)}
+.main{flex:1;height:100vh;overflow-y:auto;display:flex;flex-direction:column;position:relative;z-index:1}
+.main::-webkit-scrollbar{width:4px}.main::-webkit-scrollbar-thumb{background:var(--border2)}
+.topbar{padding:14px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;background:rgba(14,12,8,.85);backdrop-filter:blur(8px);position:sticky;top:0;z-index:9;flex-shrink:0}
+.content{padding:20px 24px;flex:1}
+.section{display:none}.section.active{display:block}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.card-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(201,168,76,.02)}
+.card-title{font-size:12px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:7px}
+.card-title i{color:var(--gold);font-size:12px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px;position:relative;overflow:hidden;transition:all .2s}
+.stat-card:hover{border-color:var(--gold-border);transform:translateY(-1px)}
+.stat-val{font-size:26px;font-weight:700;font-family:'Amiri',serif}
+.stat-lbl{font-size:11px;color:var(--text3);margin-top:3px}
+.stat-ico{position:absolute;bottom:10px;left:14px;font-size:28px;opacity:.07}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 14px;font-size:11px;color:var(--text3);font-weight:500;text-align:right;border-bottom:1px solid var(--border)}
+td{padding:11px 14px;font-size:13px;color:var(--text2);border-bottom:1px solid rgba(201,168,76,.05);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(201,168,76,.02)}
+.tbl-action{display:flex;gap:4px}
+.tbl-btn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border2);background:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s}
+.tbl-btn:hover{border-color:var(--gold-border);color:var(--gold)}
+.tbl-btn.ok:hover{border-color:rgba(76,175,125,.4);color:var(--green)}
+/* PROJECT STAGES */
+.stages-bar{display:flex;align-items:center;gap:0;margin:10px 0}
+.stage{flex:1;text-align:center;position:relative}
+.stage-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;margin:0 auto 4px;border:2px solid;transition:all .3s}
+.stage-dot.done{background:var(--green);border-color:var(--green);color:#fff}
+.stage-dot.active{background:var(--gold);border-color:var(--gold);color:#111}
+.stage-dot.pending{background:var(--bg4);border-color:var(--border2);color:var(--text4)}
+.stage-label{font-size:9px;color:var(--text3)}
+.stage-line{position:absolute;top:12px;right:50%;left:-50%;height:2px;z-index:-1}
+/* CHAT */
+.chat-wrap{display:grid;grid-template-columns:260px 1fr;height:calc(100vh - 130px);gap:0;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.chat-list{background:var(--bg2);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+.chat-item{padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:all .15s;position:relative}
+.chat-item:hover{background:var(--bg3)}
+.chat-item.active{background:var(--gold-dim);border-right:2px solid var(--gold)}
+.chat-main{display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:0}
+.chat-messages::-webkit-scrollbar{width:3px}
+.msg{max-width:72%;display:flex;flex-direction:column;gap:3px}
+.msg.me{align-self:flex-start}
+.msg.client{align-self:flex-end}
+.msg.supervisor{align-self:center;max-width:80%}
+.msg-bubble{padding:10px 14px;border-radius:var(--radius-lg);font-size:13px;line-height:1.7}
+.msg.me .msg-bubble{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-lg) var(--radius-lg) var(--radius-lg) 4px;color:var(--text)}
+.msg.client .msg-bubble{background:linear-gradient(135deg,var(--gold),#8B6914);color:#0E0C08;border-radius:var(--radius-lg) var(--radius-lg) 4px var(--radius-lg);font-weight:500}
+.msg.supervisor .msg-bubble{background:rgba(155,114,207,.12);border:1px solid rgba(155,114,207,.25);color:var(--purple);border-radius:var(--radius-lg);font-size:12px}
+.msg-meta{font-size:10px;color:var(--text3)}
+.msg.client .msg-meta{text-align:left;color:rgba(201,168,76,.7)}
+.msg.supervisor .msg-meta{text-align:center;color:var(--purple);opacity:.7}
+.msg-to-sup{background:rgba(91,143,212,.08);border:1px solid rgba(91,143,212,.2);color:var(--blue) !important;font-size:12px !important}
+.msg-system{align-self:center;font-size:11px;padding:5px 12px;background:rgba(91,143,212,.1);border:1px solid rgba(91,143,212,.2);border-radius:20px;color:var(--blue);display:flex;align-items:center;gap:6px}
+.msg-wm{position:relative;display:inline-block;cursor:pointer}
+.msg-wm img{max-width:180px;border-radius:var(--radius);display:block;filter:brightness(.7)}
+.msg-wm-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.chat-toolbar{padding:6px 12px;border-top:1px solid var(--border);background:var(--bg2);display:flex;gap:3px;flex-wrap:wrap;flex-shrink:0}
+.tool-btn{width:28px;height:28px;border-radius:6px;border:none;background:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s}
+.tool-btn:hover{background:var(--gold-dim);color:var(--gold)}
+.tool-sep{width:1px;background:var(--border);margin:3px 2px;align-self:stretch}
+.chat-input-area{padding:10px 14px;border-top:1px solid var(--border);background:var(--bg2);display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
+.chat-textarea{flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:10px 14px;color:var(--text);font-family:'Tajawal',sans-serif;font-size:13px;outline:none;resize:none;min-height:42px;max-height:120px;line-height:1.6;transition:border .2s}
+.chat-textarea:focus{border-color:var(--gold-border)}
+.chat-textarea::placeholder{color:var(--text4)}
+.chat-send{width:40px;height:40px;border-radius:var(--radius);background:var(--gold);border:none;color:#0E0C08;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .2s;flex-shrink:0}
+.chat-send:hover{background:var(--gold-l)}
+.chat-icon-btn{width:36px;height:36px;border-radius:var(--radius);border:1px solid var(--border2);background:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all .2s;flex-shrink:0}
+.chat-icon-btn:hover{border-color:var(--gold-border);color:var(--gold)}
+.emoji-panel{display:none;padding:10px;background:var(--bg3);border-top:1px solid var(--border);flex-wrap:wrap;gap:4px;flex-shrink:0}
+.emoji-panel.open{display:flex}
+.e-btn{background:none;border:none;font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:6px;transition:background .15s}
+.e-btn:hover{background:var(--gold-dim)}
+.tab-row{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px}
+.tab-btn{padding:10px 18px;font-size:13px;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;margin-bottom:-1px;background:none;border-top:none;border-left:none;border-right:none;font-family:'Tajawal',sans-serif}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);font-weight:600}
+.tab-panel{display:none}.tab-panel.active{display:block}
+.form-input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:9px 12px;border-radius:var(--radius);font-size:13px;font-family:'Tajawal',sans-serif;outline:none;transition:all .2s;width:100%}
+.form-input:focus{border-color:var(--gold-border)}
+.btn-gold{background:var(--gold);color:#0E0C08;border:none;padding:9px 20px;border-radius:var(--radius);font-family:'Tajawal',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-gold:hover{background:var(--gold-l)}
+.btn-outline{background:none;border:1px solid var(--border2);color:var(--text2);padding:9px 16px;border-radius:var(--radius);font-family:'Tajawal',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-outline:hover{border-color:var(--gold-border);color:var(--gold)}
+.overlay{position:fixed;inset:0;background:rgba(8,6,3,.85);backdrop-filter:blur(6px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);width:100%;max-width:500px;max-height:85vh;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to left,transparent,var(--gold),transparent)}
+.modal-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px}
+.modal-title i{color:var(--gold)}
+.modal-close{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all .15s}
+.modal-close:hover{border-color:var(--red);color:var(--red)}
+.modal-body{flex:1;overflow-y:auto;padding:20px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.toast{position:fixed;bottom:24px;right:50%;transform:translateX(50%);padding:10px 24px;border-radius:var(--radius);font-size:13px;z-index:999;font-family:'Tajawal',sans-serif;box-shadow:0 4px 20px rgba(0,0,0,.4);pointer-events:none;opacity:0;transition:opacity .3s}
+.toast.show{opacity:1}
+.deadline-warn{padding:8px 14px;background:rgba(224,90,24,.08);border:1px solid rgba(224,90,24,.2);border-radius:var(--radius);font-size:12px;color:var(--red);display:flex;align-items:center;gap:8px;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sb-logo">
+    <i class="fa-solid fa-briefcase" style="color:var(--gold);font-size:18px"></i>
+    <span class="sb-logo-text">VENECOS</span>
+    <span class="sb-badge-emp">موظف</span>
+  </div>
+  <div class="sb-user">
+    <div class="sb-av" id="sb-avatar">ع</div>
+    <div><div class="sb-user-name">عمر مسعد</div><div class="sb-user-role">مطور ويب · تصميم فوتوغرافي</div></div>
+    <div class="sb-online" id="sb-online-dot"></div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-item active" onclick="showPanel('dashboard',this)"><i class="fa-solid fa-gauge"></i>الرئيسية</div>
+    <div class="sb-cat">العمل</div>
+    <div class="sb-item" onclick="showPanel('available',this)"><i class="fa-solid fa-briefcase-arrow-right"></i>المشاريع المتاحة<span class="sb-badge" id="badge-avail">3</span></div>
+    <div class="sb-item" onclick="showPanel('projects',this)"><i class="fa-solid fa-diagram-project"></i>مشاريعي<span class="sb-badge gold" style="background:var(--gold);color:#111" id="badge-my">2</span></div>
+    <div class="sb-item" onclick="showPanel('chat',this)"><i class="fa-solid fa-comments"></i>الشات<span class="sb-badge" id="badge-chat">1</span></div>
+    <div class="sb-cat">أخرى</div>
+    <div class="sb-item" onclick="showPanel('earnings',this)"><i class="fa-solid fa-coins"></i>الأرباح</div>
+    <div class="sb-item" onclick="showPanel('ratings',this)"><i class="fa-solid fa-star"></i>تقييماتي</div>
+    <div class="sb-item" onclick="showPanel('profile',this)"><i class="fa-solid fa-user"></i>بروفايلي</div>
+  </nav>
+  <div class="sb-footer">
+    <select onchange="changeStatus(this.value)" style="flex:1;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);padding:6px 8px;border-radius:var(--radius);font-family:'Tajawal',sans-serif;font-size:11px;outline:none;cursor:pointer">
+      <option value="متاح">🟢 متاح</option>
+      <option value="مشغول">🟡 مشغول</option>
+      <option value="غائب">🔴 غائب</option>
+      <option value="إجازة">🏖️ إجازة</option>
+    </select>
+    <button class="sb-footer-btn" style="color:var(--red);flex:0;padding:6px 10px" onclick="showToast('تم تسجيل الخروج','red')"><i class="fa-solid fa-right-from-bracket"></i></button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div style="font-family:'Amiri',serif;font-size:1.1rem;color:var(--gold)" id="topbar-title">لوحة التحكم</div>
+      <div style="font-size:11px;color:var(--text3)" id="topbar-sub">الإثنين 19 مايو 2026 · برلين</div>
+    </div>
+    <div style="margin-right:auto;display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius)">
+      <div id="status-dot" style="width:8px;height:8px;border-radius:50%;background:var(--green)"></div>
+      <span id="status-label" style="font-size:12px;color:var(--text2)">متاح</span>
+    </div>
+    <button style="width:36px;height:36px;border-radius:50%;border:1px solid var(--border2);background:none;color:var(--text3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;position:relative" onclick="showPanel('notifications',document.querySelector('[onclick*=notifications]')||document.querySelector('.sb-item'))">
+      <i class="fa-solid fa-bell"></i>
+      <span style="position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--red);border:1.5px solid var(--bg)"></span>
+    </button>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="section active" id="panel-dashboard">
+      <div class="stats-grid" id="dash-stats"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="card">
+          <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-diagram-project"></i>مشاريعي النشطة</div></div>
+          <div id="dash-my-projects" style="padding:10px"></div>
+        </div>
+        <div class="card">
+          <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-bell"></i>الإشعارات الأخيرة</div></div>
+          <div id="dash-notifs" style="padding:8px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AVAILABLE PROJECTS -->
+    <div class="section" id="panel-available">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <div style="font-size:16px;font-weight:700;color:var(--text);font-family:'Amiri',serif">المشاريع المتاحة</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px">مشاريع لم تُسند بعد — يمكنك طلب استلام أي منها</div>
+        </div>
+      </div>
+      <div id="available-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px"></div>
+    </div>
+
+    <!-- MY PROJECTS -->
+    <div class="section" id="panel-projects">
+      <div style="margin-bottom:16px">
+        <div style="font-size:16px;font-weight:700;color:var(--text);font-family:'Amiri',serif">مشاريعي</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px">المشاريع المُسندة إليك حصراً</div>
+      </div>
+      <div id="my-projects-list" style="display:flex;flex-direction:column;gap:14px"></div>
+    </div>
+
+    <!-- CHAT -->
+    <div class="section" id="panel-chat">
+      <div class="chat-wrap">
+        <div class="chat-list">
+          <div style="padding:10px 12px;border-bottom:1px solid var(--border)">
+            <input placeholder="بحث..." style="width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:7px 10px;border-radius:var(--radius);font-size:12px;font-family:'Tajawal',sans-serif;outline:none">
+          </div>
+          <div id="emp-chat-contacts"></div>
+        </div>
+        <div class="chat-main">
+          <!-- Header -->
+          <div style="padding:12px 16px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <div style="flex:1">
+                <div style="font-size:14px;font-weight:700;color:var(--text)" id="emp-chat-proj">موقع شركة الأمل</div>
+                <div style="font-size:10px;color:var(--text3)">#PRJ-001</div>
+              </div>
+              <button onclick="sendToSupervisor()" style="padding:5px 12px;background:rgba(155,114,207,.1);border:1px solid rgba(155,114,207,.25);color:var(--purple);border-radius:var(--radius);font-size:11px;cursor:pointer;font-family:'Tajawal',sans-serif;display:flex;align-items:center;gap:5px;transition:all .2s" onmouseover="this.style.background='rgba(155,114,207,.2)'" onmouseout="this.style.background='rgba(155,114,207,.1)'">
+                <i class="fa-solid fa-eye"></i>للمشرف فقط
+              </button>
+              <button onclick="requestHelp()" style="padding:5px 12px;background:rgba(224,90,24,.08);border:1px solid rgba(224,90,24,.2);color:var(--red);border-radius:var(--radius);font-size:11px;cursor:pointer;font-family:'Tajawal',sans-serif;display:flex;align-items:center;gap:5px;transition:all .2s" onmouseover="this.style.background='rgba(224,90,24,.15)'" onmouseout="this.style.background='rgba(224,90,24,.08)'">
+                <i class="fa-solid fa-hand-paper"></i>طلب مساعدة
+              </button>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <div style="font-size:11px;color:var(--text3)">
+                <i class="fa-solid fa-user" style="color:var(--gold);margin-left:4px;font-size:10px"></i>
+                العميل: <strong style="color:var(--text2)">أحمد محمد</strong>
+              </div>
+              <div style="width:1px;height:14px;background:var(--border)"></div>
+              <div style="font-size:11px;color:var(--text3)">
+                <i class="fa-solid fa-user-tie" style="color:var(--purple);margin-left:4px;font-size:10px"></i>
+                المشرف: <strong style="color:var(--text2)">خالد السيد</strong>
+              </div>
+              <div style="width:1px;height:14px;background:var(--border)"></div>
+              <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:100px">
+                <div style="flex:1;height:5px;background:var(--bg4);border-radius:3px">
+                  <div style="height:100%;width:65%;background:linear-gradient(to left,var(--gold),var(--green));border-radius:3px"></div>
+                </div>
+                <span style="font-size:11px;font-weight:600;color:var(--green)">65%</span>
+              </div>
+            </div>
+            <!-- Deadline warning -->
+            <div class="deadline-warn" style="margin-top:8px">
+              <i class="fa-solid fa-clock"></i>
+              موعد التسليم: <strong>25 مايو 2026</strong> — تبقى 6 أيام
+            </div>
+          </div>
+          <!-- Messages -->
+          <div class="chat-messages" id="emp-chat-msgs"></div>
+          <!-- Toolbar -->
+          <div class="chat-toolbar">
+            <button class="tool-btn" onclick="empFmt('bold')" title="تغميق"><b>B</b></button>
+            <button class="tool-btn" onclick="empFmt('italic')" title="مائل"><i>I</i></button>
+            <button class="tool-btn" onclick="empFmt('underline')" title="خط تحت"><u>U</u></button>
+            <div class="tool-sep"></div>
+            <button class="tool-btn" onclick="empFmt('color')" title="تلوين" style="color:var(--gold);font-weight:700">A</button>
+            <div class="tool-sep"></div>
+            <button class="tool-btn" onclick="empIns('quote')" title="اقتباس" style="font-size:15px">❝</button>
+            <button class="tool-btn" onclick="empIns('bullet')" title="تنقيط">≡</button>
+            <button class="tool-btn" onclick="empIns('num')" title="ترقيم">①</button>
+            <div class="tool-sep"></div>
+            <button class="tool-btn" onclick="sendToSupervisor()" title="رسالة للمشرف فقط" style="color:var(--purple)"><i class="fa-solid fa-eye"></i></button>
+            <div class="tool-sep"></div>
+            <button onclick="openDeliveryModal()" style="padding:4px 12px;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);border-radius:6px;font-size:11px;cursor:pointer;font-family:'Tajawal',sans-serif;display:flex;align-items:center;gap:4px;transition:all .2s;margin-right:4px" onmouseover="this.style.background='var(--gold)';this.style.color='#111'" onmouseout="this.style.background='var(--gold-dim)';this.style.color='var(--gold)'">
+              <i class="fa-solid fa-box-open"></i>تسليم نهائي
+            </button>
+          </div>
+          <!-- Input -->
+          <div class="chat-input-area">
+            <button class="chat-icon-btn" onclick="document.getElementById('emp-file-inp').click()" title="ملف"><i class="fa-solid fa-paperclip"></i></button>
+            <button class="chat-icon-btn" onclick="document.getElementById('emp-img-inp').click()" title="صورة بعلامة مائية"><i class="fa-solid fa-image"></i></button>
+            <button class="chat-icon-btn" onclick="toggleEmpEmoji()" title="إيموجي" style="font-size:16px;border:none">😊</button>
+            <input type="file" id="emp-file-inp" style="display:none" onchange="empSendFile(this)">
+            <input type="file" id="emp-img-inp" accept="image/*" style="display:none" onchange="empSendImg(this)">
+            <textarea id="emp-chat-inp" class="chat-textarea" placeholder="اكتب رسالتك..." rows="1"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();empSendMsg()}"
+              oninput="this.style.height='42px';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+            <button class="chat-send" onclick="empSendMsg()"><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+          <div class="emoji-panel" id="emp-emoji-p"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EARNINGS -->
+    <div class="section" id="panel-earnings">
+      <div style="margin-bottom:16px">
+        <div style="font-size:16px;font-weight:700;color:var(--text);font-family:'Amiri',serif">سجل الأرباح</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px">نسبتك: 20% من قيمة كل مشروع</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+        <div style="padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);text-align:center">
+          <div style="font-size:22px;font-weight:700;color:var(--gold);font-family:'Amiri',serif">€1,240</div>
+          <div style="font-size:11px;color:var(--text3)">هذا الشهر</div>
+        </div>
+        <div style="padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);text-align:center">
+          <div style="font-size:22px;font-weight:700;color:var(--blue);font-family:'Amiri',serif">€8,640</div>
+          <div style="font-size:11px;color:var(--text3)">هذا العام</div>
+        </div>
+        <div style="padding:16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);text-align:center">
+          <div style="font-size:22px;font-weight:700;color:var(--green);font-family:'Amiri',serif">€320</div>
+          <div style="font-size:11px;color:var(--text3)">قادم قريباً</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-list"></i>تفاصيل الأرباح</div></div>
+        <table>
+          <thead><tr><th>المشروع</th><th>العميل</th><th>قيمة المشروع</th><th>نسبتك (20%)</th><th>الحالة</th><th>التاريخ</th></tr></thead>
+          <tbody id="earnings-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RATINGS -->
+    <div class="section" id="panel-ratings">
+      <div style="margin-bottom:16px">
+        <div style="font-size:16px;font-weight:700;color:var(--text);font-family:'Amiri',serif">تقييماتي</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px">تقييمات العملاء والمشرفين بعد إغلاق كل مشروع</div>
+      </div>
+      <div style="display:grid;grid-template-columns:auto 1fr;gap:20px;margin-bottom:20px">
+        <div style="padding:24px;background:var(--bg2);border:1px solid var(--gold-border);border-radius:var(--radius-lg);text-align:center;min-width:140px">
+          <div style="font-size:48px;font-weight:700;color:var(--gold);font-family:'Amiri',serif">4.8</div>
+          <div style="color:var(--gold);font-size:18px;margin:4px 0">★★★★★</div>
+          <div style="font-size:11px;color:var(--text3)">من 23 تقييم</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px;justify-content:center">
+          <div id="ratings-bars"></div>
+        </div>
+      </div>
+      <div id="ratings-list" style="display:flex;flex-direction:column;gap:12px"></div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="section" id="panel-profile">
+      <div style="max-width:860px">
+        <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:24px;margin-bottom:16px;position:relative;overflow:hidden">
+          <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to left,transparent,var(--gold),transparent)"></div>
+          <div style="display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap">
+            <div style="position:relative;flex-shrink:0">
+              <div id="prof-avatar" style="width:88px;height:88px;border-radius:50%;background:var(--gold-dim);border:2px solid var(--gold-border);display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:700;color:var(--gold);cursor:pointer;overflow:hidden" onclick="document.getElementById('av-inp').click()">ع</div>
+              <div style="position:absolute;bottom:0;right:0;width:26px;height:26px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="document.getElementById('av-inp').click()"><i class="fa-solid fa-camera" style="font-size:11px;color:#111"></i></div>
+              <input type="file" id="av-inp" accept="image/*" style="display:none" onchange="changeAv(this)">
+            </div>
+            <div style="flex:1;min-width:200px">
+              <div style="font-family:'Amiri',serif;font-size:1.5rem;color:var(--text);margin-bottom:4px">عمر مسعد</div>
+              <div style="font-size:12px;color:var(--text3);margin-bottom:8px">VEN-EMP-007 · موظف أول · عضو منذ مارس 2023</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(76,175,125,.12);color:var(--green);border:1px solid rgba(76,175,125,.3)">● متاح</span>
+                <span style="font-size:10px;padding:2px 8px;border-radius:10px;background:rgba(91,143,212,.1);color:var(--blue);border:1px solid rgba(91,143,212,.2)">مطور ويب</span>
+                <span style="font-size:10px;padding:2px 8px;border-radius:10px;background:var(--gold-dim);color:var(--gold);border:1px solid var(--gold-border)">تصميم</span>
+                <span style="font-size:10px;padding:2px 8px;border-radius:10px;background:var(--bg3);color:var(--text3);border:1px solid var(--border)">🇸🇦 🇬🇧</span>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;flex-shrink:0">
+              <div style="padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);text-align:center"><div style="font-size:20px;font-weight:700;color:var(--gold);font-family:'Amiri',serif">34</div><div style="font-size:10px;color:var(--text3)">مشروع منجز</div></div>
+              <div style="padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);text-align:center"><div style="font-size:20px;font-weight:700;color:var(--green);font-family:'Amiri',serif">4.8</div><div style="font-size:10px;color:var(--text3)">التقييم</div></div>
+              <div style="padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);text-align:center"><div style="font-size:20px;font-weight:700;color:var(--blue);font-family:'Amiri',serif">€1,240</div><div style="font-size:10px;color:var(--text3)">هذا الشهر</div></div>
+              <div style="padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);text-align:center"><div style="font-size:20px;font-weight:700;color:var(--purple);font-family:'Amiri',serif">20%</div><div style="font-size:10px;color:var(--text3)">نسبة الأرباح</div></div>
+            </div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-user"></i>البيانات الشخصية</div></div>
+            <div style="padding:16px;display:flex;flex-direction:column;gap:10px">
+              <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">الاسم الكامل</div><div style="display:flex;gap:8px"><input class="form-input" value="عمر مسعد" style="flex:1"><button class="btn-gold" onclick="showToast('تم الحفظ','green')"><i class="fa-solid fa-check"></i></button></div></div>
+              <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">البريد الإلكتروني</div><div style="display:flex;gap:8px"><input class="form-input" type="email" value="omar@venecos.net" style="flex:1"><button class="btn-gold" onclick="showToast('تم الحفظ','green')"><i class="fa-solid fa-check"></i></button></div></div>
+              <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">كلمة المرور</div><div style="display:flex;gap:8px"><input class="form-input" type="password" placeholder="كلمة مرور جديدة" style="flex:1"><button class="btn-gold" onclick="showToast('تم التغيير','green')"><i class="fa-solid fa-check"></i></button></div></div>
+              <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">رقم الهاتف</div><input class="form-input" type="tel" value="+49 176 123 4567"></div>
+              <div><div style="font-size:11px;color:var(--text3);margin-bottom:4px">تاريخ الميلاد</div><input class="form-input" type="date" value="1995-08-20"></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-tools"></i>المهارات والأدوات</div></div>
+            <div style="padding:16px">
+              <div style="font-size:11px;color:var(--text3);margin-bottom:10px">اضغط لإضافة مهارة أو أداة</div>
+              <div id="skills-list" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
+              <div style="display:flex;gap:6px">
+                <input class="form-input" id="skill-inp" placeholder="مثال: Photoshop, React, Figma..." style="flex:1;font-size:12px" onkeydown="if(event.key==='Enter')addSkill()">
+                <button class="btn-gold" onclick="addSkill()" style="padding:0 12px"><i class="fa-solid fa-plus"></i></button>
+              </div>
+              <div style="margin-top:14px">
+                <div style="font-size:11px;color:var(--text3);margin-bottom:8px">مستوى الخبرة</div>
+                <select class="form-input" style="font-size:12px">
+                  <option>مبتدئ</option><option>متوسط</option><option selected>محترف</option><option>خبير</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-earth-europe"></i>الإقامة والمنشأ</div><button onclick="showToast('تم إرسال طلب تعديل للأدمن','gold')" style="font-size:11px;padding:4px 10px;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);border-radius:var(--radius);cursor:pointer;font-family:Tajawal,sans-serif">طلب تعديل</button></div>
+            <div style="padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px">دولة الإقامة</div><div style="padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);font-size:13px">🇩🇪 ألمانيا</div></div>
+              <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px">المدينة</div><div style="padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);font-size:13px">برلين</div></div>
+              <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px">دولة المنشأ</div><div style="padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);font-size:13px">🇸🇾 سوريا</div></div>
+              <div><div style="font-size:10px;color:var(--text3);margin-bottom:3px">الجنسية</div><div style="padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);font-size:13px">سوري</div></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-hdr"><div class="card-title"><i class="fa-solid fa-clock"></i>ساعات العمل</div><button onclick="showToast('تم إرسال طلب تعديل للأدمن','gold')" style="font-size:11px;padding:4px 10px;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);border-radius:var(--radius);cursor:pointer;font-family:Tajawal,sans-serif">طلب تغيير</button></div>
+            <div style="padding:14px;display:flex;flex-direction:column;gap:8px">
+              <div style="padding:10px 12px;background:rgba(76,175,125,.08);border:1px solid rgba(76,175,125,.2);border-radius:var(--radius)"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">الإثنين — الجمعة</div><div style="font-size:15px;font-weight:600;color:var(--green)">09:00 — 17:00 <span style="font-size:11px;font-weight:400;color:var(--text3)">(GMT+1)</span></div></div>
+              <div style="padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius)"><div style="font-size:10px;color:var(--text3);margin-bottom:3px">السبت — الأحد</div><div style="font-size:13px;color:var(--text4)">إجازة</div></div>
+              <div style="font-size:10px;color:var(--text4);display:flex;align-items:center;gap:5px"><i class="fa-solid fa-lock" style="color:var(--gold)"></i>التعديل يحتاج موافقة الأدمن</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: REQUEST PROJECT -->
+<div class="overlay" id="modal-req-proj" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title"><i class="fa-solid fa-hand-pointer"></i>طلب استلام المشروع</div>
+      <button class="modal-close" onclick="document.getElementById('modal-req-proj').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="req-proj-detail"></div>
+      <div style="margin-top:12px"><div style="font-size:11px;color:var(--text3);margin-bottom:5px">رسالة للمشرف (اختياري)</div>
+        <textarea id="req-proj-msg" class="form-input" placeholder="لماذا تناسبك هذه المهمة؟ خبرتك بالمجال..." style="min-height:80px"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="document.getElementById('modal-req-proj').classList.remove('open')">إلغاء</button>
+      <button class="btn-gold" onclick="submitReqProj()"><i class="fa-solid fa-paper-plane" style="margin-left:5px"></i>إرسال الطلب للمشرف</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: FINAL DELIVERY -->
+<div class="overlay" id="modal-delivery" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title"><i class="fa-solid fa-box-open"></i>رفع التسليم النهائي</div>
+      <button class="modal-close" onclick="document.getElementById('modal-delivery').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="padding:8px 12px;background:rgba(76,175,125,.08);border:1px solid rgba(76,175,125,.2);border-radius:var(--radius);font-size:12px;color:var(--green);margin-bottom:14px;display:flex;gap:6px">
+        <i class="fa-solid fa-circle-info" style="flex-shrink:0;margin-top:2px"></i>
+        ملفات التسليم النهائي بدون علامة مائية — ستُرسل مباشرة للعميل بعد موافقة المشرف
+      </div>
+      <div style="border:2px dashed var(--border2);border-radius:var(--radius-lg);padding:24px;text-align:center;cursor:pointer;background:var(--bg4);transition:all .2s;margin-bottom:12px" ondragover="event.preventDefault();this.style.borderColor='var(--gold)'" ondragleave="this.style.borderColor='var(--border2)'" onclick="document.getElementById('delivery-inp').click()">
+        <i class="fa-solid fa-cloud-arrow-up" style="font-size:32px;color:var(--gold);opacity:.5;margin-bottom:8px;display:block"></i>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:4px">اسحب الملفات النهائية أو انقر للاختيار</div>
+        <div style="font-size:11px;color:var(--text3)">بدون علامة مائية — يراها العميل بعد موافقة المشرف</div>
+        <input type="file" id="delivery-inp" multiple style="display:none" onchange="handleDelivery(this)">
+      </div>
+      <div id="delivery-files" style="display:flex;flex-direction:column;gap:6px"></div>
+      <div style="margin-top:12px"><div style="font-size:11px;color:var(--text3);margin-bottom:5px">ملاحظات للمشرف</div>
+        <textarea class="form-input" placeholder="ملاحظات عن التسليم، تعليمات الاستخدام..." style="min-height:70px"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="document.getElementById('modal-delivery').classList.remove('open')">إلغاء</button>
+      <button class="btn-gold" onclick="submitDelivery()"><i class="fa-solid fa-box-open" style="margin-left:5px"></i>رفع التسليم للمراجعة</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SEND TO SUPERVISOR -->
+<div class="overlay" id="modal-to-sup" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-hdr">
+      <div class="modal-title"><i class="fa-solid fa-eye"></i>رسالة للمشرف فقط</div>
+      <button class="modal-close" onclick="document.getElementById('modal-to-sup').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div style="padding:8px 12px;background:rgba(155,114,207,.08);border:1px solid rgba(155,114,207,.2);border-radius:var(--radius);font-size:12px;color:var(--purple);margin-bottom:14px">
+        <i class="fa-solid fa-eye-slash" style="margin-left:5px"></i>هذه الرسالة لن يراها العميل — للمشرف فقط
+      </div>
+      <textarea id="to-sup-msg" class="form-input" placeholder="ملاحظة للمشرف، سؤال، طلب توجيه..." style="min-height:100px"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-outline" onclick="document.getElementById('modal-to-sup').classList.remove('open')">إلغاء</button>
+      <button class="btn-gold" onclick="confirmSendToSup()"><i class="fa-solid fa-paper-plane" style="margin-left:5px"></i>إرسال للمشرف</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast-el"></div>
+
+<script>
+function qs(id){return document.getElementById(id);}
+function nowT(){return new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});}
+
+var STATS=[
+  {val:'2',lbl:'مشاريع نشطة',icon:'fa-diagram-project',color:'var(--blue)'},
+  {val:'34',lbl:'مشروع منجز',icon:'fa-check-double',color:'var(--green)'},
+  {val:'€1,240',lbl:'أرباح هذا الشهر',icon:'fa-coins',color:'var(--gold)'},
+  {val:'4.8',lbl:'متوسط التقييم',icon:'fa-star',color:'var(--purple)'}
+];
+
+var AVAIL_PROJECTS=[
+  {id:10,name:'تطبيق موبايل — شركة النور',client:'شركة النور',svc:'برمجة',lang:'🇸🇦',budget:'€2,000',deadline:'45 يوم',requests:2,desc:'تطبيق iOS/Android لإدارة المخزون'},
+  {id:11,name:'هوية بصرية — مطعم أجواء',client:'مطعم أجواء',svc:'تصميم فوتوغرافي',lang:'🇩🇪',budget:'€800',deadline:'14 يوم',requests:1,desc:'شعار + هوية كاملة + منيو'},
+  {id:12,name:'موقع Portfolio — Ahmad',client:'Ahmad K.',svc:'برمجة',lang:'🇬🇧',budget:'€600',deadline:'21 يوم',requests:0,desc:'موقع شخصي React + animations'}
+];
+
+var MY_PROJECTS=[
+  {id:1,name:'موقع شركة الأمل',client:'أحمد محمد',svc:'برمجة',pct:65,due:'25 مايو 2026',stage:2,daysLeft:6,supervisor:'خالد السيد'},
+  {id:2,name:'تصوير منتجات — كريم',client:'كريم يوسف',svc:'تصميم فوتوغرافي',pct:40,due:'1 يونيو 2026',stage:1,daysLeft:13,supervisor:'خالد السيد'}
+];
+
+var EARNINGS_DATA=[
+  {proj:'تطبيق نور',client:'شركة النور',total:'€3,200',mine:'€640',status:'مدفوع',date:'مايو 2026'},
+  {proj:'موقع الأمل',client:'أحمد محمد',total:'€1,500',mine:'€300',status:'جارٍ',date:'مايو 2026'},
+  {proj:'هوية MAX',client:'Max Bauer',total:'€900',mine:'€180',status:'مدفوع',date:'أبريل 2026'},
+  {proj:'فيديو دعائي',client:'سارة علي',total:'€700',mine:'€140',status:'مدفوع',date:'مارس 2026'}
+];
+
+var RATINGS_DATA=[
+  {proj:'تطبيق نور',client:'شركة النور',fromClient:5,fromSup:4.5,comment:'عمل احترافي جداً، سرعة في التنفيذ',date:'مايو 2026'},
+  {proj:'هوية MAX',client:'Max Bauer',fromClient:4,fromSup:5,comment:'Sehr gute Arbeit! Empfehlenswert.',date:'أبريل 2026'},
+  {proj:'فيديو دعائي',client:'سارة علي',fromClient:5,fromSup:4,comment:'ممتاز — التفاصيل دقيقة',date:'مارس 2026'}
+];
+
+var STAGES=['استلام المشروع','قيد التنفيذ','مراجعة المشرف','تسليم العميل','مغلق'];
+var SKILLS=['React','Node.js','Figma','Photoshop','After Effects','CSS3'];
+var currentReqProj=null;
+
+function showPanel(id,el){
+  document.querySelectorAll('.section').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.sb-item').forEach(function(i){i.classList.remove('active');});
+  var s=qs('panel-'+id);if(s)s.classList.add('active');
+  if(el)el.classList.add('active');
+  var T={dashboard:'لوحة التحكم',available:'المشاريع المتاحة',projects:'مشاريعي',chat:'الشات',earnings:'سجل الأرباح',ratings:'تقييماتي',profile:'بروفايلي'};
+  var el2=qs('topbar-title');if(el2)el2.textContent=T[id]||id;
+}
+
+function changeStatus(v){
+  var c={متاح:'var(--green)',مشغول:'var(--gold)',غائب:'var(--red)',إجازة:'var(--blue)'};
+  var d=qs('status-dot');var l=qs('status-label');
+  if(d)d.style.background=c[v]||'var(--green)';
+  if(l)l.textContent=v;
+  var online=qs('sb-online-dot');
+  if(online)online.style.background=c[v]||'var(--green)';
+  showToast('تم تحديث الحالة: '+v,'green');
+}
+
+function renderStats(){
+  var el=qs('dash-stats');if(!el)return;
+  var h='';
+  for(var i=0;i<STATS.length;i++){
+    var s=STATS[i];
+    h+='<div class="stat-card" style="border-top:2px solid '+s.color+'30">';
+    h+='<div class="stat-val" style="color:'+s.color+'">'+s.val+'</div>';
+    h+='<div class="stat-lbl">'+s.lbl+'</div>';
+    h+='<i class="fa-solid '+s.icon+' stat-ico" style="color:'+s.color+'"></i>';
+    h+='</div>';
+  }
+  el.innerHTML=h;
+}
+
+function renderDashMyProjects(){
+  var el=qs('dash-my-projects');if(!el)return;
+  var h='';
+  for(var i=0;i<MY_PROJECTS.length;i++){
+    var p=MY_PROJECTS[i];
+    var bc=p.pct>=80?'var(--green)':p.pct>=50?'var(--gold)':'var(--blue)';
+    var warn=p.daysLeft<=3;
+    h+='<div style="padding:10px 12px;background:var(--bg3);border:1px solid '+(warn?'rgba(224,90,24,.3)':'var(--border)')+';border-radius:var(--radius);margin-bottom:8px;cursor:pointer" onclick="showPanel(\'chat\',document.querySelector(\'[onclick*=chat]\'))">';
+    h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">';
+    h+='<div style="font-size:13px;font-weight:500;color:var(--text)">'+p.name+'</div>';
+    h+='<span style="font-size:10px;color:'+(warn?'var(--red)':'var(--text3)')+'">'+p.daysLeft+' أيام</span>';
+    h+='</div>';
+    h+='<div style="display:flex;align-items:center;gap:8px">';
+    h+='<div style="flex:1;height:4px;background:var(--bg4);border-radius:2px">';
+    h+='<div style="height:100%;width:'+p.pct+'%;background:'+bc+';border-radius:2px"></div>';
+    h+='</div>';
+    h+='<span style="font-size:11px;color:'+bc+'">'+p.pct+'%</span>';
+    h+='</div>';
+    h+='</div>';
+  }
+  el.innerHTML=h||'<div style="text-align:center;padding:20px;color:var(--text3);font-size:12px">لا توجد مشاريع نشطة</div>';
+}
+
+function renderDashNotifs(){
+  var el=qs('dash-notifs');if(!el)return;
+  var notifs=[
+    {icon:'fa-briefcase-arrow-right',color:'var(--blue)',text:'مشروع جديد متاح: تطبيق موبايل — شركة النور',time:'منذ ساعة'},
+    {icon:'fa-comments',color:'var(--gold)',text:'رسالة جديدة من أحمد محمد في مشروع الأمل',time:'منذ 3 ساعات'},
+    {icon:'fa-star',color:'var(--green)',text:'تقييم جديد: 5 نجوم من شركة النور',time:'أمس'}
+  ];
+  var h='';
+  for(var i=0;i<notifs.length;i++){
+    var n=notifs[i];
+    h+='<div style="display:flex;gap:8px;align-items:flex-start;padding:8px;border-radius:var(--radius);background:var(--bg3);border:1px solid var(--border);margin-bottom:6px;cursor:pointer">';
+    h+='<div style="width:26px;height:26px;border-radius:50%;background:'+n.color+'15;color:'+n.color+';display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0"><i class="fa-solid '+n.icon+'"></i></div>';
+    h+='<div style="flex:1"><div style="font-size:11px;color:var(--text2);line-height:1.5">'+n.text+'</div>';
+    h+='<div style="font-size:9px;color:var(--text3);margin-top:2px">'+n.time+'</div></div>';
+    h+='</div>';
+  }
+  el.innerHTML=h;
+}
+
+function renderAvailableProjects(){
+  var el=qs('available-grid');if(!el)return;
+  var h='';
+  for(var i=0;i<AVAIL_PROJECTS.length;i++){
+    var p=AVAIL_PROJECTS[i];
+    h+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:all .2s" onmouseover="this.style.borderColor=\'var(--gold-border)\';this.style.transform=\'translateY(-2px)\'" onmouseout="this.style.borderColor=\'var(--border)\';this.style.transform=\'\'">';
+    h+='<div style="padding:14px;border-bottom:1px solid var(--border)">';
+    h+='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px">';
+    h+='<div style="font-size:14px;font-weight:600;color:var(--text)">'+p.name+'</div>';
+    if(p.requests>0)h+='<span style="font-size:10px;padding:1px 7px;background:rgba(224,90,24,.1);color:var(--red);border-radius:10px">'+p.requests+' طلب</span>';
+    h+='</div>';
+    h+='<div style="font-size:12px;color:var(--text3);margin-bottom:6px">'+p.desc+'</div>';
+    h+='<div style="display:flex;gap:6px;flex-wrap:wrap">';
+    h+='<span style="font-size:10px;padding:1px 7px;background:rgba(91,143,212,.1);color:var(--blue);border-radius:10px">'+p.svc+'</span>';
+    h+='<span style="font-size:10px;padding:1px 7px;background:var(--bg3);color:var(--text3);border-radius:10px">'+p.lang+'</span>';
+    h+='</div></div>';
+    h+='<div style="padding:10px 14px;display:flex;align-items:center;justify-content:space-between">';
+    h+='<div style="font-size:12px;color:var(--gold);font-weight:600">'+p.budget+'</div>';
+    h+='<div style="font-size:11px;color:var(--text3)"><i class="fa-solid fa-clock" style="margin-left:4px"></i>'+p.deadline+'</div>';
+    h+='</div>';
+    h+='<div style="padding:8px 14px;border-top:1px solid var(--border)">';
+    h+='<button onclick="openReqProj('+i+')" style="width:100%;padding:8px;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);border-radius:var(--radius);font-family:Tajawal,sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s" onmouseover="this.style.background=\'var(--gold)\';this.style.color=\'#111\'" onmouseout="this.style.background=\'var(--gold-dim)\';this.style.color=\'var(--gold)\'">أريد استلام هذا المشروع</button>';
+    h+='</div></div>';
+  }
+  el.innerHTML=h;
+}
+
+function renderMyProjects(){
+  var el=qs('my-projects-list');if(!el)return;
+  var h='';
+  for(var i=0;i<MY_PROJECTS.length;i++){
+    var p=MY_PROJECTS[i];
+    var bc=p.pct>=80?'var(--green)':p.pct>=50?'var(--gold)':'var(--blue)';
+    var warn=p.daysLeft<=3;
+    h+='<div style="background:var(--bg2);border:1px solid '+(warn?'rgba(224,90,24,.3)':'var(--border)')+';border-radius:var(--radius-lg);overflow:hidden">';
+    if(warn)h+='<div style="padding:8px 16px;background:rgba(224,90,24,.06);border-bottom:1px solid rgba(224,90,24,.2);font-size:12px;color:var(--red);display:flex;align-items:center;gap:6px"><i class="fa-solid fa-triangle-exclamation"></i>تحذير: موعد التسليم خلال '+p.daysLeft+' أيام</div>';
+    h+='<div style="padding:16px">';
+    h+='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">';
+    h+='<div><div style="font-size:15px;font-weight:700;color:var(--text)">'+p.name+'</div>';
+    h+='<div style="font-size:12px;color:var(--text3);margin-top:3px">العميل: '+p.client+' · المشرف: '+p.supervisor+'</div></div>';
+    h+='<div style="text-align:left"><div style="font-size:20px;font-weight:700;color:'+bc+';font-family:Amiri,serif">'+p.pct+'%</div><div style="font-size:10px;color:var(--text3)">منجز</div></div>';
+    h+='</div>';
+    h+='<div style="margin-bottom:12px"><div style="height:6px;background:var(--bg4);border-radius:3px"><div style="height:100%;width:'+p.pct+'%;background:linear-gradient(to left,'+bc+','+bc+'80);border-radius:3px;transition:width .5s"></div></div></div>';
+    h+=renderStagesBar(p.stage);
+    h+='<div style="display:flex;gap:8px;margin-top:12px">';
+    h+='<button onclick="showPanel(\'chat\',document.querySelector(\'[onclick*=chat]\'))" style="flex:1;padding:8px;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);border-radius:var(--radius);font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px"><i class="fa-solid fa-comments"></i>فتح الشات</button>';
+    h+='<button onclick="openDeliveryModal()" style="padding:8px 16px;background:none;border:1px solid var(--border2);color:var(--text2);border-radius:var(--radius);font-family:Tajawal,sans-serif;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:6px"><i class="fa-solid fa-box-open"></i>تسليم</button>';
+    h+='</div></div></div>';
+  }
+  el.innerHTML=h||'<div style="text-align:center;padding:40px;color:var(--text3)"><i class="fa-solid fa-diagram-project" style="font-size:32px;margin-bottom:10px;display:block;color:var(--gold);opacity:.3"></i>لا توجد مشاريع مُسندة بعد</div>';
+}
+
+function renderStagesBar(active){
+  var h='<div class="stages-bar">';
+  for(var i=0;i<STAGES.length;i++){
+    var cls=i<active?'done':i===active?'active':'pending';
+    var lineColor=i<active?'var(--green)':i===active?'var(--gold)':'var(--border)';
+    h+='<div class="stage">';
+    if(i>0)h+='<div class="stage-line" style="background:'+lineColor+'"></div>';
+    h+='<div class="stage-dot '+cls+'">';
+    if(cls==='done')h+='<i class="fa-solid fa-check" style="font-size:9px"></i>';
+    else if(cls==='active')h+='<i class="fa-solid fa-circle" style="font-size:7px"></i>';
+    else h+='<span style="font-size:8px">'+(i+1)+'</span>';
+    h+='</div>';
+    h+='<div class="stage-label" style="color:'+(cls==='active'?'var(--gold)':cls==='done'?'var(--green)':'var(--text4)')+'">'+STAGES[i]+'</div>';
+    h+='</div>';
+  }
+  h+='</div>';
+  return h;
+}
+
+function renderEmpChatContacts(){
+  var el=qs('emp-chat-contacts');if(!el)return;
+  var h='';
+  for(var i=0;i<MY_PROJECTS.length;i++){
+    var p=MY_PROJECTS[i];
+    var bc=p.pct>=80?'var(--green)':p.pct>=50?'var(--gold)':'var(--blue)';
+    h+='<div class="chat-item'+(i===0?' active':'')+'" onclick="selEmpChat('+i+',this)">';
+    h+='<div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+p.name+'</div>';
+    h+='<div style="font-size:10px;color:var(--text3);margin-bottom:4px">'+p.client+'</div>';
+    h+='<div style="display:flex;align-items:center;gap:6px">';
+    h+='<div style="flex:1;height:3px;background:var(--bg4);border-radius:2px"><div style="height:100%;width:'+p.pct+'%;background:'+bc+';border-radius:2px"></div></div>';
+    h+='<span style="font-size:9px;color:var(--text3)">'+p.pct+'%</span>';
+    h+='</div>';
+    if(i===0)h+='<div class="chat-unread">1</div>';
+    h+='</div>';
+  }
+  el.innerHTML=h;
+}
+
+function selEmpChat(idx,el){
+  document.querySelectorAll('.chat-item').forEach(function(i){i.classList.remove('active');});
+  el.classList.add('active');
+  var p=MY_PROJECTS[idx];if(!p)return;
+  var pn=qs('emp-chat-proj');if(pn)pn.textContent=p.name;
+}
+
+function initEmpChatMsgs(){
+  var msgs=qs('emp-chat-msgs');if(!msgs)return;
+  empAddSys('بدأ المشروع — تم الإسناد من قبل المشرف خالد السيد');
+  empAddClient('أحمد محمد','السلام عليكم، هل استلمت تفاصيل المشروع؟','09:00');
+  empAddMe('وعليكم السلام أحمد! نعم استلمت كل التفاصيل، سأبدأ العمل فوراً 💪','09:05');
+  empAddSup('خالد السيد (المشرف)','تأكد من متابعة التصميم مع متطلبات العميل أولاً','09:10');
+  empAddToSup('للمشرف فقط: العميل يطلب تعديلات إضافية غير متفق عليها، كيف نتعامل؟','09:15');
+  empAddClient('أحمد محمد','متى يمكن رؤية أول نموذج؟','أمس');
+  empAddMe('سأرسل النموذج الأول اليوم بإذن الله 🎯','أمس');
+  empAddImgWM('نموذج التصميم الأول','الآن');
+}
+
+function empAddSys(txt){
+  var msgs=qs('emp-chat-msgs');if(!msgs)return;
+  var d=document.createElement('div');
+  d.className='msg-system';
+  d.innerHTML='<i class="fa-solid fa-circle-info" style="font-size:10px"></i>'+txt;
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function empAddMe(txt,t){
+  var msgs=qs('emp-chat-msgs');if(!msgs)return;
+  var d=document.createElement('div');d.className='msg me';
+  d.innerHTML='<div class="msg-meta">أنت · '+(t||nowT())+'</div><div class="msg-bubble">'+txt+'</div>';
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function empAddClient(sender,txt,t){
+  var msgs=qs('emp-chat-msgs');if(!msgs)return;
+  var d=document.createElement('div');d.className='msg client';
+  d.innerHTML='<div class="msg-meta">'+sender+' · '+(t||nowT())+'</div><div class="msg-bubble">'+txt+'</div>';
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function empAddSup(sender,txt,t){
+  var msgs=qs('emp-chat-msgs');if(!msgs)return;
+  var d=document.createElement('div');d.className='msg supervisor';
+  d.innerHTML='<div class="msg-meta">'+sender+' · '+(t||nowT())+'</div><div class="msg-bubble"><i class="fa-solid fa-user-tie" style="margin-left:5px;font-size:11px"></i>'+txt+'</div>';
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function empAddToSup(txt,t){
+  var msgs=qs('emp-chat-msgs');if(!msgs)return;
+  var d=document.createElement('div');d.className='msg me';
+  d.innerHTML='<div class="msg-meta" style="color:var(--purple)">أنت (للمشرف فقط) · '+(t||nowT())+'</div><div class="msg-bubble msg-to-sup"><i class="fa-solid fa-eye" style="margin-left:5px"></i>'+txt+'</div>';
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function empAddImgWM(label,t){
+  var msgs=qs('emp-chat-msgs');if(!msgs)return;
+  var d=document.createElement('div');d.className='msg me';
+  d.innerHTML='<div class="msg-meta">أنت · '+(t||nowT())+' <span style="font-size:9px;padding:1px 5px;background:var(--gold-dim);border-radius:4px;color:var(--gold)">علامة مائية</span></div>'
+    +'<div class="msg-bubble" style="padding:4px">'
+    +'<div class="msg-wm">'
+    +'<div style="width:180px;height:110px;background:linear-gradient(135deg,var(--gold-dim),var(--bg3));border-radius:var(--radius);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border:1px solid var(--border)">'
+    +'<i class="fa-solid fa-image" style="font-size:36px;color:var(--gold);opacity:.3"></i>'
+    +'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">'
+    +'<div style="transform:rotate(-30deg);font-family:Amiri,serif;font-size:16px;font-weight:700;color:rgba(201,168,76,0.5);text-align:center;line-height:1.4">VENECOS<br><span style="font-size:11px">venecos.net</span></div>'
+    +'</div></div></div>'
+    +'<div style="font-size:10px;color:var(--text3);margin-top:4px">'+label+' — بعلامة مائية للمراجعة</div>'
+    +'</div>';
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+}
+
+function empSendMsg(){
+  var inp=qs('emp-chat-inp');if(!inp)return;
+  var txt=inp.value.trim();if(!txt)return;
+  empAddMe(txt);inp.value='';inp.style.height='42px';
+}
+
+function empFmt(type){
+  var inp=qs('emp-chat-inp');if(!inp)return;
+  var st=inp.selectionStart,en=inp.selectionEnd,sel=inp.value.slice(st,en);
+  var tags={bold:'**',italic:'_',underline:'__',color:'~~'};
+  var tag=tags[type]||'';
+  inp.value=inp.value.slice(0,st)+tag+sel+tag+inp.value.slice(en);
+  inp.focus();
+}
+
+function empIns(type){
+  var inp=qs('emp-chat-inp');if(!inp)return;
+  var m={quote:'\n> ',bullet:'\n• ',num:'\n1. '};
+  inp.value+=m[type]||'';inp.focus();
+}
+
+function toggleEmpEmoji(){
+  var p=qs('emp-emoji-p');if(p)p.classList.toggle('open');
+}
+
+function buildEmpEmoji(){
+  var el=qs('emp-emoji-p');if(!el)return;
+  var emojis=['😊','😄','😂','🤣','😅','😁','👍','👎','👏','🙌','🤝','👌','✌️','👋','🙏','💪','✨','🔥','❤️','⭐','🎯','🚀','💡','📌','⚠️','✅','❌','💎','🎉','🏆','📝','📎','🔗','💰','🕐','📅'];
+  var h='';
+  for(var i=0;i<emojis.length;i++){
+    h+='<button class="e-btn" onclick="addEmpEmoji(this.textContent)">'+emojis[i]+'</button>';
+  }
+  el.innerHTML=h;
+}
+
+function addEmpEmoji(e){
+  var inp=qs('emp-chat-inp');if(inp){inp.value+=e;inp.focus();}
+  var p=qs('emp-emoji-p');if(p)p.classList.remove('open');
+}
+
+function empSendFile(inp){
+  var f=inp.files[0];if(!f)return;
+  var msgs=qs('emp-chat-msgs');if(!msgs)return;
+  var d=document.createElement('div');d.className='msg me';
+  d.innerHTML='<div class="msg-meta">أنت · '+nowT()+'</div><div class="msg-bubble"><div style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(255,255,255,.05);border-radius:var(--radius);cursor:pointer"><span style="font-size:20px">📎</span><div><div style="font-size:12px;font-weight:500">'+f.name+'</div><div style="font-size:10px;opacity:.7">'+(f.size/1024).toFixed(1)+' KB</div></div></div></div>';
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+  showToast('تم إرسال الملف','green');
+}
+
+function empSendImg(inp){
+  var f=inp.files[0];if(!f)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var msgs=qs('emp-chat-msgs');if(!msgs)return;
+    var d=document.createElement('div');d.className='msg me';
+    d.innerHTML='<div class="msg-meta">أنت · '+nowT()+' <span style="font-size:9px;padding:1px 5px;background:var(--gold-dim);border-radius:4px;color:var(--gold)">علامة مائية</span></div>'
+      +'<div class="msg-bubble" style="padding:4px">'
+      +'<div style="position:relative;width:180px">'
+      +'<img src="'+e.target.result+'" style="width:100%;border-radius:var(--radius);display:block;filter:brightness(.7)">'
+      +'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">'
+      +'<div style="transform:rotate(-30deg);font-family:Amiri,serif;font-size:14px;font-weight:700;color:rgba(201,168,76,.6);text-align:center;line-height:1.4">VENECOS<br><span style="font-size:10px">venecos.net</span></div>'
+      +'</div></div>'
+      +'<div style="font-size:10px;color:var(--text3);margin-top:4px">صورة بعلامة مائية — للمراجعة فقط</div>'
+      +'</div>';
+    msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
+    showToast('تم إرسال الصورة بعلامة مائية','green');
+  };
+  reader.readAsDataURL(f);
+}
+
+function sendToSupervisor(){
+  var m=qs('modal-to-sup');if(m)m.classList.add('open');
+}
+
+function confirmSendToSup(){
+  var msg=qs('to-sup-msg');
+  if(!msg||!msg.value.trim()){showToast('يرجى كتابة الرسالة','red');return;}
+  empAddToSup(msg.value.trim());
+  msg.value='';
+  qs('modal-to-sup').classList.remove('open');
+  showToast('تم إرسال الرسالة للمشرف فقط','gold');
+}
+
+function requestHelp(){
+  empAddToSup('⚠️ طلب مساعدة عاجل — أحتاج توجيهك في هذا المشروع');
+  showToast('تم إرسال طلب المساعدة للمشرف','gold');
+}
+
+function openReqProj(idx){
+  currentReqProj=idx;
+  var p=AVAIL_PROJECTS[idx];if(!p)return;
+  var body=qs('req-proj-detail');
+  if(body){
+    var h='<div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin-bottom:12px">';
+    var fields=[['المشروع',p.name],['الخدمة',p.svc],['الميزانية',p.budget],['المدة',p.deadline],['اللغة',p.lang],['الطلبات السابقة',p.requests+' موظف طلبه']];
+    for(var i=0;i<fields.length;i++){
+      h+='<div style="background:var(--bg3);padding:8px 12px"><div style="font-size:10px;color:var(--text3);margin-bottom:2px">'+fields[i][0]+'</div><div style="font-size:12px;color:var(--text)">'+fields[i][1]+'</div></div>';
+    }
+    h+='<div style="background:var(--bg3);padding:8px 12px;grid-column:1/-1"><div style="font-size:10px;color:var(--text3);margin-bottom:2px">وصف المشروع</div><div style="font-size:12px;color:var(--text)">'+p.desc+'</div></div>';
+    h+='</div>';
+    body.innerHTML=h;
+  }
+  var m=qs('modal-req-proj');if(m)m.classList.add('open');
+}
+
+function submitReqProj(){
+  var p=AVAIL_PROJECTS[currentReqProj];
+  qs('modal-req-proj').classList.remove('open');
+  showToast('تم إرسال طلب استلام "'+p.name+'" للمشرف','gold');
+}
+
+function openDeliveryModal(){
+  var m=qs('modal-delivery');if(m)m.classList.add('open');
+}
+
+function handleDelivery(inp){
+  var el=qs('delivery-files');if(!el)return;
+  var h='';
+  for(var i=0;i<inp.files.length;i++){
+    var f=inp.files[i];
+    h+='<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius)">';
+    h+='<i class="fa-solid fa-file" style="color:var(--gold)"></i>';
+    h+='<div style="flex:1"><div style="font-size:12px;font-weight:500;color:var(--text)">'+f.name+'</div>';
+    h+='<div style="font-size:10px;color:var(--text3)">'+(f.size/1024).toFixed(1)+' KB</div></div>';
+    h+='<span style="font-size:10px;padding:1px 6px;background:rgba(76,175,125,.12);color:var(--green);border-radius:6px">بدون علامة مائية</span>';
+    h+='</div>';
+  }
+  el.innerHTML=h;
+}
+
+function submitDelivery(){
+  qs('modal-delivery').classList.remove('open');
+  empAddSys('تم رفع التسليم النهائي — في انتظار مراجعة المشرف خالد السيد');
+  showToast('تم رفع التسليم بنجاح — في انتظار موافقة المشرف','gold');
+}
+
+function renderEarnings(){
+  var el=qs('earnings-tbody');if(!el)return;
+  var h='';
+  for(var i=0;i<EARNINGS_DATA.length;i++){
+    var e=EARNINGS_DATA[i];
+    var isActive=e.status==='جارٍ';
+    h+='<tr><td><div style="font-weight:500;color:var(--text)">'+e.proj+'</div></td>';
+    h+='<td style="font-size:12px">'+e.client+'</td>';
+    h+='<td style="font-size:13px;color:var(--text2)">'+e.total+'</td>';
+    h+='<td style="font-size:14px;font-weight:700;color:var(--gold)">'+e.mine+'</td>';
+    h+='<td><span style="font-size:11px;padding:2px 8px;border-radius:10px;background:'+(isActive?'rgba(91,143,212,.1)':'rgba(76,175,125,.12)')+';color:'+(isActive?'var(--blue)':'var(--green)')+'">'+e.status+'</span></td>';
+    h+='<td style="font-size:11px;color:var(--text3)">'+e.date+'</td></tr>';
+  }
+  el.innerHTML=h;
+}
+
+function renderRatings(){
+  var bars=qs('ratings-bars');
+  if(bars){
+    var h='';
+    var levels=[{n:5,c:20},{n:4,c:2},{n:3,c:1},{n:2,c:0},{n:1,c:0}];
+    for(var i=0;i<levels.length;i++){
+      var l=levels[i];var pct=Math.round(l.c/23*100);
+      h+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">';
+      h+='<span style="font-size:11px;color:var(--gold);width:12px;text-align:center">'+l.n+'</span>';
+      h+='<i class="fa-solid fa-star" style="font-size:10px;color:var(--gold)"></i>';
+      h+='<div style="flex:1;height:8px;background:var(--bg4);border-radius:4px"><div style="height:100%;width:'+pct+'%;background:var(--gold);border-radius:4px"></div></div>';
+      h+='<span style="font-size:10px;color:var(--text3);width:24px">'+l.c+'</span>';
+      h+='</div>';
+    }
+    bars.innerHTML=h;
+  }
+  var list=qs('ratings-list');if(!list)return;
+  var h2='';
+  for(var i=0;i<RATINGS_DATA.length;i++){
+    var r=RATINGS_DATA[i];
+    h2+='<div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px">';
+    h2+='<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">';
+    h2+='<div><div style="font-size:14px;font-weight:600;color:var(--text)">'+r.proj+'</div><div style="font-size:11px;color:var(--text3)">'+r.client+' · '+r.date+'</div></div>';
+    h2+='</div>';
+    h2+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">';
+    h2+='<div style="padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);text-align:center">';
+    h2+='<div style="font-size:10px;color:var(--text3);margin-bottom:4px">تقييم العميل</div>';
+    h2+='<div style="font-size:20px;font-weight:700;color:var(--gold)">'+r.fromClient+'.0</div>';
+    h2+='<div style="color:var(--gold);font-size:13px">'+'★'.repeat(r.fromClient)+'</div></div>';
+    h2+='<div style="padding:10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);text-align:center">';
+    h2+='<div style="font-size:10px;color:var(--text3);margin-bottom:4px">تقييم المشرف</div>';
+    h2+='<div style="font-size:20px;font-weight:700;color:var(--purple)">'+r.fromSup+'</div>';
+    h2+='<div style="color:var(--purple);font-size:13px">★★★★★</div></div>';
+    h2+='</div>';
+    h2+='<div style="padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);font-size:12px;color:var(--text2);font-style:italic">"'+r.comment+'"</div>';
+    h2+='</div>';
+  }
+  list.innerHTML=h2;
+}
+
+function renderSkills(){
+  var el=qs('skills-list');if(!el)return;
+  var h='';
+  for(var i=0;i<SKILLS.length;i++){
+    h+='<div style="display:flex;align-items:center;gap:4px;padding:4px 10px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;color:var(--text2)">';
+    h+=SKILLS[i];
+    h+='<button onclick="removeSkill('+i+')" style="background:none;border:none;color:var(--text4);cursor:pointer;font-size:10px;margin-right:2px;line-height:1">×</button>';
+    h+='</div>';
+  }
+  el.innerHTML=h;
+}
+
+function addSkill(){
+  var inp=qs('skill-inp');if(!inp||!inp.value.trim())return;
+  SKILLS.push(inp.value.trim());
+  inp.value='';
+  renderSkills();
+  showToast('تمت إضافة المهارة','green');
+}
+
+function removeSkill(idx){
+  SKILLS.splice(idx,1);
+  renderSkills();
+}
+
+function changeAv(inp){
+  var f=inp.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(e){
+    var av=qs('prof-avatar');
+    if(av){av.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover">';av.style.padding='0';}
+    var sbAv=qs('sb-avatar');
+    if(sbAv){sbAv.innerHTML='<img src="'+e.target.result+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">';}
+  };r.readAsDataURL(f);
+}
+
+function showToast(msg,color){
+  var c={green:'var(--green)',red:'var(--red)',gold:'var(--gold)',blue:'var(--blue)',purple:'var(--purple)'};
+  var tc={gold:'#111'};
+  var el=qs('toast-el');if(!el)return;
+  el.textContent=msg;el.style.background=c[color]||c.green;el.style.color=tc[color]||'#fff';
+  el.classList.add('show');clearTimeout(el._t);
+  el._t=setTimeout(function(){el.classList.remove('show');},2500);
+}
+
+renderStats();
+renderDashMyProjects();
+renderDashNotifs();
+renderAvailableProjects();
+renderMyProjects();
+renderEmpChatContacts();
+initEmpChatMsgs();
+renderEarnings();
+renderRatings();
+renderSkills();
+buildEmpEmoji();
+</script>
+</body>
+</html>

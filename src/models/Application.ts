@@ -10,7 +10,14 @@ export interface IApplication extends Document {
   message?: string;
   cvUrl: string;
   cvPublicId: string;
-  status: 'pending' | 'accepted' | 'rejected';
+  status: 'pending' | 'reviewing' | 'accepted' | 'rejected' | 'banned';
+  ipAddress?: string;
+  userAgent?: string;
+  banned?: boolean;
+  country?: string;
+  languages?: string[];
+  portfolioLinks?: Array<{ title: string; url: string; verified?: boolean }>;
+  documents?: Array<{ name: string; url: string; verified?: boolean }>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,9 +37,16 @@ const ApplicationSchema: Schema = new Schema({
   cvPublicId: { type: String, required: true },
   status: { 
     type: String, 
-    enum: ['pending', 'accepted', 'rejected'], 
+    enum: ['pending', 'reviewing', 'accepted', 'rejected', 'banned'], 
     default: 'pending' 
   },
+  ipAddress: { type: String, default: '' },
+  userAgent: { type: String, default: '' },
+  banned: { type: Boolean, default: false },
+  country: { type: String, default: '' },
+  languages: { type: [String], default: [] },
+  portfolioLinks: [{ title: String, url: String, verified: Boolean }],
+  documents: [{ name: String, url: String, verified: Boolean }],
 }, {
   timestamps: true
 });

@@ -4,12 +4,15 @@ import { useState } from 'react';
 import { Drawer, IconButton } from '@mui/material';
 import { MdMenu, MdClose } from 'react-icons/md';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import SignOutButton from './SignOutButton';
 
 import { 
   MdDashboard, MdGroup, MdDesignServices, MdAssignment, 
-  MdRecentActors, MdSettings, MdAssignmentInd, MdReceipt 
+  MdRecentActors, MdSettings, MdAssignmentInd, MdReceipt,
+  MdSlideshow, MdLocalOffer, MdPhotoLibrary, MdSupervisorAccount,
+  MdBadge, MdAdminPanelSettings, MdPeople, MdAccountTree,
+  MdCurrencyExchange, MdLocationOn, MdDescription, MdGavel, MdWork
 } from 'react-icons/md';
 
 interface DashboardSidebarProps {
@@ -21,126 +24,120 @@ interface DashboardSidebarProps {
 export default function DashboardSidebar({ locale, role, userName }: DashboardSidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const t = useTranslations('Dashboard');
+  const pathname = usePathname();
 
-  // RTL for Arabic
   const isRtl = locale === 'ar';
-  // Use logical border that flips with direction: border-s = left in LTR, right in RTL
-  const navLinkClass = "flex items-center gap-4 px-6 py-4 hover:bg-white/10 rounded-xl transition-all duration-300 font-bold border-s-4 border-transparent hover:border-venecos-gold text-sm tracking-wide";
-  const navLinkActiveClass = `${navLinkClass} bg-venecos-gold/10 text-venecos-gold border-venecos-gold`;
+  
+  const baseLinkClass = "flex items-center gap-3 px-4 py-2.5 hover:bg-white/10 rounded-xl transition-all duration-300 font-semibold border-s-4 border-transparent text-sm tracking-wide text-white/80 hover:text-white";
+  const activeLinkClass = "flex items-center gap-3 px-4 py-2.5 bg-venecos-gold/15 text-venecos-gold border-s-4 border-venecos-gold rounded-xl font-bold text-sm tracking-wide";
+
+  const isLinkActive = (path: string) => {
+    if (path === `/${locale}/dashboard`) {
+      return pathname === path;
+    }
+    return pathname.startsWith(path);
+  };
+
+  const renderLink = (href: string, label: string, icon: React.ReactNode) => {
+    const active = isLinkActive(href);
+    return (
+      <Link
+        key={href}
+        href={href}
+        onClick={() => setMobileOpen(false)}
+        className={active ? activeLinkClass : baseLinkClass}
+      >
+        <span className="text-lg flex-shrink-0" style={{ marginInlineEnd: '10px' }}>{icon}</span>
+        <span className="truncate">{label}</span>
+      </Link>
+    );
+  };
+
+  const renderSectionHeader = (title: string) => (
+    <div className="px-4 mt-5 mb-2 text-[10px] uppercase font-bold tracking-widest text-venecos-gold/70 border-b border-white/5 pb-1">
+      {title}
+    </div>
+  );
 
   const sidebarContent = (
     <div
-      className="flex flex-col h-full bg-venecos-black text-white p-6 justify-between"
+      className="flex flex-col h-full bg-venecos-black text-white p-5 overflow-y-auto"
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div>
-        <div className="mb-10 flex flex-col">
-          <img src="/Venecos.png" alt="Venecos" className="h-14 md:h-16 w-auto object-contain self-start" />
-          <span className="block text-xs font-light text-white/50 tracking-normal mt-2 border-t border-white/10 pt-1">
+        <div className="mb-6 flex flex-col">
+          <img src="/Venecos.png" alt="Venecos" className="h-12 w-auto object-contain self-start" />
+          <span className="block text-[11px] font-light text-white/50 tracking-normal mt-1 border-t border-white/10 pt-1">
             {role.toUpperCase()} PANEL
           </span>
         </div>
         
-        <nav className="flex flex-col gap-2">
-          <Link 
-            href={`/${locale}/dashboard`} 
-            onClick={() => setMobileOpen(false)}
-            className={navLinkActiveClass}
-          >
-            <MdDashboard size={20} style={{ marginInlineEnd: '16px' }} />
-            {t('overview')}
-          </Link>
+        <nav className="flex flex-col gap-1">
+          {/* General Section */}
+          {renderSectionHeader(isRtl ? 'عام' : 'GENERAL')}
+          {renderLink(`/${locale}/dashboard`, t('overview'), <MdDashboard />)}
 
           {role === 'admin' && (
             <>
-              <Link
-                href={`/${locale}/dashboard/users`}
-                onClick={() => setMobileOpen(false)}
-                className={navLinkClass}
-              >
-                <MdGroup size={20} style={{ marginInlineEnd: '16px' }} />
-                {t('manageUsers')}
-              </Link>
-              <Link
-                href={`/${locale}/dashboard/services`}
-                onClick={() => setMobileOpen(false)}
-                className={navLinkClass}
-              >
-                <MdDesignServices size={20} style={{ marginInlineEnd: '16px' }} />
-                {t('manageServices')}
-              </Link>
-              <Link
-                href={`/${locale}/dashboard/orders`}
-                onClick={() => setMobileOpen(false)}
-                className={navLinkClass}
-              >
-                <MdAssignment size={20} style={{ marginInlineEnd: '16px' }} />
-                {t('manageOrders')}
-              </Link>
-              <Link
-                href={`/${locale}/dashboard/applications`}
-                onClick={() => setMobileOpen(false)}
-                className={navLinkClass}
-              >
-                <MdRecentActors size={20} style={{ marginInlineEnd: '16px' }} />
-                {t('applications')}
-              </Link>
-              <Link
-                href={`/${locale}/dashboard/settings`}
-                onClick={() => setMobileOpen(false)}
-                className={navLinkClass}
-              >
-                <MdSettings size={20} style={{ marginInlineEnd: '16px' }} />
-                {t('platformSettings')}
-              </Link>
-              <Link
-                href={`/${locale}/dashboard/assigned-orders`}
-                onClick={() => setMobileOpen(false)}
-                className={navLinkClass}
-              >
-                <MdAssignmentInd size={20} style={{ marginInlineEnd: '16px' }} />
-                {t('myAssignments') || 'My Assignments'}
-              </Link>
+              {/* Content Section */}
+              {renderSectionHeader(isRtl ? 'المحتوى' : 'CONTENT')}
+              {renderLink(`/${locale}/dashboard/slider`, t('slider'), <MdSlideshow />)}
+              {renderLink(`/${locale}/dashboard/services`, t('manageServices'), <MdDesignServices />)}
+              {renderLink(`/${locale}/dashboard/offers`, t('offers'), <MdLocalOffer />)}
+              {renderLink(`/${locale}/dashboard/gallery`, t('gallery'), <MdPhotoLibrary />)}
+
+              {/* Permissions Section */}
+              {renderSectionHeader(isRtl ? 'الصلاحيات' : 'PERMISSIONS')}
+              {renderLink(`/${locale}/dashboard/admins`, t('admins'), <MdAdminPanelSettings />)}
+              {renderLink(`/${locale}/dashboard/supervisors`, t('supervisors'), <MdSupervisorAccount />)}
+              {renderLink(`/${locale}/dashboard/users`, t('manageUsers'), <MdGroup />)}
+
+              {/* Operations Section */}
+              {renderSectionHeader(isRtl ? 'العمليات' : 'OPERATIONS')}
+              {renderLink(`/${locale}/dashboard/orders`, t('manageOrders'), <MdAssignment />)}
+              {renderLink(`/${locale}/dashboard/projects`, t('projects'), <MdAccountTree />)}
+              {renderLink(`/${locale}/dashboard/invoices`, t('invoices'), <MdReceipt />)}
+              {renderLink(`/${locale}/dashboard/applications`, t('recruitment'), <MdRecentActors />)}
+
+              {/* Analytics & Finance */}
+              {renderSectionHeader(isRtl ? 'المالية والإحصائيات' : 'FINANCE & ANALYTICS')}
+              {renderLink(`/${locale}/dashboard/exchange-rates`, t('exchangeRates'), <MdCurrencyExchange />)}
+
+              {/* Branches */}
+              {renderSectionHeader(isRtl ? 'الفروع' : 'BRANCHES')}
+              {renderLink(`/${locale}/dashboard/branches`, t('branches'), <MdLocationOn />)}
+
+              {/* Contracts & Disputes */}
+              {renderSectionHeader(isRtl ? 'العقود والنزاعات' : 'CONTRACTS & DISPUTES')}
+              {renderLink(`/${locale}/dashboard/contracts`, t('contracts'), <MdDescription />)}
+              {renderLink(`/${locale}/dashboard/disputes`, t('disputes'), <MdGavel />)}
+
+              {/* System Settings */}
+              {renderSectionHeader(isRtl ? 'النظام' : 'SYSTEM')}
+              {renderLink(`/${locale}/dashboard/settings`, t('platformSettings'), <MdSettings />)}
+              {renderLink(`/${locale}/dashboard/assigned-orders`, t('myAssignments'), <MdAssignmentInd />)}
             </>
           )}
 
           {role === 'employee' && (
             <>
-              <Link
-                href={`/${locale}/dashboard/assigned-orders`}
-                onClick={() => setMobileOpen(false)}
-                className={navLinkClass}
-              >
-                <MdAssignmentInd size={20} style={{ marginInlineEnd: '24px' }} />
-                {t('myAssignments') || 'My Assignments'}
-              </Link>
+              {renderSectionHeader(isRtl ? 'مهامي' : 'MY WORK')}
+              {renderLink(`/${locale}/dashboard/assigned-orders`, t('myAssignments'), <MdAssignmentInd />)}
+              {renderLink(`/${locale}/dashboard/projects`, t('projects'), <MdAccountTree />)}
             </>
           )}
 
           {role === 'client' && (
             <>
-              <Link
-                href={`/${locale}/dashboard/orders`}
-                onClick={() => setMobileOpen(false)}
-                className={navLinkClass}
-              >
-                <MdAssignment size={20} style={{ marginInlineEnd: '24px' }} />
-                {t('myOrders')}
-              </Link>
-              <Link
-                href={`/${locale}/dashboard/invoices`}
-                onClick={() => setMobileOpen(false)}
-                className={navLinkClass}
-              >
-                <MdReceipt size={20} style={{ marginInlineEnd: '24px' }} />
-                {t('invoices')}
-              </Link>
+              {renderSectionHeader(isRtl ? 'مشاريعي' : 'MY PROJECTS')}
+              {renderLink(`/${locale}/dashboard/orders`, t('myOrders'), <MdAssignment />)}
+              {renderLink(`/${locale}/dashboard/invoices`, t('invoices'), <MdReceipt />)}
             </>
           )}
         </nav>
       </div>
 
-      <div className="mt-10 pt-6 border-t border-white/10">
+      <div className="mt-8 pt-4 border-t border-white/10">
         <Link
           href={`/${locale}`}
           className="flex items-center gap-2 text-white/70 hover:text-white transition-colors text-sm font-semibold group"
@@ -154,7 +151,6 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
     </div>
   );
 
-  // Drawer anchor flips in RTL
   const drawerAnchor = isRtl ? 'right' : 'left';
   const sidebarPosition = isRtl ? 'right-0' : 'left-0';
 

@@ -177,7 +177,7 @@ export default function CustomerOrderList({ orders }: { orders: any[] }) {
           onClose={() => setChatOpen({ open: false, order: null })}
           fullWidth
           maxWidth="sm"
-          PaperProps={{ sx: { bgcolor: 'transparent', boxShadow: 'none' } }}
+          PaperProps={{ sx: { bgcolor: 'transparent', boxShadow: 'none', m: { xs: 1, sm: 2 }, maxH: '95vh', overflow: 'hidden' } }}
         >
           <OrderChat 
             orderId={chatOpen.order._id} 
