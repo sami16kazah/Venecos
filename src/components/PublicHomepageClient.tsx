@@ -8,9 +8,21 @@ import {
 } from 'react-icons/md';
 import { FaCode } from 'react-icons/fa';
 
+// Strict local string parser ensuring NO language mixing
 function getLocString(val: any, lang: string): string {
   if (!val) return '';
-  if (typeof val === 'string') return val;
+  if (typeof val === 'string') {
+    // If string is JSON stringified, parse it
+    if (val.trim().startsWith('{') && val.trim().endsWith('}')) {
+      try {
+        const parsed = JSON.parse(val);
+        return parsed[lang] || parsed['ar'] || parsed['en'] || parsed['fr'] || parsed['de'] || '';
+      } catch (e) {
+        return val;
+      }
+    }
+    return val;
+  }
   if (typeof val === 'object') {
     return val[lang] || val['ar'] || val['en'] || val['fr'] || val['de'] || Object.values(val)[0] || '';
   }
@@ -38,16 +50,22 @@ export default function PublicHomepageClient({
   const [currentSlide, setCurrentSlide] = useState(0);
   const [activeGalleryTab, setActiveGalleryTab] = useState('all');
 
+  // Filter services strictly by active locale
+  const filteredServices = services.filter((svc) => {
+    if (svc.locale) return svc.locale === locale || svc.locale === 'ar';
+    return true;
+  });
+
   // Deduplicate services by title to prevent repetition
   const uniqueServices = Array.from(
-    new Map(services.map((item) => [getLocString(item.title, 'ar') || item._id, item])).values()
+    new Map(filteredServices.map((item) => [getLocString(item.title, locale), item])).values()
   );
 
   // Active sliders from DB
   const displaySlides = sliders.length > 0 ? sliders : [
     {
-      title: { ar: 'حلول استضافة وسيرفرات سحابية فائقة الأداء', en: 'High Performance Cloud & Hosting' },
-      subtitle: { ar: 'بنية تحتية متطورة في ألمانيا وفرنسا مع حماية شاملة وسرعة فائقة', en: 'Advanced infrastructure in Germany & France' },
+      title: { ar: 'حلول استضافة وسيرفرات سحابية فائقة الأداء', en: 'High Performance Cloud & Hosting Solutions' },
+      subtitle: { ar: 'بنية تحتية متطورة في ألمانيا وفرنسا مع حماية شاملة وسرعة فائقة', en: 'Advanced infrastructure in Germany & France with DDoS protection' },
       imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
       btnText: { ar: 'تصفح الخدمات', en: 'Explore Services' },
       btnUrl: '#services',
@@ -130,7 +148,7 @@ export default function PublicHomepageClient({
               href="#offers"
               className="px-8 py-3.5 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white font-bold text-sm rounded-xl border border-white/20 transition-all"
             >
-              العروض الحصرية
+              {locale === 'ar' ? 'العروض الحصرية' : locale === 'fr' ? 'Offres Exclusives' : locale === 'de' ? 'Exklusive Angebote' : 'Exclusive Offers'}
             </a>
           </div>
 
@@ -153,10 +171,10 @@ export default function PublicHomepageClient({
       {/* ══ STATS SECTION ══ */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: 'مشروع منجز', val: '+250', icon: '🚀' },
-          { label: 'رضا العملاء', val: '100%', icon: '⭐' },
-          { label: 'فروع عالمية', val: '4', icon: '🌐' },
-          { label: 'دعم فني متاح', val: '24/7', icon: '🎧' },
+          { label: locale === 'ar' ? 'مشروع منجز' : 'Projects Done', val: '+250', icon: '🚀' },
+          { label: locale === 'ar' ? 'رضا العملاء' : 'Client Satisfaction', val: '100%', icon: '⭐' },
+          { label: locale === 'ar' ? 'فروع عالمية' : 'Global Offices', val: '4', icon: '🌐' },
+          { label: locale === 'ar' ? 'دعم فني متاح' : '24/7 Support', val: '24/7', icon: '🎧' },
         ].map((st, i) => (
           <div
             key={i}
@@ -169,20 +187,22 @@ export default function PublicHomepageClient({
         ))}
       </section>
 
-      {/* ══ SERVICES SHOWCASE SECTION (NO DUPLICATES) ══ */}
+      {/* ══ SERVICES SHOWCASE SECTION (NO LANGUAGE MIXING & NO DUPLICATES) ══ */}
       <section id="services" className="space-y-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4">
           <div>
             <div className="flex items-center gap-2 text-venecos-gold font-bold text-xs uppercase tracking-widest mb-1">
-              <MdDesignServices /> خدمات VENECOS الرئيسية
+              <MdDesignServices /> {locale === 'ar' ? 'خدمات VENECOS الرئيسية' : 'VENECOS Core Services'}
             </div>
-            <h2 className="text-3xl font-extrabold text-white">الخدمات المتكاملة — Core Services</h2>
+            <h2 className="text-3xl font-extrabold text-white">
+              {locale === 'ar' ? 'الخدمات المتكاملة' : 'Core Services Solutions'}
+            </h2>
           </div>
           <Link
             href={`/${locale}/dashboard/services`}
             className="text-xs font-bold text-venecos-gold hover:underline flex items-center gap-1"
           >
-            صفحات الإعدادات والخدمات <MdArrowForward className={isRtl ? 'rotate-180' : ''} />
+            {locale === 'ar' ? 'دليل الخدمات والإعدادات' : 'Services Directory'} <MdArrowForward className={isRtl ? 'rotate-180' : ''} />
           </Link>
         </div>
 
@@ -206,10 +226,12 @@ export default function PublicHomepageClient({
 
                 {svc.subServices && svc.subServices.length > 0 && (
                   <div className="bg-white/5 p-3 rounded-xl border border-white/10 space-y-2 text-xs">
-                    <span className="block font-bold text-venecos-gold text-[10px]">الباقات المتوفرة:</span>
+                    <span className="block font-bold text-venecos-gold text-[10px]">
+                      {locale === 'ar' ? 'الباقات المتوفرة:' : 'Available Packages:'}
+                    </span>
                     {svc.subServices.slice(0, 3).map((sub: any, idx: number) => (
                       <div key={idx} className="flex justify-between items-center text-white/80">
-                        <span>• {sub.title}</span>
+                        <span>• {getLocString(sub.title, locale)}</span>
                         <span className="font-mono text-venecos-gold font-bold">€{sub.price}</span>
                       </div>
                     ))}
@@ -221,7 +243,7 @@ export default function PublicHomepageClient({
                     href={`/${locale}/services`}
                     className="w-full py-2.5 bg-venecos-gold/20 hover:bg-venecos-gold text-venecos-gold hover:text-black font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all"
                   >
-                    اطلب الخدمة الآن
+                    {locale === 'ar' ? 'اطلب الخدمة الآن' : 'Order Now'}
                   </Link>
                 </div>
               </div>
@@ -236,9 +258,11 @@ export default function PublicHomepageClient({
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-4">
             <div>
               <div className="flex items-center gap-2 text-venecos-gold font-bold text-xs uppercase tracking-widest mb-1">
-                <MdOutlineLocalOffer /> باقات وتخفيضات خاصة
+                <MdOutlineLocalOffer /> {locale === 'ar' ? 'باقات وتخفيضات خاصة' : 'Special Offers & Packages'}
               </div>
-              <h2 className="text-3xl font-extrabold text-white">العروض الحصرية — Exclusive Offers</h2>
+              <h2 className="text-3xl font-extrabold text-white">
+                {locale === 'ar' ? 'العروض الحصرية' : 'Exclusive Offers'}
+              </h2>
             </div>
           </div>
 
@@ -277,7 +301,7 @@ export default function PublicHomepageClient({
                       href={`/${locale}/services`}
                       className="w-full py-3 bg-venecos-gold/20 hover:bg-venecos-gold text-venecos-gold hover:text-black font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all"
                     >
-                      اطلب الباقة الآن
+                      {locale === 'ar' ? 'اطلب الباقة الآن' : 'Get Package'}
                     </Link>
                   </div>
                 </div>
@@ -293,9 +317,11 @@ export default function PublicHomepageClient({
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-4">
             <div>
               <div className="flex items-center gap-2 text-venecos-gold font-bold text-xs uppercase tracking-widest mb-1">
-                <MdWork /> معارض الأعمال والمشاريع
+                <MdWork /> {locale === 'ar' ? 'معارض الأعمال والمشاريع' : 'Work Portfolio'}
               </div>
-              <h2 className="text-3xl font-extrabold text-white">معرض الأعمال — Work Portfolio</h2>
+              <h2 className="text-3xl font-extrabold text-white">
+                {locale === 'ar' ? 'معرض الأعمال' : 'Portfolio Showcase'}
+              </h2>
             </div>
           </div>
 
@@ -323,9 +349,11 @@ export default function PublicHomepageClient({
         <section id="branches" className="space-y-8">
           <div className="border-b border-white/10 pb-4">
             <div className="flex items-center gap-2 text-venecos-gold font-bold text-xs uppercase tracking-widest mb-1">
-              <MdLocationOn /> فروعنا حول العالم
+              <MdLocationOn /> {locale === 'ar' ? 'فروعنا حول العالم' : 'Global Offices'}
             </div>
-            <h2 className="text-3xl font-extrabold text-white">الفروع الدولية — Global Offices</h2>
+            <h2 className="text-3xl font-extrabold text-white">
+              {locale === 'ar' ? 'الفروع الدولية' : 'International Branches'}
+            </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
