@@ -23,6 +23,7 @@ export async function seedDatabase(force = false) {
       Gallery.deleteMany({}),
       Branch.deleteMany({}),
       ExchangeRate.deleteMany({}),
+      ServiceContent.deleteMany({}),
       Order.deleteMany({}),
       Project.deleteMany({}),
       Contract.deleteMany({}),
@@ -93,32 +94,89 @@ export async function seedDatabase(force = false) {
     });
   }
 
-  // 2. Seed Services if empty
+  // 2. Seed Services (Excluding Programming as requested)
   const serviceCount = await ServiceContent.countDocuments();
-  let defaultService = await ServiceContent.findOne();
   if (serviceCount === 0 || force) {
-    if (force) await ServiceContent.deleteMany({});
-    defaultService = await ServiceContent.create({
-      title: 'تطوير البرمجيات والمواقع',
-      description: 'حلول برمجة الويب والتطبيقات باستخدام أحدث تقنيات Next.js و React',
-      locale: 'ar',
-      iconName: 'FaCode',
-      iconType: 'react-icon',
-      isSpecial: true,
-      order: 1,
-      subServices: [
-        {
-          title: 'تطوير موقع إلكتروني فاخر',
-          description: 'تصميم وبرمجة موقع متكامل وسريع',
-          price: 999,
-        },
-        {
-          title: 'تطبيق جوال (iOS & Android)',
-          description: 'تطبيق هاتف مع لوحة تحكم سحابية',
-          price: 1899,
-        },
-      ],
-    });
+    await ServiceContent.insertMany([
+      {
+        title: 'الاستضافة المشتركة (Shared Hosting)',
+        description: 'خطط استضافة فائقة السرعة مع لوحة cPanel وتراخيص SSL وذاكرة NVMe',
+        locale: 'ar',
+        iconName: 'FaServer',
+        iconType: 'react-icon',
+        isSpecial: true,
+        order: 1,
+        subServices: [
+          { title: 'خطة Starter SSD', description: '10 GB SSD + 1 موقع', price: 49 },
+          { title: 'خطة Business NVMe', description: '50 GB NVMe + 5 مواق', price: 99 },
+          { title: 'خطة Pro Unlimited', description: '150 GB NVMe + 20 موقع', price: 199 },
+        ]
+      },
+      {
+        title: 'السيرفرات السحابية (VPS)',
+        description: 'سيرفرات سحابية عالية الأداء في ألمانيا وفرنسا مع حماية DDoS كاملة',
+        locale: 'ar',
+        iconName: 'FaCloud',
+        iconType: 'react-icon',
+        isSpecial: true,
+        order: 2,
+        subServices: [
+          { title: 'VPS Core 2 vCPU', description: '4GB RAM + 80GB NVMe', price: 299 },
+          { title: 'VPS Business 4 vCPU', description: '8GB RAM + 160GB NVMe', price: 499 },
+        ]
+      },
+      {
+        title: 'إنتاج الفيديو والموشن جرافيك',
+        description: 'مونتاج فيديو احترافي بدقة 4K وإخراج مقاطع موشن جرافيك إعلانية',
+        locale: 'ar',
+        iconName: 'FaVideo',
+        iconType: 'react-icon',
+        isSpecial: true,
+        order: 3,
+        subServices: [
+          { title: 'فيديو إعلاني 30 ثانية', description: 'موشن جرافيك بدقة Full HD', price: 350 },
+          { title: 'فيديو وثائقي 4K', description: 'تصوير ومونتاج سينمائي', price: 850 },
+        ]
+      },
+      {
+        title: 'التصميم ثلاثي الأبعاد (3D Rendering)',
+        description: 'نمذجة مجسمات وعروض تفاعلية 360 درجة مع معالجة إضاءة واقعية',
+        locale: 'ar',
+        iconName: 'FaCube',
+        iconType: 'react-icon',
+        isSpecial: false,
+        order: 4,
+        subServices: [
+          { title: 'رندر منتجات 3D', description: 'زوايا 360 مع فيديو ترويجي', price: 450 },
+        ]
+      },
+      {
+        title: 'الطباعة الورقية والإعلانية',
+        description: 'طباعة كروت، بروشورات، ملصقات، وهدايا دعاية بأعلى جودة بالألوان',
+        locale: 'ar',
+        iconName: 'FaPrint',
+        iconType: 'react-icon',
+        isSpecial: false,
+        order: 5,
+        subServices: [
+          { title: 'طباعة 1000 كرت شخصي', description: 'ورق 350g لامع أو سلفان', price: 45 },
+          { title: 'طباعة ملصقات 10m²', description: 'فينيل مقاوم للماء', price: 120 },
+        ]
+      },
+      {
+        title: 'كتابة المحتوى والتعليق الصوتي',
+        description: 'صياغة مقالات وتدقيق لغوي وتسجيلات صوتية بشتى اللهجات العربية',
+        locale: 'ar',
+        iconName: 'FaPen',
+        iconType: 'react-icon',
+        isSpecial: false,
+        order: 6,
+        subServices: [
+          { title: 'تعليق صوتي إعلاني', description: 'تسجيل استوديو بالفصحى أو الخليجي', price: 80 },
+          { title: 'كتابة مقالات SEO', description: '10 مقالات حصري متوافقة مع قوقل', price: 150 },
+        ]
+      }
+    ]);
   }
 
   // 3. Seed Sliders if empty or forced
@@ -127,39 +185,55 @@ export async function seedDatabase(force = false) {
     await Slider.insertMany([
       {
         title: {
-          ar: 'حلول برمجية وإبداعية متكاملة',
-          en: 'Complete Software & Creative Solutions',
-          fr: 'Solutions logicielles et créatives complètes',
-          de: 'Komplette Software- und Kreativlösungen',
+          ar: 'حلول استضافة وسيرفرات سحابية فائقة الأداء',
+          en: 'High Performance Cloud & Hosting Solutions',
+          fr: 'Solutions d’hébergement et serveur cloud haute performance',
+          de: 'Hochleistungs-Cloud- & Hosting-Lösungen',
         },
         subtitle: {
-          ar: 'نبتكر المستقبل ونطور الأعمال بأحدث التقنيات وأعلى معايير الإبداع',
-          en: 'Innovating the future and building businesses with cutting-edge tech',
-          fr: 'Innover l’avenir et développer les entreprises avec les dernières technologies',
-          de: 'Zukunft neu erfinden und Unternehmen mit modernster Technologie ausbauen',
+          ar: 'بنية تحتية متطورة في ألمانيا وفرنسا مع حماية شاملة وسرعة فائقة',
+          en: 'Advanced infrastructure in Germany & France with DDoS protection',
+          fr: 'Infrastructure avancée en Allemagne et en France avec protection DDoS',
+          de: 'Fortschrittliche Infrastruktur in Deutschland & Frankreich mit DDoS-Schutz',
         },
+        mediaType: 'image',
         imageUrl: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80',
-        linkUrl: '#services',
+        overlayOpacity: 45,
+        btnText: { ar: 'تصفح خدمات الاستضافة', en: 'Explore Hosting', fr: 'Voir l’hébergement', de: 'Hosting entdecken' },
+        btnUrl: '/dashboard/services/shared-hosting',
+        btnStyle: 'ذهبي مملوء',
+        vPosition: 'وسط',
+        textAlign: 'وسط',
+        duration: 5,
         order: 1,
         active: true,
+        status: 'منشورة',
       },
       {
         title: {
-          ar: 'تصميم الهوية البصرية وإنتاج الفيديو',
-          en: 'Brand Identity & Video Production',
-          fr: 'Identité visuelle et production vidéo',
-          de: 'Markenidentität & Videoproduktion',
+          ar: 'إنتاج الفيديو والموشن جرافيك والتصميم 3D',
+          en: 'Video Production & 3D Design',
+          fr: 'Production vidéo et design 3D',
+          de: 'Videoproduktion & 3D-Design',
         },
         subtitle: {
-          ar: 'نبني لعلامتك التجارية حضوراً استثنائياً يلفت الأنظار ويحقق نتائج ملموسة',
-          en: 'Crafting an exceptional presence for your brand that gets noticed',
-          fr: 'Créer une présence exceptionnelle pour votre marque qui se fait remarquer',
-          de: 'Wir schaffen eine außergewöhnliche Präsenz für Ihre Marke',
+          ar: 'نصنع هويتك البصرية بأعلى درجات الاحترافية والإخراج السينمائي',
+          en: 'Crafting your brand identity with cinematic perfection',
+          fr: 'Création de votre identité de marque avec une perfection cinématographique',
+          de: 'Erstellung Ihrer Markenidentität mit kinoreifer Perfektion',
         },
-        imageUrl: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=80',
-        linkUrl: '#gallery',
+        mediaType: 'image',
+        imageUrl: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=1200&q=80',
+        overlayOpacity: 50,
+        btnText: { ar: 'معرض إنتاج الفيديو', en: 'Video Portfolio', fr: 'Galerie vidéo', de: 'Video-Portfolio' },
+        btnUrl: '/dashboard/services/video',
+        btnStyle: 'ذهبي شفاف',
+        vPosition: 'وسط',
+        textAlign: 'وسط',
+        duration: 5,
         order: 2,
         active: true,
+        status: 'منشورة',
       },
     ]);
   }
@@ -171,138 +245,92 @@ export async function seedDatabase(force = false) {
       {
         title: {
           ar: 'باقة الانطلاقة الرقمية الشاملة',
-          en: 'Complete Digital Kickstart Package',
-          fr: 'Pack complet de démarrage numérique',
-          de: 'Komplettes Digital-Startpaket',
+          en: 'Complete Digital Launch Package',
+          fr: 'Pack de lancement numérique complet',
+          de: 'Komplettes digitales Startpaket',
         },
         description: {
-          ar: 'تصميم موقع إلكتروني احترافي + هوية بصرية كاملة + استضافة مجانية لمدة سنة',
-          en: 'Professional website design + full brand identity + 1-year free hosting',
-          fr: 'Conception de site Web professionnel + identité visuelle + hébergement gratuit 1 an',
-          de: 'Professionelles Website-Design + Markenidentität + 1 Jahr kostenloses Hosting',
+          ar: 'استضافة سنة كاملة + دومين مجاني + تصميم هوية بصرية كاملة',
+          en: '1 Year Hosting + Free Domain + Full Visual Identity Design',
+          fr: '1 an d’hébergement + Domaine gratuit + Design d’identité',
+          de: '1 Jahr Hosting + Kostenlose Domain + Vollständiges Design',
         },
-        badge: { ar: 'خصم 35%', en: '35% OFF', fr: '35% DE RÉDUCTION', de: '35% RABATT' },
-        originalPrice: 1499,
-        discountedPrice: 969,
-        currency: 'EUR',
-        features: {
-          ar: ['موقع إلكتروني متجاوب بالكامل', 'لوحة تحكم خاصة للربط', 'دعم فني 24/7 لمدة عام'],
-          en: ['Fully Responsive Website', 'Custom Admin Dashboard', '24/7 Technical Support for 1 Year'],
-          fr: ['Site Web entièrement adaptatif', 'Tableau de bord personnalisé', 'Support technique 24/7 pendant 1 an'],
-          de: ['Vollständig responsive Website', 'Individuelles Admin-Dashboard', '24/7 Technischer Support für 1 Jahr'],
-        },
-        active: true,
-      },
-      {
-        title: {
-          ar: 'باقة المتاجر الإلكترونية المتطورة',
-          en: 'Advanced E-Commerce Store Package',
-          fr: 'Pack e-commerce avancé',
-          de: 'Fortgeschrittenes E-Commerce-Paket',
-        },
-        description: {
-          ar: 'متجر متكامل بجميع وسائل الدفع الربط مع شركات الشحن وتطبيق جوال',
-          en: 'Full e-commerce store with payment gateways, shipping integration & mobile app',
-          fr: 'Boutique en ligne complète avec passerelles de paiement, expédition et application mobile',
-          de: 'Vollständiger E-Commerce-Shop mit Zahlungs-Gateways, Versand-Integration & App',
-        },
-        badge: { ar: 'عرض خاص', en: 'SPECIAL OFFER', fr: 'OFFRE SPÉCIALE', de: 'SONDERANGEBOT' },
-        originalPrice: 2499,
-        discountedPrice: 1799,
-        currency: 'EUR',
-        features: {
-          ar: ['بوابات دفع Stripe & PayPal', 'تطبيق Android & iOS', 'إدارة المخزون التلقائية'],
-          en: ['Stripe & PayPal Payment Gateways', 'Android & iOS Mobile App', 'Automated Inventory Control'],
-          fr: ['Passerelles Stripe et PayPal', 'Application Android et iOS', 'Gestion automatique des stocks'],
-          de: ['Stripe & PayPal Payment-Gateways', 'Android & iOS Mobile App', 'Automatische Lagerverwaltung'],
-        },
+        originalPrice: 499,
+        discountedPrice: 299,
+        badge: 'خصم 40% لفترة محدودة',
+        features: [
+          { ar: 'استضافة Business NVMe سنة كاملة', en: '1 Year Business NVMe Hosting', fr: '1 an d’hébergement Business NVMe', de: '1 Jahr Business NVMe Hosting' },
+          { ar: 'دومين .com أو .de مجاناً', en: 'Free .com or .de Domain', fr: 'Domaine .com ou .de gratuit', de: 'Kostenlose .com oder .de Domain' },
+          { ar: 'شهادة أمان SSL مجانية مدى الحياة', en: 'Free SSL Certificate', fr: 'Certificat SSL gratuit', de: 'Kostenloses SSL-Zertifikat' },
+        ],
         active: true,
       },
     ]);
   }
 
-  // 5. Seed Gallery items if empty or forced
+  // 5. Seed Gallery if empty or forced
   const galleryCount = await Gallery.countDocuments();
   if (galleryCount === 0 || force) {
     await Gallery.insertMany([
       {
-        title: {
-          ar: 'تصميم منصة VENECOS الرقمية',
-          en: 'VENECOS Digital Platform Design',
-          fr: 'Conception de la plateforme VENECOS',
-          de: 'Design der VENECOS Digital-Plattform',
-        },
-        description: {
-          ar: 'تصميم واجهة مستخدم فاخرة بنظام ألوان أسود وذهبي وتجربة مستخدم سلسة',
-          en: 'Luxury UI/UX design with dark gold aesthetic and seamless interactions',
-          fr: 'Design UI/UX de luxe avec une esthétique noir et or et des interactions fluides',
-          de: 'Luxuriöses UI/UX-Design mit Schwarz-Gold-Ästhetik und nahtlosen Interaktionen',
-        },
-        category: 'software',
+        title: { ar: 'مشروع هوية بصرية لشركة التقنية الفائقة', en: 'HighTech Brand Identity Project', fr: 'Identité visuelle HighTech', de: 'HighTech Markenidentität' },
+        description: { ar: 'تصميم شعار، ألوان المؤسسة، وكروت الأعمال', en: 'Logo, color palette, and business cards', fr: 'Logo, charte graphique et cartes de visite', de: 'Logo, Farbpalette und Visitenkarten' },
+        category: 'identity',
+        client: 'شركة التقنية الفائقة',
+        date: '2026-01-15',
+        order: 1,
+        coverImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+        images: ['https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'],
         mediaType: 'image',
-        mediaUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
         active: true,
+        status: 'منشور',
       },
       {
-        title: {
-          ar: 'فيديو ترويجي ثلاثي الأبعاد',
-          en: '3D Product Promo Video',
-          fr: 'Vidéo promotionnelle de produit 3D',
-          de: '3D-Produkt-Werbevideo',
-        },
-        description: {
-          ar: 'إنتاج إعلان سينمائي 3D لمنتج فاخر بأسلوب إبداعي عالي الجودة',
-          en: 'High-end 3D cinematic promo for a luxury brand product',
-          fr: 'Promotion cinématographique 3D haut de gamme pour une marque de luxe',
-          de: 'High-End 3D-Kinowerbung für ein Luxusmarkenprodukt',
-        },
+        title: { ar: 'فيديو موشن جرافيك لمنصة تسوق', en: 'E-commerce Motion Graphics Video', fr: 'Vidéo motion design e-commerce', de: 'E-Commerce Motion-Graphics-Video' },
+        description: { ar: 'فيديو ترويجي 4K مع تعليق صوتي احترافي', en: '4K promotional video with pro voiceover', fr: 'Vidéo promotionnelle 4K avec voix off', de: '4K-Werbevideo mit Profi-Voiceover' },
         category: 'video',
+        client: 'متجر فاست شوب',
+        date: '2026-02-10',
+        order: 2,
+        coverImage: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=800&q=80',
+        images: [],
         mediaType: 'video',
-        mediaUrl: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=800&q=80',
         active: true,
+        status: 'منشور',
       },
     ]);
   }
 
-  // 6. Seed Global Branches if empty or forced
+  // 6. Seed Branches if empty or forced
   const branchCount = await Branch.countDocuments();
   if (branchCount === 0 || force) {
     await Branch.insertMany([
       {
-        countryCode: 'DE',
-        countryName: 'ألمانيا — Germany',
-        city: 'برلين — Berlin',
-        address: 'Friedrichstraße 123, 10117 Berlin',
-        phone: '+49 30 1234 5678',
-        email: 'berlin@venecos.net',
-        workingHours: 'Mon-Fri: 09:00 - 18:00 (CET)',
-        isHeadquarters: true,
-        status: 'active',
-        googleMapsUrl: 'https://maps.google.com/?q=Friedrichstraße+123+Berlin',
+        country: 'DE',
+        cityName: { ar: 'فررانكفورت، ألمانيا', en: 'Frankfurt, Germany', fr: 'Francfort, Allemagne', de: 'Frankfurt, Deutschland' },
+        address: 'Mainzer Landstraße 180, 60327 Frankfurt am Main',
+        phone: '+49 69 1234 5678',
+        email: 'germany@venecos.net',
+        googleMapsUrl: 'https://maps.google.com/?q=Frankfurt',
+        active: true,
       },
       {
-        countryCode: 'AE',
-        countryName: 'الإمارات — UAE',
-        city: 'دبي — Dubai',
-        address: 'Business Bay, Silicon Tower 1402, Dubai',
+        country: 'AE',
+        cityName: { ar: 'دبي، الإمارات العربية المتحدة', en: 'Dubai, United Arab Emirates', fr: 'Dubaï, Émirats Arabes Unis', de: 'Dubai, Vereinigte Arabische Emirate' },
+        address: 'Business Bay, Iris Bay Tower, Office 1402, Dubai',
         phone: '+971 4 987 6543',
         email: 'dubai@venecos.net',
-        workingHours: 'Mon-Fri: 09:00 - 18:00 (GST)',
-        isHeadquarters: false,
-        status: 'active',
-        googleMapsUrl: 'https://maps.google.com/?q=Business+Bay+Dubai',
+        googleMapsUrl: 'https://maps.google.com/?q=Dubai',
+        active: true,
       },
       {
-        countryCode: 'SA',
-        countryName: 'السعودية — Saudi Arabia',
-        city: 'الرياض — Riyadh',
-        address: 'King Fahd Road, Olaya District, Riyadh',
-        phone: '+966 11 234 5678',
+        country: 'SA',
+        cityName: { ar: 'الرياض، المملكة العربية السعودية', en: 'Riyadh, Saudi Arabia', fr: 'Riyad, Arabie Saoudite', de: 'Riad, Saudi-Arabien' },
+        address: 'طريق الملك فهد، برج العليا، الرياض',
+        phone: '+966 11 456 7890',
         email: 'riyadh@venecos.net',
-        workingHours: 'Sun-Thu: 09:00 - 17:00 (AST)',
-        isHeadquarters: false,
-        status: 'active',
-        googleMapsUrl: 'https://maps.google.com/?q=Olaya+Riyadh',
+        googleMapsUrl: 'https://maps.google.com/?q=Riyadh',
+        active: true,
       },
     ]);
   }
@@ -311,130 +339,10 @@ export async function seedDatabase(force = false) {
   const rateCount = await ExchangeRate.countDocuments();
   if (rateCount === 0 || force) {
     await ExchangeRate.insertMany([
-      { currencyCode: 'EUR', currencyName: 'اليورو', rateToEur: 1.0, isBase: true },
-      { currencyCode: 'USD', currencyName: 'الدولار الأمريكي', rateToEur: 1.08, isBase: false },
-      { currencyCode: 'SAR', currencyName: 'الريال السعودي', rateToEur: 4.05, isBase: false },
-      { currencyCode: 'AED', currencyName: 'الدرهم الإماراتي', rateToEur: 3.97, isBase: false },
-      { currencyCode: 'SYP', currencyName: 'الليرة السورية', rateToEur: 14500.0, isBase: false },
-      { currencyCode: 'EGP', currencyName: 'الجنيه المصري', rateToEur: 52.3, isBase: false },
-      { currencyCode: 'GBP', currencyName: 'الجنيه الإسترليني', rateToEur: 0.84, isBase: false },
-      { currencyCode: 'TRY', currencyName: 'الليرة التركية', rateToEur: 36.5, isBase: false },
-    ]);
-  }
-
-  // 8. Seed Orders if empty or forced
-  const orderCount = await Order.countDocuments();
-  if ((orderCount === 0 || force) && clientUser && defaultService) {
-    await Order.create({
-      userId: clientUser._id,
-      serviceId: defaultService._id,
-      subServiceId: 'sub-web-dev',
-      serviceName: 'تطوير البرمجيات والمواقع',
-      subServiceName: 'تطوير موقع إلكتروني فاخر',
-      price: 999,
-      customerDetails: {
-        firstName: 'محمد',
-        lastName: 'العميل',
-        email: 'client@venecos.net',
-        phone: '+966 50 123 4567',
-        requirements: 'مطلوب بناء موقع تجاري متكامل بلغات متعددة ودعم الدفع السحابي.',
-      },
-      status: 'accepted',
-      paymentStatus: 'paid',
-      assignedId: employeeUser?._id,
-      assignedName: 'سارة المصممة',
-    });
-  }
-
-  // 9. Seed Projects if empty or forced
-  const projectCount = await Project.countDocuments();
-  if ((projectCount === 0 || force) && clientUser && employeeUser) {
-    await Project.create({
-      projectNumber: 'PRJ-2026-001',
-      clientId: clientUser._id,
-      clientName: 'محمد العميل',
-      employeeId: employeeUser._id,
-      employeeName: 'سارة المصممة',
-      supervisorId: supervisorUser?._id,
-      supervisorName: 'أحمد المشرف',
-      title: 'تطوير منصة التجارة الإلكترونية الفاخرة',
-      completionPercentage: 65,
-      totalAmount: 2500,
-      paidAmount: 1500,
-      status: 'active',
-      paymentStages: [
-        { name: 'الدفعة الأولى — البدء وتصميم الواجهات', pct: 40, amount: 1000, status: 'paid' },
-        { name: 'الدفعة الثانية — البرمجة وربط بوابات الدفع', pct: 35, amount: 875, status: 'paid' },
-        { name: 'الدفعة النهائية — التسليم والاختبار', pct: 25, amount: 625, status: 'pending' },
-      ],
-    });
-  }
-
-  // 10. Seed Contracts if empty or forced
-  const contractCount = await Contract.countDocuments();
-  if (contractCount === 0 || force) {
-    await Contract.create({
-      serviceName: 'عقد اتفاقية الخدمات البرمجية والإبداعية الشاملة',
-      version: 'v1.0',
-      customClauses: {
-        ar: 'يتعهد الطرف الثاني بتنفيذ المشروع وفق المواصفات المحددة وتسليمه في الموعد المتفق عليه مع تقديم ضمان صيانة لمدة 12 شهراً.',
-        en: 'The provider agrees to deliver the project according to specifications with a 12-month maintenance warranty.',
-        fr: 'Le prestataire s’engage à fournir le projet selon les spécifications avec une garantie de maintenance de 12 mois.',
-        de: 'Der Anbieter verpflichtet sich, das Projekt gemäß Spezifikationen mit 12 Monaten Wartungsgarantie zu liefern.',
-      },
-      requireTypedName: true,
-    });
-  }
-
-  // 11. Seed Disputes if empty or forced
-  const disputeCount = await Dispute.countDocuments();
-  if ((disputeCount === 0 || force) && clientUser && employeeUser) {
-    await Dispute.create({
-      disputeNumber: 'DSP-2026-09',
-      orderNumber: 'ORD-9821',
-      clientId: clientUser._id,
-      clientName: 'محمد العميل',
-      employeeId: employeeUser._id,
-      employeeName: 'سارة المصممة',
-      serviceName: 'تصميم الهوية البصرية',
-      currentTier: 'admin',
-      status: 'in_progress',
-      timeline: [
-        { step: 'supervisor', icon: 'fa-user-tie', color: 'var(--gold)', done: true, date: '2026-07-28', note: 'تم مراجعة الطلب بواسطة المشرف وتحويله للإدارة' },
-        { step: 'admin', icon: 'fa-user-shield', color: 'var(--blue)', done: false, current: true, date: '2026-08-01', note: 'قيد مراجعة القرار النهائي للإدارة' },
-        { step: 'legal', icon: 'fa-scale-balanced', color: 'var(--red)', done: false, date: '-', note: 'المرحلة القانونية النهائية' },
-      ],
-      adminDecision: 'جاري دراسة التسوية المالية وصرف 50% مستحقات مع إعادة صياغة الشروط.',
-    });
-  }
-
-  // 12. Seed Applications if empty or forced
-  const appCount = await Application.countDocuments();
-  if (appCount === 0 || force) {
-    await Application.create({
-      firstName: 'علي',
-      lastName: 'الحسن',
-      email: 'ali.hassan@example.com',
-      phone: '+49 176 999 8888',
-      position: 'مطور فرونت إند — Senior Frontend Engineer',
-      message: 'خبرة 6 سنوات في تكنولوجيا React, Next.js, و TypeScript مع شغف بتصميم الواجهات الفاخرة.',
-      cvUrl: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
-      cvPublicId: 'cv-dummy-01',
-      status: 'reviewing',
-      ipAddress: '198.51.100.42',
-      country: 'ألمانيا — Germany',
-      languages: ['العربية', 'الإنجليزية', 'الألمانية'],
-      portfolioLinks: [{ title: 'GitHub Profile', url: 'https://github.com', verified: true }],
-      documents: [{ name: 'شهادة بكالوريوس هندسة الحاسوب.pdf', url: 'https://example.com/degree.pdf', verified: true }],
-    });
-  }
-
-  // 13. Seed BanList if empty or forced
-  const banCount = await BanList.countDocuments();
-  if (banCount === 0 || force) {
-    await BanList.create([
-      { type: 'ip', value: '192.0.2.1', reason: 'محاولات دخول مشبوهة' },
-      { type: 'email', value: 'spammer@malicious.org', reason: 'رسائل سبام متكررة' },
+      { currency: 'USD', rateToEUR: 0.92, updatedAt: new Date() },
+      { currency: 'AED', rateToEUR: 0.25, updatedAt: new Date() },
+      { currency: 'SAR', rateToEUR: 0.245, updatedAt: new Date() },
+      { currency: 'SYP', rateToEUR: 0.000065, updatedAt: new Date() },
     ]);
   }
 }
