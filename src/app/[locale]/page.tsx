@@ -29,12 +29,19 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     console.error('Database connection / seed error:', err);
   }
 
-  // Fetch dynamic DB collections without overly strict filters
+  // Fetch dynamic DB collections filtered by locale to avoid multi-language duplication
   let slidersRaw = await Slider.find({}).sort({ order: 1 }).lean();
   let offersRaw = await Offer.find({}).lean();
   let galleryRaw = await Gallery.find({}).lean();
   let branchesRaw = await Branch.find({}).lean();
-  let servicesRaw = await ServiceContent.find({}).sort({ order: 1 }).lean();
+
+  let servicesRaw = await ServiceContent.find({ locale }).sort({ order: 1 }).lean();
+  if (!servicesRaw.length) {
+    servicesRaw = await ServiceContent.find({ locale: 'ar' }).sort({ order: 1 }).lean();
+  }
+  if (!servicesRaw.length) {
+    servicesRaw = await ServiceContent.find({}).sort({ order: 1 }).lean();
+  }
 
   const sliders = JSON.parse(JSON.stringify(slidersRaw));
   const offers = JSON.parse(JSON.stringify(offersRaw));
