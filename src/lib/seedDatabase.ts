@@ -13,8 +13,24 @@ import Dispute from '@/models/Dispute';
 import Application from '@/models/Application';
 import BanList from '@/models/BanList';
 
-export async function seedDatabase() {
+export async function seedDatabase(force = false) {
   await connectToDatabase();
+
+  if (force) {
+    await Promise.all([
+      Slider.deleteMany({}),
+      Offer.deleteMany({}),
+      Gallery.deleteMany({}),
+      Branch.deleteMany({}),
+      ExchangeRate.deleteMany({}),
+      Order.deleteMany({}),
+      Project.deleteMany({}),
+      Contract.deleteMany({}),
+      Dispute.deleteMany({}),
+      Application.deleteMany({}),
+      BanList.deleteMany({}),
+    ]);
+  }
 
   // 1. Seed Users (Super Admin, Supervisor, Employee, Clients)
   let adminUser = await User.findOne({ email: 'admin@venecos.net' });
@@ -80,7 +96,8 @@ export async function seedDatabase() {
   // 2. Seed Services if empty
   const serviceCount = await ServiceContent.countDocuments();
   let defaultService = await ServiceContent.findOne();
-  if (serviceCount === 0) {
+  if (serviceCount === 0 || force) {
+    if (force) await ServiceContent.deleteMany({});
     defaultService = await ServiceContent.create({
       title: 'تطوير البرمجيات والمواقع',
       description: 'حلول برمجة الويب والتطبيقات باستخدام أحدث تقنيات Next.js و React',
@@ -104,9 +121,9 @@ export async function seedDatabase() {
     });
   }
 
-  // 3. Seed Sliders if empty
+  // 3. Seed Sliders if empty or forced
   const sliderCount = await Slider.countDocuments();
-  if (sliderCount === 0) {
+  if (sliderCount === 0 || force) {
     await Slider.insertMany([
       {
         title: {
@@ -147,9 +164,9 @@ export async function seedDatabase() {
     ]);
   }
 
-  // 4. Seed Offers if empty
+  // 4. Seed Offers if empty or forced
   const offerCount = await Offer.countDocuments();
-  if (offerCount === 0) {
+  if (offerCount === 0 || force) {
     await Offer.insertMany([
       {
         title: {
@@ -176,12 +193,37 @@ export async function seedDatabase() {
         },
         active: true,
       },
+      {
+        title: {
+          ar: 'باقة المتاجر الإلكترونية المتطورة',
+          en: 'Advanced E-Commerce Store Package',
+          fr: 'Pack e-commerce avancé',
+          de: 'Fortgeschrittenes E-Commerce-Paket',
+        },
+        description: {
+          ar: 'متجر متكامل بجميع وسائل الدفع الربط مع شركات الشحن وتطبيق جوال',
+          en: 'Full e-commerce store with payment gateways, shipping integration & mobile app',
+          fr: 'Boutique en ligne complète avec passerelles de paiement, expédition et application mobile',
+          de: 'Vollständiger E-Commerce-Shop mit Zahlungs-Gateways, Versand-Integration & App',
+        },
+        badge: { ar: 'عرض خاص', en: 'SPECIAL OFFER', fr: 'OFFRE SPÉCIALE', de: 'SONDERANGEBOT' },
+        originalPrice: 2499,
+        discountedPrice: 1799,
+        currency: 'EUR',
+        features: {
+          ar: ['بوابات دفع Stripe & PayPal', 'تطبيق Android & iOS', 'إدارة المخزون التلقائية'],
+          en: ['Stripe & PayPal Payment Gateways', 'Android & iOS Mobile App', 'Automated Inventory Control'],
+          fr: ['Passerelles Stripe et PayPal', 'Application Android et iOS', 'Gestion automatique des stocks'],
+          de: ['Stripe & PayPal Payment-Gateways', 'Android & iOS Mobile App', 'Automatische Lagerverwaltung'],
+        },
+        active: true,
+      },
     ]);
   }
 
-  // 5. Seed Gallery items if empty
+  // 5. Seed Gallery items if empty or forced
   const galleryCount = await Gallery.countDocuments();
-  if (galleryCount === 0) {
+  if (galleryCount === 0 || force) {
     await Gallery.insertMany([
       {
         title: {
@@ -201,12 +243,30 @@ export async function seedDatabase() {
         mediaUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
         active: true,
       },
+      {
+        title: {
+          ar: 'فيديو ترويجي ثلاثي الأبعاد',
+          en: '3D Product Promo Video',
+          fr: 'Vidéo promotionnelle de produit 3D',
+          de: '3D-Produkt-Werbevideo',
+        },
+        description: {
+          ar: 'إنتاج إعلان سينمائي 3D لمنتج فاخر بأسلوب إبداعي عالي الجودة',
+          en: 'High-end 3D cinematic promo for a luxury brand product',
+          fr: 'Promotion cinématographique 3D haut de gamme pour une marque de luxe',
+          de: 'High-End 3D-Kinowerbung für ein Luxusmarkenprodukt',
+        },
+        category: 'video',
+        mediaType: 'video',
+        mediaUrl: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?auto=format&fit=crop&w=800&q=80',
+        active: true,
+      },
     ]);
   }
 
-  // 6. Seed Global Branches if empty
+  // 6. Seed Global Branches if empty or forced
   const branchCount = await Branch.countDocuments();
-  if (branchCount === 0) {
+  if (branchCount === 0 || force) {
     await Branch.insertMany([
       {
         countryCode: 'DE',
@@ -220,23 +280,51 @@ export async function seedDatabase() {
         status: 'active',
         googleMapsUrl: 'https://maps.google.com/?q=Friedrichstraße+123+Berlin',
       },
+      {
+        countryCode: 'AE',
+        countryName: 'الإمارات — UAE',
+        city: 'دبي — Dubai',
+        address: 'Business Bay, Silicon Tower 1402, Dubai',
+        phone: '+971 4 987 6543',
+        email: 'dubai@venecos.net',
+        workingHours: 'Mon-Fri: 09:00 - 18:00 (GST)',
+        isHeadquarters: false,
+        status: 'active',
+        googleMapsUrl: 'https://maps.google.com/?q=Business+Bay+Dubai',
+      },
+      {
+        countryCode: 'SA',
+        countryName: 'السعودية — Saudi Arabia',
+        city: 'الرياض — Riyadh',
+        address: 'King Fahd Road, Olaya District, Riyadh',
+        phone: '+966 11 234 5678',
+        email: 'riyadh@venecos.net',
+        workingHours: 'Sun-Thu: 09:00 - 17:00 (AST)',
+        isHeadquarters: false,
+        status: 'active',
+        googleMapsUrl: 'https://maps.google.com/?q=Olaya+Riyadh',
+      },
     ]);
   }
 
-  // 7. Seed Exchange Rates if empty
+  // 7. Seed Exchange Rates if empty or forced
   const rateCount = await ExchangeRate.countDocuments();
-  if (rateCount === 0) {
+  if (rateCount === 0 || force) {
     await ExchangeRate.insertMany([
       { currencyCode: 'EUR', currencyName: 'اليورو', rateToEur: 1.0, isBase: true },
       { currencyCode: 'USD', currencyName: 'الدولار الأمريكي', rateToEur: 1.08, isBase: false },
       { currencyCode: 'SAR', currencyName: 'الريال السعودي', rateToEur: 4.05, isBase: false },
       { currencyCode: 'AED', currencyName: 'الدرهم الإماراتي', rateToEur: 3.97, isBase: false },
+      { currencyCode: 'SYP', currencyName: 'الليرة السورية', rateToEur: 14500.0, isBase: false },
+      { currencyCode: 'EGP', currencyName: 'الجنيه المصري', rateToEur: 52.3, isBase: false },
+      { currencyCode: 'GBP', currencyName: 'الجنيه الإسترليني', rateToEur: 0.84, isBase: false },
+      { currencyCode: 'TRY', currencyName: 'الليرة التركية', rateToEur: 36.5, isBase: false },
     ]);
   }
 
-  // 8. Seed Orders if empty
+  // 8. Seed Orders if empty or forced
   const orderCount = await Order.countDocuments();
-  if (orderCount === 0 && clientUser && defaultService) {
+  if ((orderCount === 0 || force) && clientUser && defaultService) {
     await Order.create({
       userId: clientUser._id,
       serviceId: defaultService._id,
@@ -258,9 +346,9 @@ export async function seedDatabase() {
     });
   }
 
-  // 9. Seed Projects if empty
+  // 9. Seed Projects if empty or forced
   const projectCount = await Project.countDocuments();
-  if (projectCount === 0 && clientUser && employeeUser) {
+  if ((projectCount === 0 || force) && clientUser && employeeUser) {
     await Project.create({
       projectNumber: 'PRJ-2026-001',
       clientId: clientUser._id,
@@ -282,9 +370,9 @@ export async function seedDatabase() {
     });
   }
 
-  // 10. Seed Contracts if empty
+  // 10. Seed Contracts if empty or forced
   const contractCount = await Contract.countDocuments();
-  if (contractCount === 0) {
+  if (contractCount === 0 || force) {
     await Contract.create({
       serviceName: 'عقد اتفاقية الخدمات البرمجية والإبداعية الشاملة',
       version: 'v1.0',
@@ -298,9 +386,9 @@ export async function seedDatabase() {
     });
   }
 
-  // 11. Seed Disputes if empty
+  // 11. Seed Disputes if empty or forced
   const disputeCount = await Dispute.countDocuments();
-  if (disputeCount === 0 && clientUser && employeeUser) {
+  if ((disputeCount === 0 || force) && clientUser && employeeUser) {
     await Dispute.create({
       disputeNumber: 'DSP-2026-09',
       orderNumber: 'ORD-9821',
@@ -320,9 +408,9 @@ export async function seedDatabase() {
     });
   }
 
-  // 12. Seed Applications if empty
+  // 12. Seed Applications if empty or forced
   const appCount = await Application.countDocuments();
-  if (appCount === 0) {
+  if (appCount === 0 || force) {
     await Application.create({
       firstName: 'علي',
       lastName: 'الحسن',
@@ -341,9 +429,9 @@ export async function seedDatabase() {
     });
   }
 
-  // 13. Seed BanList if empty
+  // 13. Seed BanList if empty or forced
   const banCount = await BanList.countDocuments();
-  if (banCount === 0) {
+  if (banCount === 0 || force) {
     await BanList.create([
       { type: 'ip', value: '192.0.2.1', reason: 'محاولات دخول مشبوهة' },
       { type: 'email', value: 'spammer@malicious.org', reason: 'رسائل سبام متكررة' },
