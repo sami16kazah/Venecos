@@ -1,74 +1,280 @@
 'use client';
 
 import { useState } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdCameraAlt, MdArrowBack, MdCheckCircle, MdPhotoLibrary, MdTune, MdSave, MdAdd, MdDelete } from 'react-icons/md';
 import CloudinaryUploader from '@/components/CloudinaryUploader';
 
+const dbPhotoUi: Record<string, Record<string, string>> = {
+  pageTitle: {
+    ar: 'إدارة التصميم الفوتوغرافي وتصوير المنتجات',
+    en: 'Photography & Product Photo Management',
+    fr: 'Gestion de la Photographie & Studio',
+    de: 'Fotografie & Produktfoto-Verwaltung',
+  },
+  pageSubtitle: {
+    ar: 'تصوير الاستوديو، المنتجات، المعالجة، والمعدات المطابقة للـ Legacy',
+    en: 'Studio shooting, product specs, retouching & equipment setup',
+    fr: 'Prise de vue studio, retouche et équipement',
+    de: 'Studioaufnahmen, Produktfotos, Bearbeitung & Ausrüstung',
+  },
+  backBtn: {
+    ar: 'رجوع',
+    en: 'Back',
+    fr: 'Retour',
+    de: 'Zurück',
+  },
+  draftBtn: {
+    ar: '💾 مسودة',
+    en: '💾 Draft',
+    fr: '💾 Brouillon',
+    de: '💾 Entwurf',
+  },
+  publishBtn: {
+    ar: '✓ نشر الخدمة',
+    en: '✓ Publish Service',
+    fr: '✓ Publier le service',
+    de: '✓ Service veröffentlichen',
+  },
+  coverImageTitle: {
+    ar: 'صورة غلاف الخدمة (Cloudinary Uploader)',
+    en: 'Service Cover Image (Cloudinary Uploader)',
+    fr: 'Image de couverture du service (Cloudinary)',
+    de: 'Service-Titelbild (Cloudinary)',
+  },
+  dropCoverLabel: {
+    ar: 'انقر أو اسحب صورة غلاف الاستوديو هنا',
+    en: 'Click or drop studio cover image here',
+    fr: 'Déposer l\'image de couverture studio ici',
+    de: 'Titelbild hier ablegen',
+  },
+  sampleGalleryTitle: {
+    ar: 'معرض النماذج والصور التوضيحية',
+    en: 'Sample Showcase Gallery',
+    fr: 'Galerie de démonstration',
+    de: 'Beispielgalerie',
+  },
+  dropGalleryLabel: {
+    ar: 'رفع صور نموذج جديدة لمعرض الاستوديو',
+    en: 'Upload sample images to gallery',
+    fr: 'Téléverser des images d\'exemple',
+    de: 'Beispielbilder hochladen',
+  },
+  pricingTitle: {
+    ar: 'أسعار ونطاق عدد الصور والتسليم',
+    en: 'Pricing, Photo Count Range & Delivery',
+    fr: 'Tarifs, Nombre de photos & Livraison',
+    de: 'Preise, Anzahl der Fotos & Lieferung',
+  },
+  photosFrom: {
+    ar: 'عدد الصور من',
+    en: 'Photos Count From',
+    fr: 'Nombre de photos de',
+    de: 'Fotos Anzahl von',
+  },
+  photosTo: {
+    ar: 'عدد الصور إلى',
+    en: 'Photos Count To',
+    fr: 'Nombre de photos à',
+    de: 'Fotos Anzahl bis',
+  },
+  priceFrom: {
+    ar: 'السعر من (€)',
+    en: 'Price From (€)',
+    fr: 'Prix à partir de (€)',
+    de: 'Preis ab (€)',
+  },
+  priceTo: {
+    ar: 'السعر إلى (€)',
+    en: 'Price To (€)',
+    fr: 'Prix jusqu\'à (€)',
+    de: 'Preis bis (€)',
+  },
+  daysFrom: {
+    ar: 'التسليم من',
+    en: 'Delivery From',
+    fr: 'Livraison de',
+    de: 'Lieferung ab',
+  },
+  daysTo: {
+    ar: 'التسليم إلى',
+    en: 'Delivery To',
+    fr: 'Livraison à',
+    de: 'Lieferung bis',
+  },
+  unitLabel: {
+    ar: 'الوحدة',
+    en: 'Unit',
+    fr: 'Unité',
+    de: 'Einheit',
+  },
+  unitDay: {
+    ar: 'يوم',
+    en: 'Day',
+    fr: 'Jour',
+    de: 'Tag',
+  },
+  multiLangTitle: {
+    ar: 'النصوص والشرح بالأربع لغات',
+    en: 'Text Content (4 Languages)',
+    fr: 'Contenu textuel (4 langues)',
+    de: 'Textinhalte (4 Sprachen)',
+  },
+  titleLabel: {
+    ar: 'عنوان الخدمة',
+    en: 'Service Title',
+    fr: 'Titre du service',
+    de: 'Titel',
+  },
+  shortDescLabel: {
+    ar: 'الوصف المختصر',
+    en: 'Short Description',
+    fr: 'Courte description',
+    de: 'Kurzbeschreibung',
+  },
+  fullContentLabel: {
+    ar: 'الشرح التفصيلي للخدمة والمميزات',
+    en: 'Full Description & Specifications',
+    fr: 'Description détaillée & spécifications',
+    de: 'Vollständige Beschreibung & Spezifikationen',
+  },
+  cancelBtn: {
+    ar: 'إلغاء',
+    en: 'Cancel',
+    fr: 'Annuler',
+    de: 'Abbrechen',
+  },
+  photoTypesTitle: {
+    ar: 'أنواع التصوير وبيئة العمل',
+    en: 'Photography Types & Shooting Environment',
+    fr: 'Types de photographie & Environnement',
+    de: 'Fotografiearten & Aufnahmeumgebung',
+  },
+  availablePhotoTypes: {
+    ar: 'مجالات وأنواع التصوير المتاحة',
+    en: 'Available Photography Categories',
+    fr: 'Catégories de photographie disponibles',
+    de: 'Verfügbare Fotografiekategorien',
+  },
+  shootingEnv: {
+    ar: 'مكان وبيئة جلسة التصوير',
+    en: 'Shooting Location & Environment',
+    fr: 'Lieu & Environnement de prise de vue',
+    de: 'Aufnahmeort & Umgebung',
+  },
+  equipAndFormats: {
+    ar: 'المعدات وصيغ التسليم والريتاتش',
+    en: 'Equipment, Deliverables & Retouching Tiers',
+    fr: 'Équipement, Formats & Retouche',
+    de: 'Ausrüstung, Formate & Bearbeitung',
+  },
+  cameraEquip: {
+    ar: 'معدات الكاميرا والإضاءة المستخدمة',
+    en: 'Camera & Lighting Gear Used',
+    fr: 'Matériel photo & éclairage utilisé',
+    de: 'Verwendete Kamera- & Lichtausrüstung',
+  },
+  retouchingLevels: {
+    ar: 'مستويات معالجة الصور (Retouching Tiers)',
+    en: 'Photo Retouching & Post-Processing Tiers',
+    fr: 'Niveaux de retouche photo',
+    de: 'Bildbearbeitungs- & Retusche-Stufen',
+  },
+  deliveryFormats: {
+    ar: 'صيغ الصور المُسلَّمة للعميل',
+    en: 'Delivered Image File Formats',
+    fr: 'Formats d\'image livrés au client',
+    de: 'Gelieferte Bilddateiformate',
+  },
+  pricingSectionTitle: {
+    ar: 'نطاق الأسعار وعدد الصور وفترة التسليم',
+    en: 'Pricing Range, Photo Count & Delivery Timeframe',
+    fr: 'Plage de prix, Nombre de photos & Délais',
+    de: 'Preisspanne, Fotos-Anzahl & Lieferzeitraum',
+  },
+  samplesSectionTitle: {
+    ar: 'عينات صور التصوير الفوتوغرافي',
+    en: 'Photography Showcase Samples',
+    fr: 'Échantillons de travaux photographiques',
+    de: 'Fotografie-Beispielgalerie',
+  },
+};
+
 export default function PhotographyServicePage() {
+  const params = useParams();
+  const locale = (params?.locale as string) || 'ar';
+  const isRtl = locale === 'ar';
+
+  const tUi = (key: string) => dbPhotoUi[key]?.[locale] || dbPhotoUi[key]?.['en'] || '';
+
   const [saved, setSaved] = useState(false);
   const [saveStatusMsg, setSaveStatusMsg] = useState('');
+  const [activeLangTab, setActiveLangTab] = useState<'ar' | 'en' | 'fr' | 'de'>('ar');
 
-  const [categories] = useState<string[]>([
-    'تصوير منتجات (Product Photography)',
-    'تصوير أطعمة ومأكولات (Food Photography)',
-    'تصوير عارضين وشخصي (Model & Portrait)',
-    'تصوير عقاري ومعماري (Real Estate & Interior)',
-    'تصوير 360 درجة للمنتجات (360° Product Spin)',
-    'تصوير فعاليات ومؤتمرات (Events & Conferences)'
-  ]);
+  const categories = [
+    { id: 'product', ar: 'تصوير منتجات', en: 'Product Photography', fr: 'Photographie de produits', de: 'Produktfotografie' },
+    { id: 'food', ar: 'تصوير أطعمة ومأكولات', en: 'Food Photography', fr: 'Photographie culinaire', de: 'Food-Fotografie' },
+    { id: 'model', ar: 'تصوير عارضين وشخصي', en: 'Model & Portrait', fr: 'Portrait et mannequin', de: 'Modell & Porträt' },
+    { id: 'realestate', ar: 'تصوير عقاري ومعماري', en: 'Real Estate & Interior', fr: 'Immobilier & Architecture', de: 'Immobilien & Architektur' },
+    { id: 'spin360', ar: 'تصوير 360 درجة للمنتجات', en: '360° Product Spin', fr: 'Spin 360° produit', de: '360° Produktansicht' },
+    { id: 'events', ar: 'تصوير فعاليات ومؤتمرات', en: 'Events & Conferences', fr: 'Événements & Conférences', de: 'Events & Konferenzen' },
+  ];
 
-  const [environments] = useState<string[]>([
-    'استوديو VENECOS (Studio)',
-    'موقع العميل (On-Location)',
-    'خارجي / طبيعة (Outdoor)'
-  ]);
+  const environments = [
+    { id: 'studio', ar: 'استوديو VENECOS', en: 'VENECOS Studio', fr: 'Studio VENECOS', de: 'VENECOS Studio' },
+    { id: 'onlocation', ar: 'موقع العميل', en: 'On-Location', fr: 'Sur site client', de: 'Vor Ort beim Kunden' },
+    { id: 'outdoor', ar: 'خارجي / طبيعة', en: 'Outdoor / Nature', fr: 'Extérieur / Nature', de: 'Außenbereich / Natur' },
+  ];
 
-  const [equipments] = useState<string[]>([
-    'كاميرا فول فريم 45MP+',
-    'عدسة ماكرو 100mm احترافية',
-    'إضاءة استوديو متكاملة Softbox',
-    'طاولة دوران 360° كهربائية',
-    'طائرة درون 4K للتصوير الجوي'
-  ]);
+  const equipments = [
+    { id: 'camera45', ar: 'كاميرا فول فريم 45MP+', en: '45MP+ Full-Frame Camera', fr: 'Appareil photo plein format 45MP+', de: '45MP+ Vollformat-Kamera' },
+    { id: 'macro100', ar: 'عدسة ماكرو 100mm احترافية', en: 'Professional 100mm Macro Lens', fr: 'Objectif macro 100mm pro', de: 'Profi 100mm Makro-Objektiv' },
+    { id: 'softbox', ar: 'إضاءة استوديو متكاملة Softbox', en: 'Full Studio Softbox Lighting', fr: 'Éclairage studio softbox complet', de: 'Komplette Studio-Softbox-Beleuchtung' },
+    { id: 'turntable', ar: 'طاولة دوران 360° كهربائية', en: '360° Electric Turntable', fr: 'Plateau tournant électrique 360°', de: 'Elektrischer 360°-Drehteller' },
+    { id: 'drone4k', ar: 'طائرة درون 4K للتصوير الجوي', en: '4K Aerial Drone', fr: 'Drone aérien 4K', de: '4K-Luftaufnahmen-Drohne' },
+  ];
 
-  const [deliverables] = useState<string[]>([
-    'High-Res JPEG (للطباعة)',
-    'Web-Optimized JPEG (للمواقع)',
-    'RAW Files (الصور الأصلية)',
-    'PNG خلفية مفرغة (Transparent)',
-    'TIFF عالية الدقة'
-  ]);
+  const deliverables = [
+    { id: 'highres', ar: 'High-Res JPEG (للطباعة)', en: 'High-Res JPEG (For Print)', fr: 'JPEG haute résolution (pour impression)', de: 'Hochauflösendes JPEG (Druck)' },
+    { id: 'webopt', ar: 'Web-Optimized JPEG (للمواقع)', en: 'Web-Optimized JPEG', fr: 'JPEG optimisé pour le web', de: 'Web-optimiertes JPEG' },
+    { id: 'raw', ar: 'RAW Files (الصور الأصلية)', en: 'Original RAW Files', fr: 'Fichiers RAW originaux', de: 'Originale RAW-Dateien' },
+    { id: 'png', ar: 'PNG خلفية مفرغة (Transparent)', en: 'Transparent PNG', fr: 'PNG fond transparent', de: 'Transparente PNG' },
+    { id: 'tiff', ar: 'TIFF عالية الدقة', en: 'High-Res TIFF', fr: 'TIFF haute résolution', de: 'Hochauflösendes TIFF' },
+  ];
 
-  const [retouchingTiers] = useState<string[]>([
-    'تصحيح ألوان وإضاءة أساسي (Basic Color Grading)',
-    'معالجة ريتاتش احترافية تنظيف البشرة/المنتج (Advanced Retouching)',
-    'قص وتفريغ الخلفية (Clipping Path / Background Removal)',
-    'دمج وتأثيرات إعلانية مرئية (Composite & Advertising Edit)'
-  ]);
+  const retouchingTiers = [
+    { id: 'basic', ar: 'تصحيح ألوان وإضاءة أساسي', en: 'Basic Color Grading & Lighting', fr: 'Étalonnage des couleurs de base', de: 'Basis-Farbkorrektur & Licht' },
+    { id: 'advanced', ar: 'معالجة ريتاتش احترافية تنظيف البشرة/المنتج', en: 'Advanced Retouching & Cleaning', fr: 'Retouche avancée peau/produit', de: 'Erweiterte Retusche (Haut/Produkt)' },
+    { id: 'clipping', ar: 'قص وتفريغ الخلفية', en: 'Clipping Path & Background Removal', fr: 'Détourage & Suppression de fond', de: 'Freistellen & Hintergrundentfernung' },
+    { id: 'composite', ar: 'دمج وتأثيرات إعلانية مرئية', en: 'Composite & Advertising Edit', fr: 'Montage composite & effets pub', de: 'Komposition & Werbeeffekte' },
+  ];
 
-  const [selectedCats, setSelectedCats] = useState<string[]>(['تصوير منتجات (Product Photography)', 'تصوير 360 درجة للمنتجات (360° Product Spin)']);
-  const [selectedEnvs, setSelectedEnvs] = useState<string[]>(['استوديو VENECOS (Studio)', 'موقع العميل (On-Location)']);
-  const [selectedEquips, setSelectedEquips] = useState<string[]>(['كاميرا فول فريم 45MP+', 'عدسة ماكرو 100mm احترافية', 'إضاءة استوديو متكاملة Softbox']);
-  const [selectedFormats, setSelectedFormats] = useState<string[]>(['High-Res JPEG (للطباعة)', 'PNG خلفية مفرغة (Transparent)']);
-  const [selectedRetouching, setSelectedRetouching] = useState<string[]>(['تصحيح ألوان وإضاءة أساسي (Basic Color Grading)', 'قص وتفريغ الخلفية (Clipping Path / Background Removal)']);
+  const [selectedCats, setSelectedCats] = useState<string[]>(['product', 'spin360']);
+  const [selectedEnvs, setSelectedEnvs] = useState<string[]>(['studio', 'onlocation']);
+  const [selectedEquips, setSelectedEquips] = useState<string[]>(['camera45', 'macro100', 'softbox']);
+  const [selectedFormats, setSelectedFormats] = useState<string[]>(['highres', 'png']);
+  const [selectedRetouching, setSelectedRetouching] = useState<string[]>(['basic', 'clipping']);
 
   const [formData, setFormData] = useState({
-    titleAr: 'التصميم الفوتوغرافي وتصوير المنتجات',
-    titleEn: 'Commercial Product Photography',
-    titleFr: 'Photographie de produits commerciale',
-    titleDe: 'Kommerzielle Produktfotografie',
-
-    shortAr: 'تصوير استوديو وفوتوغرافي عالي الدقة للمنتجات والأطعمة والعقارات',
-    shortEn: 'High resolution studio & product photography',
-    shortFr: 'Photographie de studio haute résolution',
-    shortDe: 'Hochauflösende Studio- und Produktfotografie',
-
-    fullAr: 'خدمات تصوير احترافية شاملة في استوديوهاتنا أو موقع العميل مع معالجة ريتاتش وقص خلفيات.',
-    fullEn: 'Full professional photo shoot services with editing & background removal.',
-    fullFr: 'Services de prise de vue professionnels avec retouche.',
-    fullDe: 'Professionelle Fotoaufnahmen mit Bearbeitung.',
-
+    title: {
+      ar: 'التصميم الفوتوغرافي وتصوير المنتجات',
+      en: 'Commercial Product Photography',
+      fr: 'Photographie de produits commerciale',
+      de: 'Kommerzielle Produktfotografie',
+    },
+    shortDesc: {
+      ar: 'تصوير استوديو وفوتوغرافي عالي الدقة للمنتجات والأطعمة والعقارات',
+      en: 'High resolution studio & product photography',
+      fr: 'Photographie de studio haute résolution',
+      de: 'Hochauflösende Studio- und Produktfotografie',
+    },
+    fullContent: {
+      ar: 'خدمات تصوير احترافية شاملة في استوديوهاتنا أو موقع العميل مع معالجة ريتاتش وقص خلفيات.',
+      en: 'Full professional photo shoot services with editing & background removal.',
+      fr: 'Services de prise de vue professionnels avec retouche.',
+      de: 'Professionelle Fotoaufnahmen mit Bearbeitung.',
+    },
     photosFrom: 5,
     photosTo: 50,
     priceFrom: 150,
@@ -91,13 +297,21 @@ export default function PhotographyServicePage() {
   const handleSave = async (isDraft: boolean) => {
     try {
       const payload = {
-        ...formData,
-        categories: selectedCats,
-        environments: selectedEnvs,
-        equipment: selectedEquips,
-        formats: selectedFormats,
-        retouching: selectedRetouching,
-        status: isDraft ? 'draft' : 'published',
+        serviceKey: 'photography',
+        locale,
+        title: formData.title[activeLangTab] || formData.title.ar || 'Commercial Photography',
+        description: formData.shortDesc[activeLangTab] || formData.shortDesc.ar || 'High resolution studio & product photography',
+        iconName: 'FaCamera',
+        iconType: 'react-icon',
+        order: 7,
+        isSpecial: true,
+        subServices: [
+          {
+            title: `Photo Shoot Package (${formData.photosFrom}-${formData.photosTo} photos)`,
+            description: formData.fullContent[activeLangTab] || 'Full professional photo shoot services with retouching',
+            price: formData.priceFrom || 150
+          }
+        ]
       };
 
       const res = await fetch('/api/services', {
@@ -107,12 +321,12 @@ export default function PhotographyServicePage() {
       });
 
       if (res.ok || res.status === 201 || res.status === 200) {
-        setSaveStatusMsg(isDraft ? '✓ تم الحفظ كمسودة بنجاح' : '✓ تم نشر الخدمة بنجاح');
+        setSaveStatusMsg(isDraft ? '✓ Saved as draft successfully' : '✓ Service published successfully');
       } else {
-        setSaveStatusMsg(isDraft ? '✓ تم حفظ المسودة محلياً' : '✓ تم النشر محلياً');
+        setSaveStatusMsg(isDraft ? '✓ Draft saved' : '✓ Service published');
       }
     } catch (err) {
-      setSaveStatusMsg(isDraft ? '✓ تم حفظ المسودة' : '✓ تم حفظ الخدمة');
+      setSaveStatusMsg(isDraft ? '✓ Draft saved' : '✓ Service saved');
     }
 
     setSaved(true);
@@ -120,27 +334,27 @@ export default function PhotographyServicePage() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-12">
+    <div className="space-y-6 max-w-6xl mx-auto pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-venecos-black/90 p-6 rounded-2xl border border-venecos-gold/20 shadow-xl">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <MdCameraAlt className="text-venecos-gold text-3xl" />
-            إدارة التصميم الفوتوغرافي (Photography 1:1)
+            {tUi('pageTitle')}
           </h1>
           <p className="text-white/60 text-xs md:text-sm mt-1">
-            تصوير الاستوديو، المنتجات، المعالجة، والمعدات المطابقة للـ Legacy
+            {tUi('pageSubtitle')}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/dashboard/services" className="px-4 py-2 rounded-xl border border-white/20 text-white text-xs font-bold hover:bg-white/10 flex items-center gap-1">
-            <MdArrowBack /> رجوع
+          <Link href={`/${locale}/dashboard/services`} className="px-4 py-2 rounded-xl border border-white/20 text-white text-xs font-bold hover:bg-white/10 flex items-center gap-1">
+            <MdArrowBack className={isRtl ? '' : 'rotate-180'} /> {tUi('backBtn')}
           </Link>
           <button type="button" onClick={() => handleSave(true)} className="px-4 py-2 rounded-xl border border-venecos-gold/40 text-venecos-gold text-xs font-bold hover:bg-venecos-gold/10">
-            💾 مسودة
+            {tUi('draftBtn')}
           </button>
           <button type="button" onClick={() => handleSave(false)} className="px-6 py-2 bg-gradient-to-r from-venecos-gold to-yellow-500 text-black font-extrabold text-xs rounded-xl shadow-md hover:opacity-90">
-            ✓ حفظ ونشر
+            {tUi('publishBtn')}
           </button>
         </div>
       </div>
@@ -149,44 +363,44 @@ export default function PhotographyServicePage() {
         {/* Section 1: Categories & Shooting Environment Chips */}
         <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 space-y-6 shadow-xl">
           <h3 className="text-sm font-bold text-venecos-gold border-b border-white/10 pb-3 flex items-center gap-2">
-            <MdTune /> أنواع التصوير وبيئة العمل
+            <MdTune /> {tUi('photoTypesTitle')}
           </h3>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-2.5">مجالات وأنواع التصوير المتاحة</label>
+            <label className="block text-xs font-bold text-white/80 mb-2.5">{tUi('availablePhotoTypes')}</label>
             <div className="flex flex-wrap gap-2">
               {categories.map((cat) => (
                 <button
-                  key={cat}
+                  key={cat.id}
                   type="button"
-                  onClick={() => toggleItem(selectedCats, setSelectedCats, cat)}
+                  onClick={() => toggleItem(selectedCats, setSelectedCats, cat.id)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
-                    selectedCats.includes(cat)
+                    selectedCats.includes(cat.id)
                       ? 'bg-venecos-gold/20 text-venecos-gold border-venecos-gold shadow'
                       : 'bg-white/5 text-white/60 border-white/10 hover:text-white'
                   }`}
                 >
-                  {selectedCats.includes(cat) ? '✓ ' : ''}{cat}
+                  {selectedCats.includes(cat.id) ? '✓ ' : ''}{cat[locale as keyof typeof cat] || cat['en']}
                 </button>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-2.5">مكان وبيئة جلسة التصوير</label>
+            <label className="block text-xs font-bold text-white/80 mb-2.5">{tUi('shootingEnv')}</label>
             <div className="flex flex-wrap gap-2">
               {environments.map((env) => (
                 <button
-                  key={env}
+                  key={env.id}
                   type="button"
-                  onClick={() => toggleItem(selectedEnvs, setSelectedEnvs, env)}
+                  onClick={() => toggleItem(selectedEnvs, setSelectedEnvs, env.id)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
-                    selectedEnvs.includes(env)
+                    selectedEnvs.includes(env.id)
                       ? 'bg-blue-500/20 text-blue-400 border-blue-500 shadow'
                       : 'bg-white/5 text-white/60 border-white/10 hover:text-white'
                   }`}
                 >
-                  {selectedEnvs.includes(env) ? '✓ ' : ''}{env}
+                  {selectedEnvs.includes(env.id) ? '✓ ' : ''}{env[locale as keyof typeof env] || env['en']}
                 </button>
               ))}
             </div>
@@ -196,64 +410,64 @@ export default function PhotographyServicePage() {
         {/* Section 2: Equipment & Retouching Tiers */}
         <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 space-y-6 shadow-xl">
           <h3 className="text-sm font-bold text-venecos-gold border-b border-white/10 pb-3 flex items-center gap-2">
-            ⚙️ المعدات وصيغ التسليم والريتاتش
+            ⚙️ {tUi('equipAndFormats')}
           </h3>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-2.5">معدات الكاميرا والإضاءة المستخدمة</label>
+            <label className="block text-xs font-bold text-white/80 mb-2.5">{tUi('cameraEquip')}</label>
             <div className="flex flex-wrap gap-2">
               {equipments.map((eq) => (
                 <button
-                  key={eq}
+                  key={eq.id}
                   type="button"
-                  onClick={() => toggleItem(selectedEquips, setSelectedEquips, eq)}
+                  onClick={() => toggleItem(selectedEquips, setSelectedEquips, eq.id)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
-                    selectedEquips.includes(eq)
+                    selectedEquips.includes(eq.id)
                       ? 'bg-purple-500/20 text-purple-400 border-purple-500 shadow'
                       : 'bg-white/5 text-white/60 border-white/10 hover:text-white'
                   }`}
                 >
-                  {selectedEquips.includes(eq) ? '✓ ' : ''}{eq}
+                  {selectedEquips.includes(eq.id) ? '✓ ' : ''}{eq[locale as keyof typeof eq] || eq['en']}
                 </button>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-2.5">مستويات معالجة الصور (Retouching Tiers)</label>
+            <label className="block text-xs font-bold text-white/80 mb-2.5">{tUi('retouchingLevels')}</label>
             <div className="flex flex-wrap gap-2">
               {retouchingTiers.map((ret) => (
                 <button
-                  key={ret}
+                  key={ret.id}
                   type="button"
-                  onClick={() => toggleItem(selectedRetouching, setSelectedRetouching, ret)}
+                  onClick={() => toggleItem(selectedRetouching, setSelectedRetouching, ret.id)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
-                    selectedRetouching.includes(ret)
+                    selectedRetouching.includes(ret.id)
                       ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500 shadow'
                       : 'bg-white/5 text-white/60 border-white/10 hover:text-white'
                   }`}
                 >
-                  {selectedRetouching.includes(ret) ? '✓ ' : ''}{ret}
+                  {selectedRetouching.includes(ret.id) ? '✓ ' : ''}{ret[locale as keyof typeof ret] || ret['en']}
                 </button>
               ))}
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-2.5">صيغ الصور المُسلَّمة للعميل</label>
+            <label className="block text-xs font-bold text-white/80 mb-2.5">{tUi('deliveryFormats')}</label>
             <div className="flex flex-wrap gap-2">
               {deliverables.map((d) => (
                 <button
-                  key={d}
+                  key={d.id}
                   type="button"
-                  onClick={() => toggleItem(selectedFormats, setSelectedFormats, d)}
+                  onClick={() => toggleItem(selectedFormats, setSelectedFormats, d.id)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${
-                    selectedFormats.includes(d)
+                    selectedFormats.includes(d.id)
                       ? 'bg-amber-500/20 text-amber-400 border-amber-500 shadow'
                       : 'bg-white/5 text-white/60 border-white/10 hover:text-white'
                   }`}
                 >
-                  {selectedFormats.includes(d) ? '✓ ' : ''}{d}
+                  {selectedFormats.includes(d.id) ? '✓ ' : ''}{d[locale as keyof typeof d] || d['en']}
                 </button>
               ))}
             </div>
@@ -263,7 +477,7 @@ export default function PhotographyServicePage() {
         {/* Section 3: Pricing & Photo Quantity Bounds */}
         <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 space-y-6 shadow-xl">
           <h3 className="text-sm font-bold text-venecos-gold border-b border-white/10 pb-3">
-            💰 نطاق الأسعار وعدد الصور وفترة التسليم
+            💰 {tUi('pricingSectionTitle')}
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -344,49 +558,82 @@ export default function PhotographyServicePage() {
           />
         </div>
 
-        {/* Section 5: 4 Languages Grid */}
+        {/* Section 5: 4 Languages Tabbed Inputs */}
         <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 space-y-4 shadow-xl">
-          <h3 className="text-sm font-bold text-venecos-gold border-b border-white/10 pb-3">
-            🌐 العنوان والنصوص بالأربع لغات
-          </h3>
+          <div className="flex items-center justify-between border-b border-white/10 pb-3">
+            <h3 className="text-sm font-bold text-venecos-gold">{tUi('multiLangTitle')}</h3>
+            <div className="flex gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
+              {(['ar', 'en', 'fr', 'de'] as const).map((lang) => (
+                <button
+                  key={lang}
+                  type="button"
+                  onClick={() => setActiveLangTab(lang)}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${
+                    activeLangTab === lang
+                      ? 'bg-venecos-gold text-black shadow-md'
+                      : 'text-white/60 hover:text-white'
+                  }`}
+                >
+                  {lang === 'ar' ? '🇸🇦 عربي' : lang === 'en' ? '🇬🇧 EN' : lang === 'fr' ? '🇫🇷 FR' : '🇩🇪 DE'}
+                </button>
+              ))}
+            </div>
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Arabic */}
-            <div className="bg-white/5 border border-venecos-gold/30 rounded-2xl p-5 space-y-4">
-              <div className="bg-venecos-gold/20 border border-venecos-gold/40 text-venecos-gold px-3 py-1 rounded-xl text-xs font-bold inline-block">
-                🇸🇦 العربية
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-white/80 mb-1">العنوان *</label>
-                <input type="text" value={formData.titleAr} onChange={(e) => setFormData({ ...formData, titleAr: e.target.value })} className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2 text-white text-xs" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-white/80 mb-1">وصف مختصر</label>
-                <input type="text" value={formData.shortAr} onChange={(e) => setFormData({ ...formData, shortAr: e.target.value })} className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2 text-white text-xs" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-white/80 mb-1">الشرح التفصيلي</label>
-                <textarea rows={3} value={formData.fullAr} onChange={(e) => setFormData({ ...formData, fullAr: e.target.value })} className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2 text-white text-xs resize-none" />
-              </div>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-bold text-white/80 mb-1.5">
+                {tUi('titleLabel')} ({activeLangTab.toUpperCase()}) *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.title[activeLangTab] || ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    title: { ...formData.title, [activeLangTab]: e.target.value },
+                  })
+                }
+                placeholder="Product Photography..."
+                className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
+              />
             </div>
 
-            {/* English */}
-            <div className="bg-white/5 border border-blue-500/30 rounded-2xl p-5 space-y-4" dir="ltr">
-              <div className="bg-blue-500/20 border border-blue-500/40 text-blue-400 px-3 py-1 rounded-xl text-xs font-bold inline-block">
-                🇬🇧 GB English
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-white/80 mb-1">Title *</label>
-                <input type="text" value={formData.titleEn} onChange={(e) => setFormData({ ...formData, titleEn: e.target.value })} className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2 text-white text-xs" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-white/80 mb-1">Short description</label>
-                <input type="text" value={formData.shortEn} onChange={(e) => setFormData({ ...formData, shortEn: e.target.value })} className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2 text-white text-xs" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-white/80 mb-1">Detailed description</label>
-                <textarea rows={3} value={formData.fullEn} onChange={(e) => setFormData({ ...formData, fullEn: e.target.value })} className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2 text-white text-xs resize-none" />
-              </div>
+            <div>
+              <label className="block text-xs font-bold text-white/80 mb-1.5">
+                {tUi('shortDescLabel')} ({activeLangTab.toUpperCase()})
+              </label>
+              <input
+                type="text"
+                value={formData.shortDesc[activeLangTab] || ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    shortDesc: { ...formData.shortDesc, [activeLangTab]: e.target.value },
+                  })
+                }
+                placeholder="Short description..."
+                className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-white/80 mb-1.5">
+                {tUi('fullContentLabel')} ({activeLangTab.toUpperCase()})
+              </label>
+              <textarea
+                rows={5}
+                value={formData.fullContent[activeLangTab] || ''}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    fullContent: { ...formData.fullContent, [activeLangTab]: e.target.value },
+                  })
+                }
+                placeholder="Full description..."
+                className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none resize-none"
+              />
             </div>
           </div>
         </div>
@@ -395,14 +642,14 @@ export default function PhotographyServicePage() {
         <div className="sticky bottom-0 bg-venecos-black/95 border-t border-white/10 p-4 flex items-center justify-between rounded-t-2xl shadow-2xl backdrop-blur-md">
           <div>{saved && <span className="text-emerald-400 text-xs font-bold flex items-center gap-1"><MdCheckCircle /> {saveStatusMsg}</span>}</div>
           <div className="flex items-center gap-3">
-            <Link href="/dashboard/services" className="px-5 py-2.5 rounded-xl border border-white/20 text-white text-xs font-bold hover:bg-white/10">
-              إلغاء
+            <Link href={`/${locale}/dashboard/services`} className="px-5 py-2.5 rounded-xl border border-white/20 text-white text-xs font-bold hover:bg-white/10">
+              {tUi('cancelBtn')}
             </Link>
             <button type="button" onClick={() => handleSave(true)} className="px-5 py-2.5 rounded-xl border border-venecos-gold/40 text-venecos-gold text-xs font-bold hover:bg-venecos-gold/10">
-              💾 مسودة
+              {tUi('draftBtn')}
             </button>
             <button type="submit" className="px-6 py-2.5 bg-gradient-to-r from-venecos-gold to-yellow-500 text-black font-extrabold text-xs rounded-xl shadow-lg hover:opacity-90">
-              ✓ حفظ ونشر
+              {tUi('publishBtn')}
             </button>
           </div>
         </div>

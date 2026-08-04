@@ -1,10 +1,80 @@
 'use client';
 
 import { useState } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdLanguage, MdArrowBack, MdCheckCircle } from 'react-icons/md';
 
+const dbDomainsUi: Record<string, Record<string, string>> = {
+  pageTitle: {
+    ar: 'إضافة لاحقة نطاق',
+    en: 'Add Domain Extension',
+    fr: 'Ajouter une Extension de Domaine',
+    de: 'Domain-Endung hinzufügen',
+  },
+  backBtn: {
+    ar: 'رجوع',
+    en: 'Back',
+    fr: 'Retour',
+    de: 'Zurück',
+  },
+  saveBtn: {
+    ar: '✓ حفظ اللاحقة',
+    en: '✓ Save Extension',
+    fr: '✓ Enregistrer l\'extension',
+    de: '✓ Endung speichern',
+  },
+  specificationsTitle: {
+    ar: '🌐 بيانات اللاحقة والنطاقات',
+    en: '🌐 Domain Extension Specifications',
+    fr: '🌐 Spécifications de l\'extension',
+    de: '🌐 Spezifikationen der Endung',
+  },
+  extensionLabel: {
+    ar: 'اللاحقة *',
+    en: 'Extension *',
+    fr: 'Extension *',
+    de: 'Endung *',
+  },
+  extensionPlaceholder: {
+    ar: 'مثال: .com .net .store .shop',
+    en: 'e.g. .com .net .store .shop',
+    fr: 'ex. .com .net .store .shop',
+    de: 'z.B. .com .net .store .shop',
+  },
+  regPriceLabel: {
+    ar: 'سعر التسجيل (€/سنة) *',
+    en: 'Registration Price (€/yr) *',
+    fr: 'Prix d\'enregistrement (€/an) *',
+    de: 'Registrierungspreis (€/Jahr) *',
+  },
+  renPriceLabel: {
+    ar: 'سعر التجديد (€/سنة) *',
+    en: 'Renewal Price (€/yr) *',
+    fr: 'Prix de renouvellement (€/an) *',
+    de: 'Verlängerungspreis (€/Jahr) *',
+  },
+  cancelBtn: {
+    ar: 'إلغاء',
+    en: 'Cancel',
+    fr: 'Annuler',
+    de: 'Abbrechen',
+  },
+  savedSuccess: {
+    ar: 'تم إضافة لاحقة النطاق بنجاح',
+    en: 'Domain extension added successfully',
+    fr: 'Extension de domaine ajoutée avec succès',
+    de: 'Domain-Endung erfolgreich hinzugefügt',
+  },
+};
+
 export default function DomainServicePage() {
+  const params = useParams();
+  const locale = (params?.locale as string) || 'ar';
+  const isRtl = locale === 'ar';
+
+  const tUi = (key: string) => dbDomainsUi[key]?.[locale] || dbDomainsUi[key]?.['en'] || '';
+
   const [saved, setSaved] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -13,51 +83,76 @@ export default function DomainServicePage() {
     renPrice: 14.99,
   });
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    try {
+      await fetch('/api/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceKey: 'domains',
+          locale,
+          title: locale === 'ar' ? 'حجز وإدارة الدومينات (Domain Names)' : 'Domain Name Registration & Transfer',
+          description: locale === 'ar' ? 'حجز وإدارة أسماء النطاقات بجميع اللواحق العالمية والمحلية' : 'Register and manage your custom domain names',
+          iconName: 'FaGlobe',
+          iconType: 'react-icon',
+          order: 12,
+          isSpecial: true,
+          subServices: [
+            {
+              title: `Domain Registration (${formData.extension})`,
+              description: `Renewal: €${formData.renPrice}/yr`,
+              price: formData.regPrice || 12.99
+            }
+          ]
+        })
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Header matching Screenshot 5 */}
+    <div className="space-y-6 max-w-4xl mx-auto" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-venecos-black/90 p-6 rounded-2xl border border-venecos-gold/20 shadow-xl">
         <h1 className="text-2xl font-bold text-white flex items-center gap-3">
           <MdLanguage className="text-venecos-gold text-3xl" />
-          إضافة لاحقة نطاق
+          {tUi('pageTitle')}
         </h1>
         <div className="flex items-center gap-2">
-          <Link href="/dashboard/services" className="px-4 py-2 rounded-xl border border-white/20 text-white text-xs font-bold hover:bg-white/10 flex items-center gap-1">
-            <MdArrowBack /> رجوع
+          <Link href={`/${locale}/dashboard/services`} className="px-4 py-2 rounded-xl border border-white/20 text-white text-xs font-bold hover:bg-white/10 flex items-center gap-1">
+            <MdArrowBack className={isRtl ? '' : 'rotate-180'} /> {tUi('backBtn')}
           </Link>
           <button type="button" onClick={handleSave} className="px-6 py-2 bg-gradient-to-r from-venecos-gold to-yellow-500 text-black font-extrabold text-xs rounded-xl shadow-md hover:opacity-90">
-            ✓ حفظ
+            {tUi('saveBtn')}
           </button>
         </div>
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
-        {/* Domain Extension Specs matching Screenshot 5 */}
+        {/* Domain Extension Specs */}
         <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 space-y-5 shadow-xl">
           <h3 className="text-sm font-bold text-venecos-gold border-b border-white/10 pb-3 flex items-center gap-2">
-            🌐 بيانات اللاحقة
+            {tUi('specificationsTitle')}
           </h3>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-1.5">اللاحقة *</label>
+            <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('extensionLabel')}</label>
             <input
               type="text"
               required
               value={formData.extension}
               onChange={(e) => setFormData({ ...formData, extension: e.target.value })}
-              placeholder="مثال: .com .net .store .shop"
+              placeholder={tUi('extensionPlaceholder')}
               className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2.5 text-white font-mono text-sm focus:border-venecos-gold outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-1.5">سعر التسجيل (€/سنة) *</label>
+            <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('regPriceLabel')}</label>
             <input
               type="number"
               step="0.01"
@@ -69,7 +164,7 @@ export default function DomainServicePage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-1.5">سعر التجديد (€/سنة) *</label>
+            <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('renPriceLabel')}</label>
             <input
               type="number"
               step="0.01"
@@ -81,15 +176,15 @@ export default function DomainServicePage() {
           </div>
         </div>
 
-        {/* Sticky Bottom Bar matching Screenshot 5 */}
+        {/* Sticky Bottom Bar */}
         <div className="sticky bottom-0 bg-venecos-black/95 border-t border-white/10 p-4 flex items-center justify-between rounded-t-2xl shadow-2xl backdrop-blur-md">
-          <div>{saved && <span className="text-emerald-400 text-xs font-bold flex items-center gap-1"><MdCheckCircle /> تم إضافة لاحقة النطاق بنجاح</span>}</div>
+          <div>{saved && <span className="text-emerald-400 text-xs font-bold flex items-center gap-1"><MdCheckCircle /> {tUi('savedSuccess')}</span>}</div>
           <div className="flex items-center gap-3">
-            <Link href="/dashboard/services" className="px-5 py-2.5 rounded-xl border border-white/20 text-white text-xs font-bold hover:bg-white/10">
-              إلغاء
+            <Link href={`/${locale}/dashboard/services`} className="px-5 py-2.5 rounded-xl border border-white/20 text-white text-xs font-bold hover:bg-white/10">
+              {tUi('cancelBtn')}
             </Link>
             <button type="submit" className="px-6 py-2.5 bg-gradient-to-r from-venecos-gold to-yellow-500 text-black font-extrabold text-xs rounded-xl shadow-lg hover:opacity-90">
-              ✓ إضافة اللاحقة
+              {tUi('saveBtn')}
             </button>
           </div>
         </div>

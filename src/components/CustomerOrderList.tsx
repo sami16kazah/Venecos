@@ -9,6 +9,29 @@ import { MdChat, MdPayment, MdCheckCircle, MdAccessTime, MdCancel, MdPerson } fr
 import OrderChat from '@/components/OrderChat';
 import { useTranslations, useLocale } from 'next-intl';
 
+const serviceTitleMap: Record<string, Record<string, string>> = {
+  'البرمجة': { ar: 'البرمجة', en: 'Programming & Web', fr: 'Programmation & Web', de: 'Programmierung & Web' },
+  'برمجة مواقع الويب': { ar: 'برمجة مواقع الويب', en: 'Web Development', fr: 'Développement Web', de: 'Webentwicklung' },
+  'التصميم الإعلاني والتجاري': { ar: 'التصميم الإعلاني والتجاري', en: 'Graphic & Brand Design', fr: 'Design Graphique', de: 'Grafik- & Markendesign' },
+  'إنتاج الفيديو والمونتاج': { ar: 'إنتاج الفيديو والمونتاج', en: 'Video Production & Editing', fr: 'Production Vidéo', de: 'Videoproduktion' },
+  'الطباعة الإعلانية والمجسمات': { ar: 'الطباعة الإعلانية والمجسمات', en: 'Advertising Print & Models', fr: 'Impression Publicitaire', de: 'Werbedruck' },
+  'خدمات أخرى مخصصة': { ar: 'خدمات أخرى مخصصة', en: 'Custom & Other Services', fr: 'Autres Services', de: 'Weitere Dienste' },
+  'هوية بصرية كاملة': { ar: 'هوية بصرية كاملة', en: 'Full Brand Identity', fr: 'Identité de Marque', de: 'Markenidentität' },
+  'تصميم شعار احترافي': { ar: 'تصميم شعار احترافي', en: 'Professional Logo Design', fr: 'Design de Logo', de: 'Logo-Design' },
+};
+
+function formatLocalizedServiceName(val: any, lang: string): string {
+  if (!val) return '';
+  if (typeof val === 'object') {
+    return val[lang] || val['en'] || val['ar'] || val['fr'] || val['de'] || Object.values(val)[0] || '';
+  }
+  const str = String(val).trim();
+  if (lang !== 'ar' && serviceTitleMap[str]) {
+    return serviceTitleMap[str][lang] || serviceTitleMap[str]['en'] || str;
+  }
+  return str;
+}
+
 export default function CustomerOrderList({ orders }: { orders: any[] }) {
   const t = useTranslations('Dashboard');
   const locale = useLocale();
@@ -73,10 +96,10 @@ export default function CustomerOrderList({ orders }: { orders: any[] }) {
                   </Box>
 
                   <Typography variant="h6" fontWeight="800" sx={{ mb: 0.5, lineHeight: 1.2 }}>
-                    {order.subServiceName}
+                    {formatLocalizedServiceName(order.subServiceName, locale)}
                   </Typography>
                   <Typography variant="subtitle2" sx={{ color: '#D4AF37', fontWeight: 'bold', mb: 3, opacity: 0.8 }}>
-                    {order.serviceName}
+                    {formatLocalizedServiceName(order.serviceName, locale)}
                   </Typography>
 
                   <Box sx={{ bgcolor: 'white', border: '1px solid #f5f5f5', borderRadius: 4, p: 2, mb: 3 }}>

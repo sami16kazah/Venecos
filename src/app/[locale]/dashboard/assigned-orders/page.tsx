@@ -10,6 +10,29 @@ import {
 import { MdChat, MdPayment, MdCheckCircle } from 'react-icons/md';
 import OrderChat from '@/components/OrderChat';
 
+const serviceTitleMap: Record<string, Record<string, string>> = {
+  'البرمجة': { ar: 'البرمجة', en: 'Programming & Web', fr: 'Programmation & Web', de: 'Programmierung & Web' },
+  'برمجة مواقع الويب': { ar: 'برمجة مواقع الويب', en: 'Web Development', fr: 'Développement Web', de: 'Webentwicklung' },
+  'التصميم الإعلاني والتجاري': { ar: 'التصميم الإعلاني والتجاري', en: 'Graphic & Brand Design', fr: 'Design Graphique', de: 'Grafik- & Markendesign' },
+  'إنتاج الفيديو والمونتاج': { ar: 'إنتاج الفيديو والمونتاج', en: 'Video Production & Editing', fr: 'Production Vidéo', de: 'Videoproduktion' },
+  'الطباعة الإعلانية والمجسمات': { ar: 'الطباعة الإعلانية والمجسمات', en: 'Advertising Print & Models', fr: 'Impression Publicitaire', de: 'Werbedruck' },
+  'خدمات أخرى مخصصة': { ar: 'خدمات أخرى مخصصة', en: 'Custom & Other Services', fr: 'Autres Services', de: 'Weitere Dienste' },
+  'هوية بصرية كاملة': { ar: 'هوية بصرية كاملة', en: 'Full Brand Identity', fr: 'Identité de Marque', de: 'Markenidentität' },
+  'تصميم شعار احترافي': { ar: 'تصميم شعار احترافي', en: 'Professional Logo Design', fr: 'Design de Logo', de: 'Logo-Design' },
+};
+
+function formatLocalizedServiceName(val: any, lang: string): string {
+  if (!val) return '';
+  if (typeof val === 'object') {
+    return val[lang] || val['en'] || val['ar'] || val['fr'] || val['de'] || Object.values(val)[0] || '';
+  }
+  const str = String(val).trim();
+  if (lang !== 'ar' && serviceTitleMap[str]) {
+    return serviceTitleMap[str][lang] || serviceTitleMap[str]['en'] || str;
+  }
+  return str;
+}
+
 export default function AssignedOrdersPage() {
   const t = useTranslations('Dashboard');
   const params = useParams() as { locale: string };
@@ -76,10 +99,10 @@ export default function AssignedOrdersPage() {
                 </div>
 
                 <Typography variant="h6" className="font-extrabold text-gray-900 leading-tight mb-1">
-                  {order.subServiceName}
+                  {formatLocalizedServiceName(order.subServiceName, params?.locale || 'ar')}
                 </Typography>
                 <Typography variant="body2" className="text-venecos-gold font-bold mb-4">
-                  {order.serviceName}
+                  {formatLocalizedServiceName(order.serviceName, params?.locale || 'ar')}
                 </Typography>
                 
                 <div className="bg-gray-50 p-4 rounded-xl mb-4 border border-gray-100">

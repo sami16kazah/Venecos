@@ -16,7 +16,7 @@
   },
   "AboutAdmin": {
     "manageAbout": "Gérer le contenu À propos de nous",
-    "manageAboutDesc": "Mettez à jour publiquement l'histoire visible de Venecos de manière dynamique en sélectionnant les chaînes dans les langues ci-dessous.",
+    "manageAboutDesc": "Mettez à jour dynamiquement l'histoire visible de Venecos à travers les langues ci-dessous.",
     "pageTitle": "Titre de section",
     "pageContent": "Corps du contenu principal",
     "formattingHint": "Vos espacements et sauts de ligne seront automatiquement maintenus publiquement.",
@@ -28,7 +28,7 @@
   },
   "Services": {
     "title": "Nos Services Premium",
-    "coding": "Codage",
+    "coding": "Codage & Web",
     "codingDesc": "Développement web et mobile expert utilisant des technologies de pointe. Créez des applications évolutives et performantes.",
     "ui_design": "Design UI",
     "ui_designDesc": "Design UI/UX premium axé sur l'esthétique moderne et des mises en page réactives adaptées à votre marque.",
@@ -40,8 +40,22 @@
     "noServices": "Aucun service trouvé pour le moment.",
     "serviceNotFound": "Service non trouvé.",
     "availablePackages": "Forfaits disponibles",
-    "noPackages": "Aucun forfait n'a encore été listé pour ce service. Restez à l'écoute!",
-    "orderNow": "Commander"
+    "noPackages": "Aucun forfait n'a encore été listé pour ce service.",
+    "orderNow": "Commander maintenant",
+    "coreBadge": "Services Principaux VENECOS",
+    "coreTitle": "Solutions de Services Intégrés",
+    "directoryLink": "Répertoire des Services",
+    "availablePackagesLabel": "Forfaits disponibles :"
+  },
+  "Offers": {
+    "title": "Offres Exclusives",
+    "subtitle": "Offres Spéciales & Forfaits Limités",
+    "orderOffer": "Commander & Profiter de l'offre",
+    "claimOffer": "Réclamer l'offre maintenant",
+    "saveAmount": "Économisez €{amount}",
+    "limitedTime": "Offre à durée limitée",
+    "includedFeatures": "Inclus dans cette offre :",
+    "closeModal": "Fermer"
   },
   "Contact": {
     "title": "Rejoignez-nous",
@@ -59,7 +73,7 @@
     "signUpDesc": "Rejoignez la plateforme Venecos",
     "emailLabel": "E-mail",
     "passwordLabel": "Mot de passe",
-    "confirmPasswordLabel": "Confirmez le mot de passe",
+    "confirmPasswordLabel": "Confirmer le mot de passe",
     "firstNameLabel": "Prénom",
     "lastNameLabel": "Nom",
     "usernameLabel": "Nom d'utilisateur",
@@ -90,6 +104,7 @@
     "platformSettings": "Paramètres",
     "manageOrders": "Gérer les commandes",
     "assignedTasks": "Tâches assignées",
+    "assignedOrders": "Missions Assignées",
     "messages": "Messages",
     "myOrders": "Mes Commandes",
     "invoices": "Factures",
@@ -124,7 +139,7 @@
     "service": "Service",
     "noInvoices": "Aucune facture payée trouvée.",
     "payNow": "Payer maintenant",
-    "slider": "Slider d'accueil",
+    "slider": "Carrousel d'accueil",
     "offers": "Offres Exclusives",
     "gallery": "Galerie de Projets",
     "supervisors": "Superviseurs",
@@ -142,7 +157,12 @@
     "techServices": "Services Techniques",
     "designServices": "Services de Design",
     "printServices": "Services d'Impression",
-    "otherServices": "Autres Services"
+    "otherServices": "Autres Services",
+    "general": "Général",
+    "content": "Contenu",
+    "permissions": "Autorisations",
+    "operations": "Opérations",
+    "newBadge": "Nouveau"
   },
   "JoinUs": {
     "title": "Rejoignez Notre Équipe",

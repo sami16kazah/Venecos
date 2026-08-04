@@ -12,11 +12,11 @@
     "join": "Mach mit",
     "signIn": "Anmelden",
     "dashboard": "Dashboard",
-    "aboutContent": "Über Inhalt"
+    "aboutContent": "Über Uns Inhalt"
   },
   "AboutAdmin": {
     "manageAbout": "Über uns Inhalt verwalten",
-    "manageAboutDesc": "Aktualisieren Sie die öffentlich sichtbare Geschichte von Venecos dynamisch, indem Sie Zeichenfolgen über die untigen Sprachen auswählen.",
+    "manageAboutDesc": "Aktualisieren Sie die öffentlich sichtbare Geschichte von Venecos dynamisch über die Sprachen unten.",
     "pageTitle": "Abschnittstitel",
     "pageContent": "Hauptinhalt",
     "formattingHint": "Ihre Abstände und Zeilenumbrüche werden öffentlich automatisch beibehalten.",
@@ -28,7 +28,7 @@
   },
   "Services": {
     "title": "Unsere Premium-Dienste",
-    "coding": "Programmierung",
+    "coding": "Programmierung & Web",
     "codingDesc": "Experten Web- und App-Entwicklung mit modernsten Technologien. Erstellen Sie skalierbare, hochleistungsfähige Anwendungen.",
     "ui_design": "UI-Design",
     "ui_designDesc": "Premium UI/UX-Design mit Fokus auf moderne Ästhetik, nutzerzentrierte Ansätze und reaktionsschnelle Layouts, zugeschnitten auf Ihre Marke.",
@@ -40,8 +40,22 @@
     "noServices": "Noch keine Dienste gefunden.",
     "serviceNotFound": "Dienst nicht gefunden.",
     "availablePackages": "Verfügbare Pakete",
-    "noPackages": "Für diesen Dienst wurden anscheinend noch keine speziellen Pakete aufgeführt.",
-    "orderNow": "Jetzt bestellen"
+    "noPackages": "Für diesen Dienst wurden noch keine speziellen Pakete gelistet.",
+    "orderNow": "Jetzt bestellen",
+    "coreBadge": "VENECOS Hauptdienste",
+    "coreTitle": "Integrierte Servicelösungen",
+    "directoryLink": "Dienstverzeichnis",
+    "availablePackagesLabel": "Verfügbare Pakete:"
+  },
+  "Offers": {
+    "title": "Exklusive Angebote",
+    "subtitle": "Sonderangebote & Limitierte Pakete",
+    "orderOffer": "Paket bestellen & Angebot sichern",
+    "claimOffer": "Angebot jetzt sichern",
+    "saveAmount": "Sparen Sie €{amount}",
+    "limitedTime": "Zeitlich begrenztes Angebot",
+    "includedFeatures": "In diesem Angebot enthalten:",
+    "closeModal": "Schließen"
   },
   "Contact": {
     "title": "Mach mit",
@@ -90,6 +104,7 @@
     "platformSettings": "Systemeinstellungen",
     "manageOrders": "Bestellungen verwalten",
     "assignedTasks": "Zugewiesene Aufgaben",
+    "assignedOrders": "Zugewiesene Bestellungen",
     "messages": "Nachrichten",
     "myOrders": "Meine Bestellungen",
     "invoices": "Rechnungen",
@@ -142,7 +157,12 @@
     "techServices": "Technische Dienste",
     "designServices": "Design-Services",
     "printServices": "Druckdienste",
-    "otherServices": "Weitere Dienste"
+    "otherServices": "Weitere Dienste",
+    "general": "Allgemein",
+    "content": "Inhalte",
+    "permissions": "Berechtigungen",
+    "operations": "Operative Prozesse",
+    "newBadge": "Neu"
   },
   "JoinUs": {
     "title": "Treten Sie Unserem Team Bei",

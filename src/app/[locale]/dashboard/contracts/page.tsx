@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import { MdDescription, MdAdd, MdEdit, MdDelete, MdCheckCircle, MdComment, MdSave } from 'react-icons/md';
 
 interface IContract {
@@ -12,7 +13,169 @@ interface IContract {
   autoChatSuspensionMessages: { ar: string; en: string; fr: string; de: string };
 }
 
+const dbContractsUi: Record<string, Record<string, string>> = {
+  pageTitle: {
+    ar: 'إدارة العقود والتوقيع الإلكتروني',
+    en: 'Contracts & E-Sign Management',
+    fr: 'Gestion des Contrats & Signature',
+    de: 'Vertragsverwaltung & E-Signatur',
+  },
+  pageSubtitle: {
+    ar: 'عقد مخصص لكل خدمة يوقّع عليه العميل إلكترونياً قبل بدء العمل',
+    en: 'Service contracts signed electronically by clients before starting work',
+    fr: 'Contrats de service signés électroniquement par les clients avant de commencer',
+    de: 'Dienstleistungsverträge, die vom Kunden vor Arbeitsbeginn elektronisch unterzeichnet werden',
+  },
+  addNewContract: {
+    ar: 'إضافة عقد خدمة',
+    en: 'Add Service Contract',
+    fr: 'Ajouter un contrat',
+    de: 'Vertrag hinzufügen',
+  },
+  editContract: {
+    ar: 'تعديل العقد',
+    en: 'Edit Contract',
+    fr: 'Modifier le contrat',
+    de: 'Vertrag bearbeiten',
+  },
+  standardClausesTitle: {
+    ar: 'البنود التلقائية الموحدة لكل العقود (مشتركة)',
+    en: 'Standard Default Clauses (All Contracts)',
+    fr: 'Clauses standard par défaut (Tous contrats)',
+    de: 'Standard-Klauseln (Alle Verträge)',
+  },
+  rule1: {
+    ar: 'لا تبدأ أي خدمة بدون دفعة مقدمة لا تقل عن 30% من قيمة الطلب.',
+    en: 'No service begins without an advance deposit of at least 30% of order value.',
+    fr: 'Aucun service ne commence sans un acompte d\'au moins 30% de la valeur.',
+    de: 'Kein Dienst beginnt ohne eine Anzahlung von mindestens 30 % des Bestellwerts.',
+  },
+  rule2: {
+    ar: 'لا يُسلَّم أي عمل بدون سداد المبلغ كاملاً.',
+    en: 'No final project work is delivered without full payment completion.',
+    fr: 'Aucun travail final n\'est livré sans paiement intégral.',
+    de: 'Keine finale Arbeit wird ohne vollständige Zahlung geliefert.',
+  },
+  rule3: {
+    ar: 'لا تبدأ أي مرحلة جديدة بدون سداد المرحلة السابقة.',
+    en: 'Subsequent project phases do not start until previous phases are settled.',
+    fr: 'Les phases ultérieures ne commencent qu\'après le règlement des précédentes.',
+    de: 'Nachfolgende Phasen beginnen erst nach Begleichung der vorherigen.',
+  },
+  rule4: {
+    ar: 'يحق للعميل 3 مراجعات مجانية — ما بعدها بتكلفة إضافية يحددها المشرف.',
+    en: 'Includes 3 free revision rounds. Further revisions are billed at supervisor rates.',
+    fr: 'Comprend 3 révisions gratuites. Les révisions ultérieures sont facturées.',
+    de: 'Enthält 3 kostenlose Überarbeitungsrunden. Weitere werden berechnet.',
+  },
+  rule5: {
+    ar: 'في حال الخلاف يُحال للمشرف أولاً، ثم للأدمن كمرحلة أخيرة داخل الموقع.',
+    en: 'Disputes are referred to supervisor first, then escalated to platform admin.',
+    fr: 'Les litiges sont transmis d\'abord au superviseur, puis à l\'administrateur.',
+    de: 'Streitigkeiten werden zuerst an den Supervisor und dann an den Admin weitergeleitet.',
+  },
+  rule6: {
+    ar: 'بالضغط على "أوافق" وكتابة اسمه الكامل، يُقرّ العميل بموافقته القانونية.',
+    en: 'By clicking "I Agree" and typing full name, client confirms legal agreement.',
+    fr: 'En cliquant sur "J\'accepte" et en saisissant son nom, le client confirme l\'accord légal.',
+    de: 'Durch Klicken auf "Ich stimme zu" bestätigt der Kunde die rechtliche Vereinbarung.',
+  },
+  loading: {
+    ar: 'جاري التحميل...',
+    en: 'Loading contracts...',
+    fr: 'Chargement des contrats...',
+    de: 'Verträge werden geladen...',
+  },
+  noContracts: {
+    ar: 'لا توجد عقود مضافة بعد',
+    en: 'No contracts added yet',
+    fr: 'Aucun contrat ajouté pour le moment',
+    de: 'Noch keine Verträge hinzugefügt',
+  },
+  addFirstContract: {
+    ar: 'إضافة أول عقد',
+    en: 'Add First Contract',
+    fr: 'Ajouter le premier contrat',
+    de: 'Ersten Vertrag hinzufügen',
+  },
+  customClausesLabel: {
+    ar: 'البنود الخاصة:',
+    en: 'Custom Clauses:',
+    fr: 'Clauses spécifiques:',
+    de: 'Spezifische Klauseln:',
+  },
+  noCustomClauses: {
+    ar: 'لا توجد بنود إضافية',
+    en: 'No custom clauses added',
+    fr: 'Aucune clause spécifique',
+    de: 'Keine zusätzlichen Klauseln',
+  },
+  fullNameSignEnabled: {
+    ar: '✓ توقيع بالاسم الكامل مفعل',
+    en: '✓ Full Name Signature Enabled',
+    fr: '✓ Signature nom complet activée',
+    de: '✓ Vollnamenssignatur aktiviert',
+  },
+  serviceNameLabel: {
+    ar: 'الخدمة المرتبطة *',
+    en: 'Associated Service *',
+    fr: 'Service associé *',
+    de: 'Zugehöriger Dienst *',
+  },
+  versionLabel: {
+    ar: 'الإصدار (Version)',
+    en: 'Version',
+    fr: 'Version',
+    de: 'Version',
+  },
+  multiLangClausesTitle: {
+    ar: 'البنود الخاصة بالعقد (4 لغات)',
+    en: 'Contract Custom Clauses (4 Languages)',
+    fr: 'Clauses personnalisées du contrat (4 langues)',
+    de: 'Vertragsklauseln (4 Sprachen)',
+  },
+  chatSuspensionLabel: {
+    ar: 'رسالة تعطيل الشات عند النزاع',
+    en: 'Chat Suspension Message on Dispute',
+    fr: 'Message de suspension de chat en cas de litige',
+    de: 'Chat-Sperrnachricht bei Streitfall',
+  },
+  cancel: {
+    ar: 'إلغاء',
+    en: 'Cancel',
+    fr: 'Annuler',
+    de: 'Abbrechen',
+  },
+  saveContract: {
+    ar: 'حفظ العقد',
+    en: 'Save Contract',
+    fr: 'Enregistrer le contrat',
+    de: 'Vertrag speichern',
+  },
+  deleteConfirm: {
+    ar: 'هل أنت تأكد من حذف هذا العقد؟',
+    en: 'Are you sure you want to delete this contract?',
+    fr: 'Êtes-vous sûr de vouloir supprimer ce contrat ?',
+    de: 'Sind Sie sicher, dass Sie diesen Vertrag löschen möchten?',
+  },
+};
+
+function getLocValue(val: any, lang: string): string {
+  if (!val) return '';
+  if (typeof val === 'string') return val;
+  if (typeof val === 'object') {
+    return val[lang] || val['en'] || val['ar'] || val['fr'] || val['de'] || Object.values(val)[0] || '';
+  }
+  return String(val);
+}
+
 export default function ContractsPage() {
+  const params = useParams();
+  const locale = (params?.locale as string) || 'ar';
+  const isRtl = locale === 'ar';
+
+  const tUi = (key: string) => dbContractsUi[key]?.[locale] || dbContractsUi[key]?.['en'] || '';
+
   const [contracts, setContracts] = useState<IContract[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -95,7 +258,7 @@ export default function ContractsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت تأكد من حذف هذا العقد؟')) return;
+    if (!confirm(tUi('deleteConfirm'))) return;
     try {
       const res = await fetch(`/api/contracts/${id}`, { method: 'DELETE' });
       if (res.ok) fetchContracts();
@@ -105,15 +268,15 @@ export default function ContractsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-venecos-black/90 p-6 rounded-2xl border border-venecos-gold/20 shadow-xl">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <MdDescription className="text-venecos-gold text-3xl" />
-            إدارة العقود والتوقيع الإلكتروني — Contracts & E-Sign
+            {tUi('pageTitle')}
           </h1>
           <p className="text-white/60 text-xs md:text-sm mt-1">
-            عقد مخصص لكل خدمة يوقّع عليه العميل إلكترونياً قبل بدء العمل
+            {tUi('pageSubtitle')}
           </p>
         </div>
         <button
@@ -121,37 +284,37 @@ export default function ContractsPage() {
           className="flex items-center gap-2 bg-gradient-to-r from-venecos-gold to-yellow-500 hover:opacity-90 text-black px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all self-start md:self-auto"
         >
           <MdAdd className="text-lg" />
-          إضافة عقد خدمة
+          {tUi('addNewContract')}
         </button>
       </div>
 
       {/* Auto Clauses Banner */}
       <div className="bg-venecos-black/70 border border-white/10 rounded-2xl p-6 space-y-3">
         <h3 className="text-sm font-bold text-venecos-gold flex items-center gap-2">
-          <MdCheckCircle className="text-base" /> הבنود التلقائية الموحدة لكل العقود (مشتركة)
+          <MdCheckCircle className="text-base" /> {tUi('standardClausesTitle')}
         </h3>
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-white/70 list-disc list-inside leading-relaxed">
-          <li>لا تبدأ أي خدمة بدون دفعة مقدمة لا تقل عن 30% من قيمة الطلب.</li>
-          <li>لا يُسلَّم أي عمل بدون سداد المبلغ كاملاً.</li>
-          <li>لا تبدأ أي مرحلة جديدة بدون سداد المرحلة السابقة.</li>
-          <li>يحق للعميل 3 مراجعات مجانية — ما بعدها بتكلفة إضافية يحددها المشرف.</li>
-          <li>في حال الخلاف يُحال للمشرف أولاً، ثم للأدمن كمرحلة أخيرة داخل الموقع.</li>
-          <li>بالضغط على &quot;أوافق&quot; وكتابة اسمه الكامل، يُقرّ العميل بموافقته القانونية.</li>
+          <li>{tUi('rule1')}</li>
+          <li>{tUi('rule2')}</li>
+          <li>{tUi('rule3')}</li>
+          <li>{tUi('rule4')}</li>
+          <li>{tUi('rule5')}</li>
+          <li>{tUi('rule6')}</li>
         </ul>
       </div>
 
       {/* Contracts List */}
       {loading ? (
-        <div className="text-center py-16 text-white/50 animate-pulse">جاري التحميل...</div>
+        <div className="text-center py-16 text-white/50 animate-pulse">{tUi('loading')}</div>
       ) : contracts.length === 0 ? (
         <div className="bg-venecos-black/50 border border-white/10 rounded-2xl p-12 text-center text-white/60 space-y-4">
           <MdDescription className="text-5xl text-venecos-gold/40 mx-auto" />
-          <p className="text-lg font-medium">لا توجد عقود مضافة بعد</p>
+          <p className="text-lg font-medium">{tUi('noContracts')}</p>
           <button
             onClick={() => handleOpenModal()}
             className="inline-flex items-center gap-2 bg-venecos-gold/20 text-venecos-gold border border-venecos-gold/40 px-4 py-2 rounded-xl text-sm font-bold"
           >
-            <MdAdd /> إضافة أول عقد
+            <MdAdd /> {tUi('addFirstContract')}
           </button>
         </div>
       ) : (
@@ -170,13 +333,13 @@ export default function ContractsPage() {
                 </div>
 
                 <div className="bg-white/5 p-3 rounded-xl border border-white/10 text-xs text-white/70 space-y-1">
-                  <p className="font-bold text-white mb-1">البنود الخاصة (بالعربي):</p>
-                  <p className="line-clamp-3 leading-relaxed">{contract.customClauses.ar || 'لا توجد بنود إضافية'}</p>
+                  <p className="font-bold text-white mb-1">{tUi('customClausesLabel')}</p>
+                  <p className="line-clamp-3 leading-relaxed">{getLocValue(contract.customClauses, locale) || tUi('noCustomClauses')}</p>
                 </div>
               </div>
 
               <div className="border-t border-white/10 pt-4 mt-4 flex items-center justify-between">
-                <span className="text-xs text-emerald-400 font-bold">✓ توقيع بالاسم الكامل مفعل</span>
+                <span className="text-xs text-emerald-400 font-bold">{tUi('fullNameSignEnabled')}</span>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleOpenModal(contract)}
@@ -204,7 +367,7 @@ export default function ContractsPage() {
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 <MdDescription className="text-venecos-gold" />
-                {editingContract ? 'تعديل العقد' : 'إضافة عقد جديد'}
+                {editingContract ? tUi('editContract') : tUi('addNewContract')}
               </h2>
               <button onClick={() => setModalOpen(false)} className="text-white/60 hover:text-white text-xl">
                 ✕
@@ -214,19 +377,19 @@ export default function ContractsPage() {
             <form onSubmit={handleSave} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-white/70 mb-1">الخدمة المرتبطة *</label>
+                  <label className="block text-xs font-bold text-white/70 mb-1">{tUi('serviceNameLabel')}</label>
                   <input
                     type="text"
                     required
                     value={formData.serviceName}
                     onChange={(e) => setFormData({ ...formData, serviceName: e.target.value })}
-                    placeholder="البرمجة، التصوير..."
+                    placeholder="Programming..."
                     className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-venecos-gold"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-white/70 mb-1">الإصدار (Version)</label>
+                  <label className="block text-xs font-bold text-white/70 mb-1">{tUi('versionLabel')}</label>
                   <input
                     type="text"
                     value={formData.version}
@@ -239,7 +402,7 @@ export default function ContractsPage() {
 
               {/* Languages tabs */}
               <div>
-                <label className="block text-xs font-bold text-white/70 mb-2">البنود الخاصة بالعقد (4 لغات)</label>
+                <label className="block text-xs font-bold text-white/70 mb-2">{tUi('multiLangClausesTitle')}</label>
                 <div className="flex gap-2 border-b border-white/10 pb-2 mb-4">
                   {(['ar', 'en', 'fr', 'de'] as const).map((lang) => (
                     <button
@@ -258,7 +421,7 @@ export default function ContractsPage() {
                 <div className="space-y-3 bg-white/5 p-4 rounded-xl border border-white/10">
                   <div>
                     <label className="block text-xs font-semibold text-white/60 mb-1">
-                      البنود الإضافية للخدمة ({activeLangTab.toUpperCase()})
+                      {tUi('customClausesLabel')} ({activeLangTab.toUpperCase()})
                     </label>
                     <textarea
                       rows={3}
@@ -275,7 +438,7 @@ export default function ContractsPage() {
 
                   <div>
                     <label className="block text-xs font-semibold text-white/60 mb-1">
-                      رسالة تعطيل الشات عند النزاع ({activeLangTab.toUpperCase()})
+                      {tUi('chatSuspensionLabel')} ({activeLangTab.toUpperCase()})
                     </label>
                     <textarea
                       rows={2}
@@ -301,13 +464,13 @@ export default function ContractsPage() {
                   onClick={() => setModalOpen(false)}
                   className="px-5 py-2 rounded-xl text-xs font-bold text-white/70 hover:text-white bg-white/10"
                 >
-                  إلغاء
+                  {tUi('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-2 rounded-xl text-xs font-bold text-black bg-gradient-to-r from-venecos-gold to-yellow-500"
                 >
-                  حفظ العقد
+                  {tUi('saveContract')}
                 </button>
               </div>
             </form>

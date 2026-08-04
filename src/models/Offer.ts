@@ -15,7 +15,12 @@ export interface IOffer extends Document {
   };
   originalPrice: number;
   discountedPrice: number;
-  badge?: string;
+  badge?: {
+    ar: string;
+    en: string;
+    fr: string;
+    de: string;
+  } | string;
   features: Array<{
     ar: string;
     en: string;
@@ -42,7 +47,7 @@ const OfferSchema: Schema = new Schema({
   },
   originalPrice: { type: Number, required: true },
   discountedPrice: { type: Number, required: true },
-  badge: { type: String, default: '' },
+  badge: { type: Schema.Types.Mixed, default: '' },
   features: [{
     ar: { type: String, default: '' },
     en: { type: String, default: '' },

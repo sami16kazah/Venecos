@@ -1,10 +1,134 @@
 'use client';
 
 import { useState } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdDns, MdArrowBack, MdCheckCircle, MdSave } from 'react-icons/md';
 
+const dbVpsUi: Record<string, Record<string, string>> = {
+  pageTitle: {
+    ar: 'إضافة / إدارة باقة VPS',
+    en: 'Add / Manage VPS Package',
+    fr: 'Ajouter / Gérer Forfait VPS',
+    de: 'VPS-Paket hinzufügen / verwalten',
+  },
+  backBtn: {
+    ar: 'رجوع',
+    en: 'Back',
+    fr: 'Retour',
+    de: 'Zurück',
+  },
+  savePackageBtn: {
+    ar: '✓ حفظ الباقة',
+    en: '✓ Save Package',
+    fr: '✓ Enregistrer le forfait',
+    de: '✓ Paket speichern',
+  },
+  specificationsTitle: {
+    ar: '⚙️ مواصفات الباقة',
+    en: '⚙️ Package Specifications',
+    fr: '⚙️ Spécifications du forfait',
+    de: '⚙️ Paketspezifikationen',
+  },
+  packageNameLabel: {
+    ar: 'اسم الباقة *',
+    en: 'Package Name *',
+    fr: 'Nom du forfait *',
+    de: 'Paketname *',
+  },
+  packageNamePlaceholder: {
+    ar: 'مثال: VPS-1, VPS-2 Pro...',
+    en: 'e.g. VPS-1, VPS-2 Pro...',
+    fr: 'ex. VPS-1, VPS-2 Pro...',
+    de: 'z.B. VPS-1, VPS-2 Pro...',
+  },
+  monthlyPriceLabel: {
+    ar: 'السعر الشهري (€) *',
+    en: 'Monthly Price (€) *',
+    fr: 'Prix mensuel (€) *',
+    de: 'Monatlicher Preis (€) *',
+  },
+  vcpuLabel: {
+    ar: 'عدد المعالجات (vCPU)',
+    en: 'Processors (vCPU)',
+    fr: 'Processeurs (vCPU)',
+    de: 'Prozessoren (vCPU)',
+  },
+  ramLabel: {
+    ar: 'الذاكرة (GB) RAM',
+    en: 'RAM Memory (GB)',
+    fr: 'Mémoire RAM (GB)',
+    de: 'Arbeitsspeicher (GB)',
+  },
+  storageLabel: {
+    ar: 'التخزين (GB) NVMe',
+    en: 'Storage (GB) NVMe',
+    fr: 'Stockage (GB) NVMe',
+    de: 'Speicher (GB) NVMe',
+  },
+  bandwidthLabel: {
+    ar: 'الباندويث (TB)',
+    en: 'Bandwidth (TB)',
+    fr: 'Bande passante (TB)',
+    de: 'Bandbreite (TB)',
+  },
+  locationLabel: {
+    ar: 'موقع السيرفر',
+    en: 'Server Location',
+    fr: 'Emplacement du serveur',
+    de: 'Serverstandort',
+  },
+  locGermany: {
+    ar: 'ألمانيا (Frankfurt 🇩🇪)',
+    en: 'Germany (Frankfurt 🇩🇪)',
+    fr: 'Allemagne (Francfort 🇩🇪)',
+    de: 'Deutschland (Frankfurt 🇩🇪)',
+  },
+  locFrance: {
+    ar: 'فرنسا (Paris 🇫🇷)',
+    en: 'France (Paris 🇫🇷)',
+    fr: 'France (Paris 🇫🇷)',
+    de: 'Frankreich (Paris 🇫🇷)',
+  },
+  locFinland: {
+    ar: 'فنلندا (Helsinki 🇫🇮)',
+    en: 'Finland (Helsinki 🇫🇮)',
+    fr: 'Finlande (Helsinki 🇫🇮)',
+    de: 'Finnland (Helsinki 🇫🇮)',
+  },
+  osListLabel: {
+    ar: 'أنظمة التشغيل المتاحة',
+    en: 'Available Operating Systems',
+    fr: 'Systèmes d\'exploitation disponibles',
+    de: 'Verfügbare Betriebssysteme',
+  },
+  controlPanelLabel: {
+    ar: 'لوحة التحكم (كإضافة مدفوعة)',
+    en: 'Control Panel (Add-on)',
+    fr: 'Panneau de contrôle (Option)',
+    de: 'Control Panel (Zusatzoption)',
+  },
+  cancelBtn: {
+    ar: 'إلغاء',
+    en: 'Cancel',
+    fr: 'Annuler',
+    de: 'Abbrechen',
+  },
+  savedSuccess: {
+    ar: 'تم حفظ باقة VPS بنجاح',
+    en: 'VPS Package saved successfully',
+    fr: 'Forfait VPS enregistré avec succès',
+    de: 'VPS-Paket erfolgreich gespeichert',
+  },
+};
+
 export default function VpsServicePage() {
+  const params = useParams();
+  const locale = (params?.locale as string) || 'ar';
+  const isRtl = locale === 'ar';
+
+  const tUi = (key: string) => dbVpsUi[key]?.[locale] || dbVpsUi[key]?.['en'] || '';
+
   const [saved, setSaved] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -14,56 +138,81 @@ export default function VpsServicePage() {
     ram: 4,
     storage: 80,
     bandwidth: 1,
-    location: 'ألمانيا 🇩🇪',
+    location: 'Germany 🇩🇪',
     osList: 'Ubuntu 22.04 LTS, Debian 12, CentOS Stream 9, AlmaLinux 9',
-    controlPanel: 'cPanel (€15/mo), Plesk (€12/mo), CyberPanel (مجاني)',
+    controlPanel: 'cPanel (€15/mo), Plesk (€12/mo), CyberPanel (Free)',
   });
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    try {
+      await fetch('/api/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceKey: 'vps',
+          locale,
+          title: locale === 'ar' ? 'السيرفرات السحابية (VPS)' : locale === 'fr' ? 'Serveurs Cloud (VPS)' : locale === 'de' ? 'Cloud-Server (VPS)' : 'Cloud VPS Servers',
+          description: locale === 'ar' ? 'سيرفرات سحابية عالية الأداء في ألمانيا وفرنسا' : 'High performance cloud VPS servers with DDoS protection',
+          iconName: 'FaCloud',
+          iconType: 'react-icon',
+          order: 2,
+          isSpecial: true,
+          subServices: [
+            {
+              title: formData.packageName || 'VPS Core',
+              description: `${formData.vcpu} vCPU / ${formData.ram}GB RAM / ${formData.storage}GB NVMe / ${formData.location}`,
+              price: Number(formData.monthlyPrice) || 29.99
+            }
+          ]
+        })
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Header matching Screenshot 4 */}
+    <div className="space-y-6 max-w-4xl mx-auto" dir={isRtl ? 'rtl' : 'ltr'}>
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-venecos-black/90 p-6 rounded-2xl border border-venecos-gold/20 shadow-xl">
         <h1 className="text-2xl font-bold text-white flex items-center gap-3">
           <MdDns className="text-venecos-gold text-3xl" />
-          إضافة باقة VPS
+          {tUi('pageTitle')}
         </h1>
         <div className="flex items-center gap-2">
-          <Link href="/dashboard/services" className="px-4 py-2 rounded-xl border border-white/20 text-white text-xs font-bold hover:bg-white/10 flex items-center gap-1">
-            <MdArrowBack /> رجوع
+          <Link href={`/${locale}/dashboard/services`} className="px-4 py-2 rounded-xl border border-white/20 text-white text-xs font-bold hover:bg-white/10 flex items-center gap-1">
+            <MdArrowBack className={isRtl ? '' : 'rotate-180'} /> {tUi('backBtn')}
           </Link>
           <button type="button" onClick={handleSave} className="px-6 py-2 bg-gradient-to-r from-venecos-gold to-yellow-500 text-black font-extrabold text-xs rounded-xl shadow-md hover:opacity-90">
-            ✓ حفظ الباقة
+            {tUi('savePackageBtn')}
           </button>
         </div>
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
-        {/* Package Specifications matching Screenshot 4 */}
+        {/* Package Specifications */}
         <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 space-y-5 shadow-xl">
           <h3 className="text-sm font-bold text-venecos-gold border-b border-white/10 pb-3 flex items-center gap-2">
-            ⚙️ مواصفات الباقة
+            {tUi('specificationsTitle')}
           </h3>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-1.5">اسم الباقة *</label>
+            <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('packageNameLabel')}</label>
             <input
               type="text"
               required
               value={formData.packageName}
               onChange={(e) => setFormData({ ...formData, packageName: e.target.value })}
-              placeholder="مثال: VPS-1, VPS-2..."
+              placeholder={tUi('packageNamePlaceholder')}
               className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-1.5">السعر الشهري (€) *</label>
+            <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('monthlyPriceLabel')}</label>
             <input
               type="number"
               step="0.01"
@@ -76,7 +225,7 @@ export default function VpsServicePage() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-xs font-bold text-white/80 mb-1.5">عدد المعالجات (vCPU)</label>
+              <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('vcpuLabel')}</label>
               <input
                 type="number"
                 value={formData.vcpu}
@@ -85,7 +234,7 @@ export default function VpsServicePage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/80 mb-1.5">الذاكرة (GB) RAM</label>
+              <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('ramLabel')}</label>
               <input
                 type="number"
                 value={formData.ram}
@@ -94,7 +243,7 @@ export default function VpsServicePage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/80 mb-1.5">التخزين (GB) NVMe</label>
+              <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('storageLabel')}</label>
               <input
                 type="number"
                 value={formData.storage}
@@ -103,7 +252,7 @@ export default function VpsServicePage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/80 mb-1.5">الباندويث (TB)</label>
+              <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('bandwidthLabel')}</label>
               <input
                 type="number"
                 value={formData.bandwidth}
@@ -114,48 +263,48 @@ export default function VpsServicePage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-1.5">موقع السيرفر</label>
+            <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('locationLabel')}</label>
             <select
               value={formData.location}
               onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-              className="w-full bg-venecos-black border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm"
+              className="w-full bg-venecos-black border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
             >
-              <option value="ألمانيا 🇩🇪">ألمانيا (Frankfurt 🇩🇪)</option>
-              <option value="فرنسا 🇫🇷">فرنسا (Paris 🇫🇷)</option>
-              <option value="فنلندا 🇫🇮">فنلندا (Helsinki 🇫🇮)</option>
+              <option value="Germany 🇩🇪">{tUi('locGermany')}</option>
+              <option value="France 🇫🇷">{tUi('locFrance')}</option>
+              <option value="Finland 🇫🇮">{tUi('locFinland')}</option>
             </select>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-1.5">أنظمة التشغيل المتاحة</label>
+            <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('osListLabel')}</label>
             <input
               type="text"
               value={formData.osList}
               onChange={(e) => setFormData({ ...formData, osList: e.target.value })}
-              className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2.5 text-white text-xs"
+              className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2.5 text-white text-xs focus:border-venecos-gold outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-1.5">لوحة التحكم (كإضافة مدفوعة)</label>
+            <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('controlPanelLabel')}</label>
             <input
               type="text"
               value={formData.controlPanel}
               onChange={(e) => setFormData({ ...formData, controlPanel: e.target.value })}
-              className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2.5 text-white text-xs"
+              className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2.5 text-white text-xs focus:border-venecos-gold outline-none"
             />
           </div>
         </div>
 
-        {/* Sticky Bottom Bar matching Screenshot 4 */}
+        {/* Sticky Bottom Bar */}
         <div className="sticky bottom-0 bg-venecos-black/95 border-t border-white/10 p-4 flex items-center justify-between rounded-t-2xl shadow-2xl backdrop-blur-md">
-          <div>{saved && <span className="text-emerald-400 text-xs font-bold flex items-center gap-1"><MdCheckCircle /> تم حفظ باقة VPS بنجاح</span>}</div>
+          <div>{saved && <span className="text-emerald-400 text-xs font-bold flex items-center gap-1"><MdCheckCircle /> {tUi('savedSuccess')}</span>}</div>
           <div className="flex items-center gap-3">
-            <Link href="/dashboard/services" className="px-5 py-2.5 rounded-xl border border-white/20 text-white text-xs font-bold hover:bg-white/10">
-              إلغاء
+            <Link href={`/${locale}/dashboard/services`} className="px-5 py-2.5 rounded-xl border border-white/20 text-white text-xs font-bold hover:bg-white/10">
+              {tUi('cancelBtn')}
             </Link>
             <button type="submit" className="px-6 py-2.5 bg-gradient-to-r from-venecos-gold to-yellow-500 text-black font-extrabold text-xs rounded-xl shadow-lg hover:opacity-90">
-              ✓ حفظ الباقة
+              {tUi('savePackageBtn')}
             </button>
           </div>
         </div>

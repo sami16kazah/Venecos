@@ -20,12 +20,58 @@ interface DashboardSidebarProps {
   userName: string | null | undefined;
 }
 
+const sidebarUi: Record<string, Record<string, string>> = {
+  general: { ar: 'العام', en: 'General', fr: 'Général', de: 'Allgemein' },
+  overview: { ar: 'لوحة التحكم', en: 'Overview', fr: 'Aperçu', de: 'Übersicht' },
+  content: { ar: 'المحتوى', en: 'Content', fr: 'Contenu', de: 'Inhalt' },
+  slider: { ar: 'سلايدر الرئيسية', en: 'Homepage Slider', fr: 'Slider Accueil', de: 'Startseiten-Slider' },
+  manageServices: { ar: 'إدارة الخدمات', en: 'Manage Services', fr: 'Gérer les Services', de: 'Dienste verwalten' },
+  techServices: { ar: 'الخدمات التقنية', en: 'Technical Services', fr: 'Services Techniques', de: 'Technische Dienste' },
+  designServices: { ar: 'خدمات التصميم', en: 'Design Services', fr: 'Services de Design', de: 'Design-Dienste' },
+  printServices: { ar: 'خدمات الطباعة', en: 'Print Services', fr: 'Services d\'Impression', de: 'Druck-Dienste' },
+  otherServices: { ar: 'خدمات أخرى', en: 'Other Services', fr: 'Autres Services', de: 'Weitere Dienste' },
+  offers: { ar: 'العروض الحصرية', en: 'Exclusive Offers', fr: 'Offres Exclusives', de: 'Exklusive Angebote' },
+  gallery: { ar: 'معرض الأعمال', en: 'Work Gallery', fr: 'Galerie de Projets', de: 'Projektgalerie' },
+  permissions: { ar: 'الصلاحيات', en: 'Permissions', fr: 'Permissions', de: 'Berechtigungen' },
+  admins: { ar: 'الأدمنز والصلاحيات', en: 'Admins & Permissions', fr: 'Administrateurs', de: 'Administratoren' },
+  supervisors: { ar: 'المشرفين', en: 'Supervisors', fr: 'Superviseurs', de: 'Supervisoren' },
+  manageUsers: { ar: 'إدارة المستخدمين', en: 'Manage Users', fr: 'Gérer les Utilisateurs', de: 'Benutzer verwalten' },
+  operations: { ar: 'العمليات', en: 'Operations', fr: 'Opérations', de: 'Operationen' },
+  manageOrders: { ar: 'إدارة الطلبات', en: 'Manage Orders', fr: 'Gérer les Commandes', de: 'Bestellungen verwalten' },
+  assignedOrders: { ar: 'طلباتي المسندة', en: 'Assigned Orders', fr: 'Commandes Assignées', de: 'Zugewiesene Bestellungen' },
+  projects: { ar: 'المشاريع', en: 'Projects', fr: 'Projets', de: 'Projekte' },
+  contracts: { ar: 'العقود والتوقيع', en: 'Contracts Management', fr: 'Gestion des Contrats', de: 'Vertragsverwaltung' },
+  disputes: { ar: 'سجل النزاعات', en: 'Dispute Log', fr: 'Journal des Litiges', de: 'Streitprotokoll' },
+  invoices: { ar: 'الفواتير', en: 'Invoices', fr: 'Factures', de: 'Rechnungen' },
+  recruitment: { ar: 'طلبات التوظيف', en: 'Recruitment', fr: 'Recrutement', de: 'Rekrutierung' },
+  branches: { ar: 'الفروع الدولية', en: 'International Branches', fr: 'Bureaux Internationaux', de: 'Globale Standorte' },
+  exchangeRates: { ar: 'أسعار الصرف', en: 'Exchange Rates', fr: 'Taux de Change', de: 'Wechselkurse' },
+  platformSettings: { ar: 'إعدادات المنصة', en: 'Platform Settings', fr: 'Paramètres', de: 'Plattformeinstellungen' },
+  newBadge: { ar: 'جديد', en: 'New', fr: 'Nouveau', de: 'Neu' },
+};
+
 export default function DashboardSidebar({ locale, role, userName }: DashboardSidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [servicesDropOpen, setServicesDropOpen] = useState(true);
   const [activeCategory, setActiveCategory] = useState<string | null>('tech');
 
-  const t = useTranslations('Dashboard');
+  let rawT: any = null;
+  try {
+    rawT = useTranslations('Dashboard');
+  } catch (e) {
+    // Fail-safe fallback if NextIntlClientProvider is missing
+  }
+
+  const t = (key: string): string => {
+    if (rawT) {
+      try {
+        const val = rawT(key);
+        if (val && !val.startsWith('Dashboard.')) return val;
+      } catch (e) {}
+    }
+    return sidebarUi[key]?.[locale] || sidebarUi[key]?.['en'] || key;
+  };
+
   const pathname = usePathname();
   const isRtl = locale === 'ar';
   
@@ -84,13 +130,13 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
         
         <nav className="flex flex-col gap-1">
           {/* General Section */}
-          {renderSectionHeader(isRtl ? 'عام' : 'GENERAL')}
+          {renderSectionHeader(t('general').toUpperCase())}
           {renderLink(`/${locale}/dashboard`, t('overview'), <MdDashboard />)}
 
           {role === 'admin' && (
             <>
               {/* Content Section */}
-              {renderSectionHeader(isRtl ? 'المحتوى' : 'CONTENT')}
+              {renderSectionHeader(t('content').toUpperCase())}
               {renderLink(`/${locale}/dashboard/slider`, t('slider'), <MdSlideshow />)}
 
               {/* Nested Services Submenu matching Legacy */}
@@ -110,7 +156,7 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
                   <div className="p-2 space-y-1 bg-black/40 border-t border-white/5 text-xs">
                     {/* Overview Hub */}
                     <Link href={`/${locale}/dashboard/services`} onClick={() => setMobileOpen(false)} className="block px-3 py-1.5 rounded-lg text-venecos-gold font-bold hover:bg-white/5">
-                      • دليل الخدمات الرئيسي
+                      • {t('manageServices')}
                     </Link>
 
                     {/* Tech Services */}
@@ -121,26 +167,26 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
                       >
                         <div className="flex items-center gap-2">
                           <MdLaptop className="text-venecos-gold" />
-                          <span>الخدمات التقنية</span>
+                          <span>{t('techServices')}</span>
                         </div>
                         <MdChevronLeft className={`transition-transform ${activeCategory === 'tech' ? '-rotate-90' : ''}`} />
                       </button>
                       {activeCategory === 'tech' && (
                         <div className="ps-6 py-1 space-y-1 text-[11px]">
                           <Link href={`/${locale}/dashboard/services/programming`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
-                            • البرمجة والمواقع
+                            • {isRtl ? 'البرمجة والمواقع' : 'Programming & Web'}
                           </Link>
                           <Link href={`/${locale}/dashboard/services/shared-hosting`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
                             • Shared Hosting
                           </Link>
                           <Link href={`/${locale}/dashboard/services/vps`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
-                            • السيرفرات VPS
+                            • {isRtl ? 'السيرفرات VPS' : 'VPS Hosting'}
                           </Link>
                           <Link href={`/${locale}/dashboard/services/domains`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
-                            • الدومينات
+                            • {isRtl ? 'الدومينات' : 'Domains'}
                           </Link>
                           <Link href={`/${locale}/dashboard/services/support`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
-                            • الدعم الفني
+                            • {isRtl ? 'الدعم الفني' : 'Technical Support'}
                           </Link>
                         </div>
                       )}
@@ -154,20 +200,20 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
                       >
                         <div className="flex items-center gap-2">
                           <MdPalette className="text-venecos-gold" />
-                          <span>خدمات التصميم</span>
+                          <span>{t('designServices')}</span>
                         </div>
                         <MdChevronLeft className={`transition-transform ${activeCategory === 'design' ? '-rotate-90' : ''}`} />
                       </button>
                       {activeCategory === 'design' && (
                         <div className="ps-6 py-1 space-y-1 text-[11px]">
                           <Link href={`/${locale}/dashboard/services/photography`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
-                            • التصميم الفوتوغرافي
+                            • {isRtl ? 'التصميم الفوتوغرافي' : 'Photo Design'}
                           </Link>
                           <Link href={`/${locale}/dashboard/services/video`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
-                            • إنتاج الفيديو 4K
+                            • {isRtl ? 'إنتاج الفيديو 4K' : '4K Video Production'}
                           </Link>
                           <Link href={`/${locale}/dashboard/services/3d-design`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
-                            • التصميم 3D
+                            • {isRtl ? 'التصميم 3D' : '3D Design'}
                           </Link>
                         </div>
                       )}
@@ -181,23 +227,23 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
                       >
                         <div className="flex items-center gap-2">
                           <MdPrint className="text-venecos-gold" />
-                          <span>خدمات الطباعة</span>
+                          <span>{t('printServices')}</span>
                         </div>
                         <MdChevronLeft className={`transition-transform ${activeCategory === 'print' ? '-rotate-90' : ''}`} />
                       </button>
                       {activeCategory === 'print' && (
                         <div className="ps-6 py-1 space-y-1 text-[11px]">
                           <Link href={`/${locale}/dashboard/services/paper-print`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
-                            • الطباعة الورقية
+                            • {isRtl ? 'الطباعة الورقية' : 'Paper Printing'}
                           </Link>
                           <Link href={`/${locale}/dashboard/services/stickers`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
-                            • طباعة الملصقات
+                            • {isRtl ? 'طباعة الملصقات' : 'Sticker Printing'}
                           </Link>
                           <Link href={`/${locale}/dashboard/services/adv-print`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
-                            • الطباعة الإعلانية
+                            • {isRtl ? 'الطباعة الإعلانية' : 'Advertising Printing'}
                           </Link>
                           <Link href={`/${locale}/dashboard/services/3d-print`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
-                            • الطباعة 3D
+                            • {isRtl ? 'الطباعة 3D' : '3D Printing'}
                           </Link>
                         </div>
                       )}
@@ -211,17 +257,17 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
                       >
                         <div className="flex items-center gap-2">
                           <MdMic className="text-venecos-gold" />
-                          <span>خدمات أخرى</span>
+                          <span>{t('otherServices')}</span>
                         </div>
                         <MdChevronLeft className={`transition-transform ${activeCategory === 'other' ? '-rotate-90' : ''}`} />
                       </button>
                       {activeCategory === 'other' && (
                         <div className="ps-6 py-1 space-y-1 text-[11px]">
                           <Link href={`/${locale}/dashboard/services/voiceover`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
-                            • التعليق الصوتي
+                            • {isRtl ? 'التعليق الصوتي' : 'Voiceover'}
                           </Link>
                           <Link href={`/${locale}/dashboard/services/content-writing`} onClick={() => setMobileOpen(false)} className="block py-1 text-white/70 hover:text-venecos-gold">
-                            • كتابة المحتوى
+                            • {isRtl ? 'كتابة المحتوى' : 'Content Writing'}
                           </Link>
                         </div>
                       )}
@@ -234,27 +280,27 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
               {renderLink(`/${locale}/dashboard/gallery`, t('gallery'), <MdPhotoLibrary />)}
 
               {/* Permissions Section */}
-              {renderSectionHeader(isRtl ? 'الصلاحيات' : 'PERMISSIONS')}
+              {renderSectionHeader(t('permissions').toUpperCase())}
               {renderLink(`/${locale}/dashboard/admins`, t('admins'), <MdAdminPanelSettings />, 'Super')}
               {renderLink(`/${locale}/dashboard/supervisors`, t('supervisors'), <MdSupervisorAccount />)}
               {renderLink(`/${locale}/dashboard/users`, t('manageUsers'), <MdGroup />)}
 
               {/* Operations Section */}
-              {renderSectionHeader(isRtl ? 'العمليات' : 'OPERATIONS')}
-              {renderLink(`/${locale}/dashboard/orders`, t('manageOrders'), <MdAssignment />, 'جديد')}
-              {renderLink(`/${locale}/dashboard/assigned-orders`, isRtl ? 'طلبات موكلة' : 'Assigned Orders', <MdAssignmentInd />)}
+              {renderSectionHeader(t('operations').toUpperCase())}
+              {renderLink(`/${locale}/dashboard/orders`, t('manageOrders'), <MdAssignment />, t('newBadge'))}
+              {renderLink(`/${locale}/dashboard/assigned-orders`, t('assignedOrders'), <MdAssignmentInd />)}
               {renderLink(`/${locale}/dashboard/projects`, t('projects'), <MdAccountTree />)}
-              {renderLink(`/${locale}/dashboard/contracts`, isRtl ? 'العقود' : 'Contracts', <MdDescription />)}
-              {renderLink(`/${locale}/dashboard/disputes`, isRtl ? 'النزاعات' : 'Disputes', <MdGavel />)}
+              {renderLink(`/${locale}/dashboard/contracts`, t('contracts'), <MdDescription />)}
+              {renderLink(`/${locale}/dashboard/disputes`, t('disputes'), <MdGavel />)}
               {renderLink(`/${locale}/dashboard/invoices`, t('invoices'), <MdReceipt />)}
 
               {/* System Section */}
               {renderSectionHeader(isRtl ? 'النظام' : 'SYSTEM')}
-              {renderLink(`/${locale}/dashboard/applications`, isRtl ? 'طلبات التوظيف' : 'Applications', <MdRecentActors />)}
-              {renderLink(`/${locale}/dashboard/branches`, isRtl ? 'الفروع' : 'Branches', <MdLocationOn />)}
-              {renderLink(`/${locale}/dashboard/exchange-rates`, isRtl ? 'أسعار الصرف' : 'Exchange Rates', <MdCurrencyExchange />)}
+              {renderLink(`/${locale}/dashboard/applications`, t('recruitment'), <MdRecentActors />)}
+              {renderLink(`/${locale}/dashboard/branches`, t('branches'), <MdLocationOn />)}
+              {renderLink(`/${locale}/dashboard/exchange-rates`, t('exchangeRates'), <MdCurrencyExchange />)}
               {renderLink(`/${locale}/dashboard/about`, isRtl ? 'عن الشركة' : 'About Company', <MdStar />)}
-              {renderLink(`/${locale}/dashboard/settings`, t('settings'), <MdSettings />)}
+              {renderLink(`/${locale}/dashboard/settings`, t('platformSettings'), <MdSettings />)}
             </>
           )}
         </nav>

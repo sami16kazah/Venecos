@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useParams } from 'next/navigation';
 import { MdCloudUpload, MdCheckCircle, MdError, MdDelete, MdInsertDriveFile, MdPlayCircle } from 'react-icons/md';
 
 interface CloudinaryUploaderProps {
@@ -14,16 +15,58 @@ interface CloudinaryUploaderProps {
   className?: string;
 }
 
+const defaultTexts: Record<string, { label: string; sublabel: string; uploading: string; success: string; remove: string; errorFallback: string }> = {
+  ar: {
+    label: 'اسحب الملف هنا أو انقر للرفع عبر Cloudinary',
+    sublabel: 'صور (JPG, PNG, WEBP) · فيديو (MP4) · وثائق (PDF, STL, DOC)',
+    uploading: 'جاري الرفع إلى Cloudinary...',
+    success: 'مرفوع بنجاح على Cloudinary',
+    remove: 'حذف الملف',
+    errorFallback: 'حدث خطأ أثناء الرفع',
+  },
+  en: {
+    label: 'Drag & drop file here or click to upload via Cloudinary',
+    sublabel: 'Images (JPG, PNG, WEBP) · Videos (MP4) · Documents (PDF, STL, DOC)',
+    uploading: 'Uploading to Cloudinary...',
+    success: 'Successfully uploaded to Cloudinary',
+    remove: 'Remove File',
+    errorFallback: 'An error occurred during upload',
+  },
+  fr: {
+    label: 'Glissez-déposez le fichier ici ou cliquez pour téléverser',
+    sublabel: 'Images (JPG, PNG, WEBP) · Vidéos (MP4) · Documents (PDF, STL, DOC)',
+    uploading: 'Téléversement vers Cloudinary...',
+    success: 'Téléversé avec succès sur Cloudinary',
+    remove: 'Supprimer le fichier',
+    errorFallback: 'Une erreur est survenue lors du téléversement',
+  },
+  de: {
+    label: 'Datei hierhin ziehen oder klicken zum Hochladen',
+    sublabel: 'Bilder (JPG, PNG, WEBP) · Videos (MP4) · Dokumente (PDF, STL, DOC)',
+    uploading: 'Wird zu Cloudinary hochgeladen...',
+    success: 'Erfolgreich zu Cloudinary hochgeladen',
+    remove: 'Datei entfernen',
+    errorFallback: 'Beim Hochladen ist ein Fehler aufgetreten',
+  },
+};
+
 export default function CloudinaryUploader({
   onUploadSuccess,
   onRemove,
   currentUrl = '',
   acceptTypes = 'image/*,video/*,.pdf,.doc,.docx,.stl,.obj',
-  label = 'اسحب الملف هنا أو انقر للرفع عبر Cloudinary',
-  sublabel = 'صور (JPG, PNG, WEBP) · فيديو (MP4) · وثائق (PDF, STL, DOC)',
+  label,
+  sublabel,
   mediaType = 'auto',
   className = '',
 }: CloudinaryUploaderProps) {
+  const params = useParams();
+  const locale = (params?.locale as string) || 'ar';
+  const t = defaultTexts[locale] || defaultTexts['en'];
+
+  const displayLabel = label || t.label;
+  const displaySublabel = sublabel || t.sublabel;
+
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>(currentUrl);
@@ -46,7 +89,7 @@ export default function CloudinaryUploader({
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.message || 'فشل رفع الملف إلى Cloudinary');
+        throw new Error(errData.message || t.errorFallback);
       }
 
       const data = await res.json();
@@ -54,7 +97,7 @@ export default function CloudinaryUploader({
       onUploadSuccess(data.url);
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'حدث خطأ أثناء الرفع');
+      setError(err.message || t.errorFallback);
     } finally {
       setUploading(false);
     }
@@ -71,7 +114,7 @@ export default function CloudinaryUploader({
 
   return (
     <div className={`space-y-3 ${className}`}>
-      {label && <label className="block text-xs font-bold text-white/80 mb-1">{label}</label>}
+      {displayLabel && <label className="block text-xs font-bold text-white/80 mb-1">{displayLabel}</label>}
 
       {previewUrl ? (
         <div className="relative group bg-white/5 border border-venecos-gold/30 rounded-2xl overflow-hidden p-3 flex items-center justify-between gap-4">
@@ -89,7 +132,7 @@ export default function CloudinaryUploader({
             )}
             <div className="min-w-0">
               <div className="flex items-center gap-1.5 text-emerald-400 text-xs font-bold mb-1">
-                <MdCheckCircle /> مرفوع بنجاح على Cloudinary
+                <MdCheckCircle /> {t.success}
               </div>
               <p className="text-xs text-white/60 font-mono truncate max-w-xs">{previewUrl}</p>
             </div>
@@ -99,7 +142,7 @@ export default function CloudinaryUploader({
             type="button"
             onClick={handleClear}
             className="p-2.5 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/30 transition-all flex-shrink-0"
-            title="حذف الملف"
+            title={t.remove}
           >
             <MdDelete className="text-lg" />
           </button>
@@ -116,9 +159,9 @@ export default function CloudinaryUploader({
           <div className="space-y-2">
             <MdCloudUpload className={`text-4xl mx-auto text-venecos-gold ${uploading ? 'animate-bounce' : ''}`} />
             <div className="text-sm font-bold text-white">
-              {uploading ? 'جاري الرفع إلى Cloudinary...' : label}
+              {uploading ? t.uploading : displayLabel}
             </div>
-            {sublabel && <p className="text-xs text-white/50">{sublabel}</p>}
+            {displaySublabel && <p className="text-xs text-white/50">{displaySublabel}</p>}
           </div>
         </label>
       )}

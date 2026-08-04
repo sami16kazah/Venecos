@@ -12,11 +12,11 @@
     "join": "Join Us",
     "signIn": "Sign In",
     "dashboard": "Dashboard",
-    "aboutContent": "About Content"
+    "aboutContent": "About Us Content"
   },
   "AboutAdmin": {
     "manageAbout": "Manage About Us Content",
-    "manageAboutDesc": "Update the publicly visible story of Venecos dynamically by selecting strings across the locales below.",
+    "manageAboutDesc": "Dynamically update the public story of Venecos across all supported locales below.",
     "pageTitle": "Section Title",
     "pageContent": "Primary Content Body",
     "formattingHint": "Your spacing and line breaks will automatically be maintained publicly.",
@@ -24,14 +24,14 @@
     "updateSuccess": "About Us content has been successfully published!"
   },
   "About": {
-    "loading": "Loading amazing things about Venecos..."
+    "loading": "Loading platform details..."
   },
   "Services": {
     "title": "Our Premium Services",
-    "coding": "Coding",
+    "coding": "Coding & Web",
     "codingDesc": "Expert web and app development using cutting-edge technologies. Build scalable, high-performance applications.",
     "ui_design": "UI Design",
-    "ui_designDesc": "Premium UI/UX design with a focus on modern aesthetics, user centric approaches, and responsive layouts tailored to your brand.",
+    "ui_designDesc": "Premium UI/UX design with a focus on modern aesthetics, user-centric approaches, and responsive layouts tailored to your brand.",
     "video_design": "Video Design",
     "video_designDesc": "High-quality video production, motion graphics, and post-processing editing to captivate your audience visually.",
     "featured": "Featured",
@@ -41,7 +41,21 @@
     "serviceNotFound": "Service not found.",
     "availablePackages": "Available Packages",
     "noPackages": "No specific packages have been listed for this service yet. Stay tuned!",
-    "orderNow": "Order Now"
+    "orderNow": "Order Now",
+    "coreBadge": "VENECOS Core Services",
+    "coreTitle": "Core Integrated Services",
+    "directoryLink": "Services Directory",
+    "availablePackagesLabel": "Available Packages:"
+  },
+  "Offers": {
+    "title": "Exclusive Offers",
+    "subtitle": "Special Deals & Limited Packages",
+    "orderOffer": "Order Package & Claim Offer",
+    "claimOffer": "Claim Offer Now",
+    "saveAmount": "Save €{amount}",
+    "limitedTime": "Limited Time Offer",
+    "includedFeatures": "What's included in this offer:",
+    "closeModal": "Close"
   },
   "Contact": {
     "title": "Join Us",
@@ -90,6 +104,7 @@
     "platformSettings": "Platform Settings",
     "manageOrders": "Manage Orders",
     "assignedTasks": "Assigned Tasks",
+    "assignedOrders": "Assigned Orders",
     "messages": "Messages",
     "myOrders": "My Orders",
     "invoices": "Invoices",
@@ -134,7 +149,7 @@
     "projects": "Projects",
     "exchangeRates": "Exchange Rates",
     "branches": "Branch Management",
-    "contracts": "Contract Management",
+    "contracts": "Contracts Management",
     "disputes": "Dispute Log",
     "recruitment": "Recruitment",
     "hiringDoor": "Hiring Status",
@@ -142,7 +157,12 @@
     "techServices": "Technical Services",
     "designServices": "Design Services",
     "printServices": "Print Services",
-    "otherServices": "Other Services"
+    "otherServices": "Other Services",
+    "general": "General",
+    "content": "Content",
+    "permissions": "Permissions",
+    "operations": "Operations",
+    "newBadge": "New"
   },
   "JoinUs": {
     "title": "Join Our Team",

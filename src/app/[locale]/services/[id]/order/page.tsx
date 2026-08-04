@@ -63,12 +63,17 @@ export default function OrderPage() {
       try {
         const res = await fetch(`/api/services?locale=${locale}`);
         const data = await res.json();
-        const foundSvc = data.find((s: any) => s._id === serviceId);
+        let foundSvc = data.find((s: any) => s._id === serviceId);
+        if (!foundSvc) {
+          foundSvc = data.find((s: any) => s.serviceKey === serviceId);
+        }
         if (foundSvc) {
           setService(foundSvc);
-          const foundSub = foundSvc.subServices?.find((s: any) => s._id === subServiceId);
+          const foundSub = foundSvc.subServices?.find((s: any) => s._id === subServiceId || s.title === subServiceId);
           if (foundSub) {
             setSubService(foundSub);
+          } else if (foundSvc.subServices?.length > 0) {
+            setSubService(foundSvc.subServices[0]);
           } else {
             setError(t('subNotFound') || "The specific sub-service could not be found.");
           }
@@ -134,8 +139,8 @@ export default function OrderPage() {
           </div>
           <h1 className="text-3xl font-extrabold text-venecos-black mb-4">{t('requestReceived')}</h1>
           <p className="text-gray-500 text-lg mb-8 leading-relaxed">
-            {t.rich('requestReceivedDesc', {
-              package: () => <strong>{subService?.title}</strong>
+            {t('requestReceivedDesc', {
+              package: subService?.title || ''
             })}
           </p>
           <Link href={`/${locale}/dashboard`}>

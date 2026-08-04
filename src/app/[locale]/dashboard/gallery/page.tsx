@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import { 
   MdAdd, MdEdit, MdDelete, MdPhotoLibrary, 
   MdGridView, MdFormatListBulleted, MdCheckCircle, MdCancel,
-  MdLaunch, MdImage, MdVideoLibrary, MdCode, MdPrint, MdColorLens
+  MdLaunch, MdImage, MdVideoLibrary, MdCode, MdPrint, MdColorLens, MdViewCarousel
 } from 'react-icons/md';
+import CloudinaryUploader from '@/components/CloudinaryUploader';
 
 interface IGalleryItem {
   _id?: string;
@@ -21,22 +23,208 @@ interface IGalleryItem {
   videoUrl?: string;
   demoUrl?: string;
   screenshots?: string[];
-  mediaType: 'image' | 'video';
+  mediaType: 'image' | 'video' | 'carousel';
   mediaUrl?: string;
   active: boolean;
   status?: string;
 }
 
-const CATEGORIES = [
-  { id: 'all', label: 'الكل', icon: MdPhotoLibrary, color: 'text-white' },
-  { id: 'identity', label: 'هوية بصرية', icon: MdColorLens, color: 'text-purple-400' },
-  { id: 'video', label: 'إنتاج فيديو', icon: MdVideoLibrary, color: 'text-blue-400' },
-  { id: 'software', label: 'برامج وم مواقع', icon: MdCode, color: 'text-emerald-400' },
-  { id: 'print', label: 'طباعة إعلانية', icon: MdPrint, color: 'text-amber-400' },
-  { id: 'other', label: 'أخرى', icon: MdPhotoLibrary, color: 'text-white/60' },
-];
+const dbGalleryUi: Record<string, Record<string, string>> = {
+  pageTitle: {
+    ar: 'معرض الأعمال',
+    en: 'Work Portfolio Gallery',
+    fr: 'Galerie de Portfolio',
+    de: 'Portfolio Galerie',
+  },
+  pageSubtitle: {
+    ar: 'إدارة أعمال ومعارض الشركة على الموقع الرئيسي',
+    en: 'Manage portfolio showcase items on the main website',
+    fr: 'Gérer la vitrine du portfolio sur le site principal',
+    de: 'Verwalten Sie die Portfolio-Showcase-Elemente auf der Website',
+  },
+  addNewWork: {
+    ar: 'إضافة عمل جديد',
+    en: 'Add New Project',
+    fr: 'Ajouter un nouveau projet',
+    de: 'Neues Projekt hinzufügen',
+  },
+  editWork: {
+    ar: 'تعديل عمل المعرض',
+    en: 'Edit Portfolio Project',
+    fr: 'Modifier le projet de portfolio',
+    de: 'Portfolio-Projekt bearbeiten',
+  },
+  loading: {
+    ar: 'جاري التحميل...',
+    en: 'Loading portfolio...',
+    fr: 'Chargement du portfolio...',
+    de: 'Portfolio wird geladen...',
+  },
+  emptyCategory: {
+    ar: 'المعرض فارغ لهذا التصنيف',
+    en: 'No projects in this category',
+    fr: 'Aucun projet dans cette catégorie',
+    de: 'Keine Projekte in dieser Kategorie',
+  },
+  addFirstWork: {
+    ar: 'إضافة أول عمل',
+    en: 'Add First Project',
+    fr: 'Ajouter le premier projet',
+    de: 'Erstes Projekt hinzufügen',
+  },
+  publishedStatus: {
+    ar: 'منشور',
+    en: 'Published',
+    fr: 'Publié',
+    de: 'Veröffentlicht',
+  },
+  hiddenStatus: {
+    ar: 'مخفي',
+    en: 'Hidden',
+    fr: 'Masqué',
+    de: 'Ausgeblendet',
+  },
+  tableWork: {
+    ar: 'العمل',
+    en: 'Project',
+    fr: 'Projet',
+    de: 'Projekt',
+  },
+  tableCategory: {
+    ar: 'التصنيف',
+    en: 'Category',
+    fr: 'Catégorie',
+    de: 'Kategorie',
+  },
+  tableClient: {
+    ar: 'العميل',
+    en: 'Client',
+    fr: 'Client',
+    de: 'Kunde',
+  },
+  tableDate: {
+    ar: 'التاريخ',
+    en: 'Date',
+    fr: 'Date',
+    de: 'Datum',
+  },
+  tableStatus: {
+    ar: 'الحالة',
+    en: 'Status',
+    fr: 'Statut',
+    de: 'Status',
+  },
+  tableActions: {
+    ar: 'الإجراءات',
+    en: 'Actions',
+    fr: 'Actions',
+    de: 'Aktionen',
+  },
+  categoryLabel: {
+    ar: 'التصنيف',
+    en: 'Category',
+    fr: 'Catégorie',
+    de: 'Kategorie',
+  },
+  clientLabel: {
+    ar: 'اسم العميل / الشركة',
+    en: 'Client / Company Name',
+    fr: 'Nom du client / entreprise',
+    de: 'Kunde / Firmenname',
+  },
+  mediaTypeLabel: {
+    ar: 'نوع الوسائط (Media Type)',
+    en: 'Media Type',
+    fr: 'Type de média',
+    de: 'Medientyp',
+  },
+  coverImageLabel: {
+    ar: 'رفع صورة الغلاف عبر Cloudinary',
+    en: 'Upload Cover Image from Device (Cloudinary)',
+    fr: 'Télécharger l\'image de couverture depuis l\'appareil (Cloudinary)',
+    de: 'Titelbild vom Gerät hochladen (Cloudinary)',
+  },
+  videoUrlLabel: {
+    ar: 'رفع ملف فيديو عبر Cloudinary',
+    en: 'Upload Video File from Device (Cloudinary)',
+    fr: 'Télécharger le fichier vidéo depuis l\'appareil (Cloudinary)',
+    de: 'Videodatei vom Gerät hochladen (Cloudinary)',
+  },
+  demoUrlLabel: {
+    ar: 'رابط المعاينة المباشرة (Demo URL)',
+    en: 'Live Demo URL',
+    fr: 'URL de démonstration en direct',
+    de: 'Live-Demo-URL',
+  },
+  additionalImagesLabel: {
+    ar: 'رفع صور وفيديوهات إضافية للعرض (Cloudinary Slides)',
+    en: 'Upload Additional Project Media (Cloudinary Slides)',
+    fr: 'Télécharger des médias supplémentaires (Diaporama Cloudinary)',
+    de: 'Zusätzliche Projektmedien hochladen (Cloudinary-Karussell)',
+  },
+  addImageBtn: {
+    ar: 'إضافة صورة من رابط',
+    en: 'Add Image URL',
+    fr: 'Ajouter une URL d\'image',
+    de: 'Bild-URL hinzufügen',
+  },
+  titleLabel: {
+    ar: 'عنوان العمل',
+    en: 'Project Title',
+    fr: 'Titre du projet',
+    de: 'Projekttitel',
+  },
+  descLabel: {
+    ar: 'وصف العمل',
+    en: 'Project Description',
+    fr: 'Description du projet',
+    de: 'Projektbeschreibung',
+  },
+  cancel: {
+    ar: 'إلغاء',
+    en: 'Cancel',
+    fr: 'Annuler',
+    de: 'Abbrechen',
+  },
+  save: {
+    ar: 'حفظ التعديلات',
+    en: 'Save Changes',
+    fr: 'Enregistrer les modifications',
+    de: 'Änderungen speichern',
+  },
+  deleteConfirm: {
+    ar: 'هل أنت تأكد من حذف هذا العمل من المعرض؟',
+    en: 'Are you sure you want to delete this portfolio project?',
+    fr: 'Êtes-vous sûr de vouloir supprimer ce projet du portfolio ?',
+    de: 'Sind Sie sicher, dass Sie dieses Portfolio-Projekt löschen möchten?',
+  },
+};
+
+function getLocValue(val: any, lang: string): string {
+  if (!val) return '';
+  if (typeof val === 'string') return val;
+  if (typeof val === 'object') {
+    return val[lang] || val['en'] || val['ar'] || val['fr'] || val['de'] || Object.values(val)[0] || '';
+  }
+  return String(val);
+}
 
 export default function GalleryPage() {
+  const params = useParams();
+  const locale = (params?.locale as string) || 'ar';
+  const isRtl = locale === 'ar';
+
+  const tUi = (key: string) => dbGalleryUi[key]?.[locale] || dbGalleryUi[key]?.['en'] || '';
+
+  const CATEGORIES = [
+    { id: 'all', label: locale === 'ar' ? 'الكل' : locale === 'fr' ? 'Tous' : locale === 'de' ? 'Alle' : 'All', icon: MdPhotoLibrary, color: 'text-white' },
+    { id: 'identity', label: locale === 'ar' ? 'هوية بصرية' : locale === 'fr' ? 'Identité' : locale === 'de' ? 'Identität' : 'Identity', icon: MdColorLens, color: 'text-purple-400' },
+    { id: 'video', label: locale === 'ar' ? 'إنتاج فيديو' : locale === 'fr' ? 'Production Vidéo' : locale === 'de' ? 'Videoproduktion' : 'Video Production', icon: MdVideoLibrary, color: 'text-blue-400' },
+    { id: 'software', label: locale === 'ar' ? 'برامج ومواقع' : locale === 'fr' ? 'Logiciel & Web' : locale === 'de' ? 'Software & Web' : 'Software & Web', icon: MdCode, color: 'text-emerald-400' },
+    { id: 'print', label: locale === 'ar' ? 'طباعة إعلانية' : locale === 'fr' ? 'Impression' : locale === 'de' ? 'Drucken' : 'Print Design', icon: MdPrint, color: 'text-amber-400' },
+    { id: 'other', label: locale === 'ar' ? 'أخرى' : locale === 'fr' ? 'Autre' : locale === 'de' ? 'Sonstiges' : 'Other', icon: MdPhotoLibrary, color: 'text-white/60' },
+  ];
+
   const [items, setItems] = useState<IGalleryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterCategory, setFilterCategory] = useState<string>('all');
@@ -117,7 +305,7 @@ export default function GalleryPage() {
 
       const payload = {
         ...formData,
-        mediaUrl: formData.coverImage || formData.mediaUrl || (formData.images && formData.images[0]) || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
+        mediaUrl: formData.coverImage || formData.videoUrl || formData.mediaUrl || (formData.images && formData.images[0]) || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
       };
 
       const res = await fetch(url, {
@@ -136,7 +324,7 @@ export default function GalleryPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت تأكد من حذف هذا العمل من المعرض؟')) return;
+    if (!confirm(tUi('deleteConfirm'))) return;
     try {
       const res = await fetch(`/api/gallery/${id}`, { method: 'DELETE' });
       if (res.ok) fetchItems();
@@ -175,24 +363,24 @@ export default function GalleryPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-venecos-black/90 p-6 rounded-2xl border border-venecos-gold/20 shadow-xl">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <MdPhotoLibrary className="text-venecos-gold text-3xl" />
-            معرض الأعمال (Portfolio Gallery)
+            {tUi('pageTitle')}
           </h1>
           <p className="text-white/60 text-xs md:text-sm mt-1">
-            إدارة أعمال ومعارض الشركة على الموقع الرئيسي ({items.length} عمل مضاف)
+            {tUi('pageSubtitle')} ({items.length})
           </p>
         </div>
         <button
           onClick={() => handleOpenModal()}
-          className="flex items-center gap-2 bg-gradient-to-r from-venecos-gold to-yellow-500 hover:opacity-90 text-black px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all self-start md:self-auto"
+          className="flex items-center gap-2 bg-gradient-to-r from-venecos-gold to-yellow-500 hover:opacity-90 active:scale-95 text-black px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all self-start md:self-auto"
         >
           <MdAdd className="text-lg" />
-          إضافة عمل جديد
+          {tUi('addNewWork')}
         </button>
       </div>
 
@@ -236,165 +424,194 @@ export default function GalleryPage() {
 
       {/* Content */}
       {loading ? (
-        <div className="text-center py-16 text-white/50 animate-pulse">جاري التحميل...</div>
+        <div className="text-center py-16 text-white/50 animate-pulse">{tUi('loading')}</div>
       ) : items.length === 0 ? (
         <div className="bg-venecos-black/50 border border-white/10 rounded-2xl p-12 text-center text-white/60 space-y-4">
           <MdPhotoLibrary className="text-5xl text-venecos-gold/40 mx-auto" />
-          <p className="text-lg font-medium">المعرض فارغ لهذا التصنيف</p>
+          <p className="text-lg font-medium">{tUi('emptyCategory')}</p>
           <button
             onClick={() => handleOpenModal()}
             className="inline-flex items-center gap-2 bg-venecos-gold/20 text-venecos-gold border border-venecos-gold/40 px-4 py-2 rounded-xl text-sm font-bold"
           >
-            <MdAdd /> إضافة أول عمل
+            <MdAdd /> {tUi('addFirstWork')}
           </button>
         </div>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map((item) => (
-            <div
-              key={item._id}
-              className={`bg-venecos-black/70 border ${item.active ? 'border-white/10 hover:border-venecos-gold/40' : 'border-red-500/20 opacity-60'} rounded-2xl overflow-hidden shadow-xl transition-all flex flex-col justify-between`}
-            >
-              <div>
-                <div className="h-48 bg-gray-900 overflow-hidden relative">
-                  <img
-                    src={item.coverImage || item.mediaUrl || (item.images && item.images[0]) || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'}
-                    alt={item.title.ar || 'Gallery Work'}
-                    className="w-full h-full object-cover"
-                  />
-                  <span className="absolute top-3 right-3 bg-black/80 backdrop-blur-md text-venecos-gold text-[11px] font-bold px-3 py-1 rounded-full border border-venecos-gold/30">
-                    {item.category.toUpperCase()}
-                  </span>
-                  {item.demoUrl && (
-                    <a
-                      href={item.demoUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="absolute bottom-3 left-3 bg-blue-500/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-400/40 flex items-center gap-1 hover:bg-blue-600"
-                    >
-                      <MdLaunch /> Demo
-                    </a>
-                  )}
-                </div>
-                <div className="p-5 space-y-2">
-                  <h3 className="text-lg font-bold text-white truncate">
-                    {item.title.ar || item.title.en || 'بدون عنوان'}
-                  </h3>
-                  {item.client && (
-                    <p className="text-xs text-venecos-gold font-medium">🏢 العميل: {item.client}</p>
-                  )}
-                  <p className="text-xs text-white/60 line-clamp-2">
-                    {item.description.ar || item.description.en || 'لا يوجد وصف'}
-                  </p>
-                  {item.images && item.images.length > 0 && (
-                    <span className="inline-block text-[10px] text-white/50 bg-white/5 px-2 py-0.5 rounded border border-white/10">
-                      🖼️ {item.images.length} صور مرفقة
-                    </span>
-                  )}
-                </div>
-              </div>
+          {items.map((item) => {
+            const titleText = getLocValue(item.title, locale);
+            const descText = getLocValue(item.description, locale);
+            const videoSrc = item.videoUrl || item.mediaUrl || '';
+            const coverSrc = item.coverImage || item.mediaUrl || (item.images && item.images[0]) || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80';
 
-              <div className="p-4 border-t border-white/10 flex items-center justify-between bg-white/5">
-                <button
-                  onClick={() => handleToggleActive(item)}
-                  className={`text-xs font-bold flex items-center gap-1.5 ${item.active ? 'text-emerald-400' : 'text-red-400'}`}
-                >
-                  {item.active ? <MdCheckCircle /> : <MdCancel />}
-                  {item.active ? 'منشور' : 'مخفي'}
-                </button>
-                <div className="flex gap-2">
+            return (
+              <div
+                key={item._id}
+                className={`bg-venecos-black/70 border ${item.active ? 'border-white/10 hover:border-venecos-gold/40' : 'border-red-500/20 opacity-60'} rounded-2xl overflow-hidden shadow-xl transition-all flex flex-col justify-between`}
+              >
+                <div>
+                  <div className="h-48 bg-gray-900 overflow-hidden relative">
+                    {(item.mediaType === 'video' || videoSrc) && videoSrc.trim().length > 0 ? (
+                      <video
+                        src={videoSrc}
+                        controls
+                        muted
+                        className="w-full h-full object-cover"
+                        poster={coverSrc || undefined}
+                      />
+                    ) : (
+                      <img
+                        src={coverSrc}
+                        alt={titleText}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+
+                    <span className="absolute top-3 right-3 bg-black/80 backdrop-blur-md text-venecos-gold text-[11px] font-bold px-3 py-1 rounded-full border border-venecos-gold/30">
+                      {item.category.toUpperCase()}
+                    </span>
+
+                    {item.mediaType && (
+                      <span className="absolute top-3 left-3 bg-white/20 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 uppercase flex items-center gap-1">
+                        {item.mediaType === 'video' ? <MdVideoLibrary /> : item.mediaType === 'carousel' ? <MdViewCarousel /> : <MdImage />}
+                        {item.mediaType}
+                      </span>
+                    )}
+
+                    {item.demoUrl && (
+                      <a
+                        href={item.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="absolute bottom-3 left-3 bg-blue-500/80 backdrop-blur-md text-white text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-400/40 flex items-center gap-1 hover:bg-blue-600"
+                      >
+                        <MdLaunch /> Demo
+                      </a>
+                    )}
+                  </div>
+                  <div className="p-5 space-y-2">
+                    <h3 className="text-lg font-bold text-white truncate">
+                      {titleText || 'Untitled Project'}
+                    </h3>
+                    {item.client && (
+                      <p className="text-xs text-venecos-gold font-medium">🏢 {item.client}</p>
+                    )}
+                    <p className="text-xs text-white/60 line-clamp-2">
+                      {descText || '—'}
+                    </p>
+                    {item.images && item.images.length > 0 && (
+                      <span className="inline-block text-[10px] text-white/50 bg-white/5 px-2 py-0.5 rounded border border-white/10 font-mono">
+                        🖼️ {item.images.length} Slides
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-4 border-t border-white/10 flex items-center justify-between bg-white/5">
                   <button
-                    onClick={() => setPreviewItem(item)}
-                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
-                    title="معاينة"
+                    onClick={() => handleToggleActive(item)}
+                    className={`text-xs font-bold flex items-center gap-1.5 ${item.active ? 'text-emerald-400' : 'text-red-400'}`}
                   >
-                    <MdPhotoLibrary />
+                    {item.active ? <MdCheckCircle /> : <MdCancel />}
+                    {item.active ? tUi('publishedStatus') : tUi('hiddenStatus')}
                   </button>
-                  <button
-                    onClick={() => handleOpenModal(item)}
-                    className="p-2 rounded-lg bg-white/10 hover:bg-venecos-gold/20 text-white hover:text-venecos-gold"
-                  >
-                    <MdEdit />
-                  </button>
-                  <button
-                    onClick={() => item._id && handleDelete(item._id)}
-                    className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400"
-                  >
-                    <MdDelete />
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setPreviewItem(item)}
+                      className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
+                      title="Preview"
+                    >
+                      <MdPhotoLibrary />
+                    </button>
+                    <button
+                      onClick={() => handleOpenModal(item)}
+                      className="p-2 rounded-lg bg-white/10 hover:bg-venecos-gold/20 text-white hover:text-venecos-gold"
+                    >
+                      <MdEdit />
+                    </button>
+                    <button
+                      onClick={() => item._id && handleDelete(item._id)}
+                      className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400"
+                    >
+                      <MdDelete />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div className="bg-venecos-black/70 border border-white/10 rounded-2xl overflow-hidden shadow-xl">
-          <table className="w-full text-right text-sm text-white/80">
+          <table className="w-full text-right text-sm text-white/80" dir={isRtl ? 'rtl' : 'ltr'}>
             <thead className="bg-white/5 border-b border-white/10 text-white/60 text-xs uppercase font-bold">
               <tr>
-                <th className="p-4">العمل</th>
-                <th className="p-4">التصنيف</th>
-                <th className="p-4">العميل</th>
-                <th className="p-4">التاريخ</th>
-                <th className="p-4">الحالة</th>
-                <th className="p-4 text-center">الإجراءات</th>
+                <th className="p-4">{tUi('tableWork')}</th>
+                <th className="p-4">{tUi('tableCategory')}</th>
+                <th className="p-4">{tUi('tableClient')}</th>
+                <th className="p-4">{tUi('tableDate')}</th>
+                <th className="p-4">{tUi('tableStatus')}</th>
+                <th className="p-4 text-center">{tUi('tableActions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {items.map((item) => (
-                <tr key={item._id} className="hover:bg-white/5 transition-all">
-                  <td className="p-4 font-bold text-white flex items-center gap-3">
-                    <div className="w-12 h-9 rounded-lg overflow-hidden bg-gray-900 flex-shrink-0">
-                      <img
-                        src={item.coverImage || item.mediaUrl || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=200&q=80'}
-                        alt={item.title.ar}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <div>{item.title.ar || item.title.en}</div>
-                      <div className="text-[11px] text-white/40 font-normal">{item.title.en}</div>
-                    </div>
-                  </td>
-                  <td className="p-4 text-xs text-venecos-gold">{item.category}</td>
-                  <td className="p-4 text-xs">{item.client || '—'}</td>
-                  <td className="p-4 text-xs text-white/60">{item.date || '—'}</td>
-                  <td className="p-4 text-xs font-bold">
-                    <span className={item.active ? 'text-emerald-400' : 'text-red-400'}>
-                      {item.active ? 'منشور' : 'مخفي'}
-                    </span>
-                  </td>
-                  <td className="p-4 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <button
-                        onClick={() => handleOpenModal(item)}
-                        className="p-1.5 rounded-lg bg-white/10 hover:bg-venecos-gold/20 text-white hover:text-venecos-gold"
-                      >
-                        <MdEdit />
-                      </button>
-                      <button
-                        onClick={() => item._id && handleDelete(item._id)}
-                        className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400"
-                      >
-                        <MdDelete />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+              {items.map((item) => {
+                const titleText = getLocValue(item.title, locale);
+
+                return (
+                  <tr key={item._id} className="hover:bg-white/5 transition-all">
+                    <td className="p-4 font-bold text-white flex items-center gap-3">
+                      <div className="w-12 h-9 rounded-lg overflow-hidden bg-gray-900 flex-shrink-0">
+                        <img
+                          src={item.coverImage || item.mediaUrl || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=200&q=80'}
+                          alt={titleText}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <div>{titleText}</div>
+                      </div>
+                    </td>
+                    <td className="p-4 text-xs text-venecos-gold">{item.category}</td>
+                    <td className="p-4 text-xs">{item.client || '—'}</td>
+                    <td className="p-4 text-xs text-white/60">{item.date || '—'}</td>
+                    <td className="p-4 text-xs font-bold">
+                      <span className={item.active ? 'text-emerald-400' : 'text-red-400'}>
+                        {item.active ? tUi('publishedStatus') : tUi('hiddenStatus')}
+                      </span>
+                    </td>
+                    <td className="p-4 text-center">
+                      <div className="flex items-center justify-center gap-2">
+                        <button
+                          onClick={() => handleOpenModal(item)}
+                          className="p-1.5 rounded-lg bg-white/10 hover:bg-venecos-gold/20 text-white hover:text-venecos-gold"
+                        >
+                          <MdEdit />
+                        </button>
+                        <button
+                          onClick={() => item._id && handleDelete(item._id)}
+                          className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400"
+                        >
+                          <MdDelete />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
       )}
 
-      {/* Modal matching legacy 1:1 */}
+      {/* Modal matching multi-language + video/carousel & Cloudinary Device Upload controls */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-venecos-black border border-venecos-gold/30 rounded-2xl w-full max-w-3xl max-h-[92vh] overflow-y-auto p-6 space-y-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 <MdPhotoLibrary className="text-venecos-gold" />
-                {editingItem ? 'تعديل عمل المعرض' : 'إضافة عمل جديد للمعرض'}
+                {editingItem ? tUi('editWork') : tUi('addNewWork')}
               </h2>
               <button
                 onClick={() => setModalOpen(false)}
@@ -405,10 +622,10 @@ export default function GalleryPage() {
             </div>
 
             <form onSubmit={handleSave} className="space-y-6">
-              {/* Category & Client */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Category & Media Type & Client */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-white/80 mb-1.5">التصنيف (Category) *</label>
+                  <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('categoryLabel')} *</label>
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
@@ -416,56 +633,95 @@ export default function GalleryPage() {
                   >
                     <option value="identity">هوية بصرية (Identity)</option>
                     <option value="video">إنتاج فيديو (Video Production)</option>
-                    <option value="software">برامج وم مواقع (Software/Web)</option>
+                    <option value="software">برامج ومواقع (Software/Web)</option>
                     <option value="print">طباعة إعلانية (Printing)</option>
                     <option value="other">أخرى (Other)</option>
                   </select>
                 </div>
+
                 <div>
-                  <label className="block text-xs font-bold text-white/80 mb-1.5">اسم العميل / الشركة (Client Name)</label>
+                  <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('mediaTypeLabel')} *</label>
+                  <select
+                    value={formData.mediaType || 'image'}
+                    onChange={(e) => setFormData({ ...formData, mediaType: e.target.value as any })}
+                    className="w-full bg-venecos-black border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
+                  >
+                    <option value="image">📷 صورة (Single Image)</option>
+                    <option value="video">🎬 فيديو (Video MP4 / YouTube)</option>
+                    <option value="carousel">🖼️ معرض صور متعدد (Carousel Slides)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('clientLabel')}</label>
                   <input
                     type="text"
                     value={formData.client}
                     onChange={(e) => setFormData({ ...formData, client: e.target.value })}
-                    placeholder="مثال: شركة الأمل، مطعم نور..."
+                    placeholder="Company name..."
                     className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
                   />
                 </div>
               </div>
 
-              {/* Cover Image & Demo URL */}
+              {/* Cloudinary Uploaders for Cover Image and Video */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-white/80 mb-1.5">صورة الغلاف (Cover Image URL) *</label>
-                  <input
-                    type="text"
-                    value={formData.coverImage}
-                    onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                    placeholder="https://example.com/cover.jpg"
-                    className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
+                <div className="space-y-2">
+                  <CloudinaryUploader
+                    label={tUi('coverImageLabel')}
+                    sublabel="JPG, PNG, WEBP"
+                    acceptTypes="image/*"
+                    onUploadSuccess={(url) => setFormData({ ...formData, coverImage: url })}
+                    currentUrl={formData.coverImage}
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-white/80 mb-1.5">رابط المعاينة المباشرة (Demo URL)</label>
-                  <input
-                    type="text"
-                    value={formData.demoUrl}
-                    onChange={(e) => setFormData({ ...formData, demoUrl: e.target.value })}
-                    placeholder="https://client-website.com"
-                    className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
+
+                <div className="space-y-2">
+                  <CloudinaryUploader
+                    label={tUi('videoUrlLabel')}
+                    sublabel="MP4, WEBM, MOV"
+                    acceptTypes="video/*"
+                    mediaType="video"
+                    onUploadSuccess={(url) => setFormData({ ...formData, videoUrl: url, mediaType: 'video' })}
+                    currentUrl={formData.videoUrl}
                   />
                 </div>
               </div>
 
-              {/* Multiple Gallery Images */}
+              <div>
+                <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('demoUrlLabel')}</label>
+                <input
+                  type="text"
+                  value={formData.demoUrl}
+                  onChange={(e) => setFormData({ ...formData, demoUrl: e.target.value })}
+                  placeholder="https://client-website.com"
+                  className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
+                />
+              </div>
+
+              {/* Cloudinary Multiple Slide Uploads for Carousel */}
               <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
-                <h4 className="text-xs font-bold text-white/90">صور العمل الإضافية (Gallery Images)</h4>
-                <div className="flex gap-2">
+                <CloudinaryUploader
+                  label={tUi('additionalImagesLabel')}
+                  sublabel="اختر صورة/فيديو من جهازك لإضافتها لشرائح المعرض"
+                  acceptTypes="image/*,video/*"
+                  onUploadSuccess={(url) => {
+                    if (url) {
+                      setFormData((prev) => ({
+                        ...prev,
+                        images: [...(prev.images || []), url],
+                        mediaType: prev.images && prev.images.length > 0 ? 'carousel' : prev.mediaType,
+                      }));
+                    }
+                  }}
+                />
+
+                <div className="flex gap-2 pt-2">
                   <input
                     type="text"
                     value={imageInput}
                     onChange={(e) => setImageInput(e.target.value)}
-                    placeholder="https://example.com/photo.jpg"
+                    placeholder="أو أدخل رابط صورة مباشر (URL)..."
                     className="flex-1 bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-white text-xs focus:border-venecos-gold outline-none"
                   />
                   <button
@@ -473,9 +729,10 @@ export default function GalleryPage() {
                     onClick={handleAddImage}
                     className="bg-venecos-gold/20 text-venecos-gold border border-venecos-gold/40 px-4 py-2 rounded-xl text-xs font-bold hover:bg-venecos-gold/30"
                   >
-                    إضافة
+                    {tUi('addImageBtn')}
                   </button>
                 </div>
+
                 {formData.images && formData.images.length > 0 && (
                   <div className="grid grid-cols-4 gap-2 pt-2">
                     {formData.images.map((img, i) => (
@@ -484,7 +741,7 @@ export default function GalleryPage() {
                         <button
                           type="button"
                           onClick={() => handleRemoveImage(i)}
-                          className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-all"
+                          className="absolute top-1 right-1 bg-red-600 text-white p-1 rounded-full text-xs opacity-0 group-hover:opacity-100 transition-all shadow-md"
                         >
                           ✕
                         </button>
@@ -497,7 +754,9 @@ export default function GalleryPage() {
               {/* Multi-language Texts */}
               <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <h3 className="text-sm font-bold text-venecos-gold">النصوص بالأربع لغات</h3>
+                  <h3 className="text-sm font-bold text-venecos-gold">
+                    {locale === 'ar' ? 'النصوص بالأربع لغات' : 'Multi-Language Text Content'}
+                  </h3>
                   <div className="flex gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
                     {(['ar', 'en', 'fr', 'de'] as const).map((lang) => (
                       <button
@@ -510,7 +769,7 @@ export default function GalleryPage() {
                             : 'text-white/60 hover:text-white'
                         }`}
                       >
-                        {lang === 'ar' ? '🇸🇦 العربية' : lang === 'en' ? '🇬🇧 English' : lang === 'fr' ? '🇫🇷 Français' : '🇩🇪 Deutsch'}
+                        {lang === 'ar' ? '🇸🇦 عربي' : lang === 'en' ? '🇬🇧 EN' : lang === 'fr' ? '🇫🇷 FR' : '🇩🇪 DE'}
                       </button>
                     ))}
                   </div>
@@ -518,7 +777,7 @@ export default function GalleryPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-white/80 mb-1.5">عنوان العمل ({activeLangTab.toUpperCase()}) *</label>
+                    <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('titleLabel')} ({activeLangTab.toUpperCase()}) *</label>
                     <input
                       type="text"
                       required
@@ -527,13 +786,13 @@ export default function GalleryPage() {
                         ...formData,
                         title: { ...formData.title, [activeLangTab]: e.target.value }
                       })}
-                      placeholder="عنوان المشروع..."
+                      placeholder="Project title..."
                       className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-white/80 mb-1.5">وصف العمل ({activeLangTab.toUpperCase()})</label>
+                    <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('descLabel')} ({activeLangTab.toUpperCase()})</label>
                     <textarea
                       rows={3}
                       value={formData.description[activeLangTab]}
@@ -541,7 +800,7 @@ export default function GalleryPage() {
                         ...formData,
                         description: { ...formData.description, [activeLangTab]: e.target.value }
                       })}
-                      placeholder="وصف تفصيلي للمشروع والخدمات المنجزة..."
+                      placeholder="Detailed project description..."
                       className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none resize-none"
                     />
                   </div>
@@ -555,13 +814,13 @@ export default function GalleryPage() {
                   onClick={() => setModalOpen(false)}
                   className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-bold transition-all"
                 >
-                  إلغاء
+                  {tUi('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-venecos-gold to-yellow-500 hover:opacity-90 text-black text-sm font-bold shadow-lg transition-all"
                 >
-                  {editingItem ? 'حفظ التعديلات' : 'إضافة العمل'}
+                  {tUi('save')}
                 </button>
               </div>
             </form>
@@ -574,16 +833,20 @@ export default function GalleryPage() {
         <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-venecos-black border border-venecos-gold/30 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl space-y-4 p-6">
             <div className="flex justify-between items-center border-b border-white/10 pb-3">
-              <h3 className="text-lg font-bold text-white">{previewItem.title.ar || previewItem.title.en}</h3>
+              <h3 className="text-lg font-bold text-white">{getLocValue(previewItem.title, locale)}</h3>
               <button onClick={() => setPreviewItem(null)} className="text-white/60 hover:text-white">✕</button>
             </div>
             <div className="h-64 rounded-xl overflow-hidden bg-gray-900">
-              <img
-                src={previewItem.coverImage || previewItem.mediaUrl}
-                className="w-full h-full object-cover"
-              />
+              {(previewItem.mediaType === 'video' || previewItem.videoUrl) && (previewItem.videoUrl || previewItem.mediaUrl)?.trim() ? (
+                <video src={previewItem.videoUrl || previewItem.mediaUrl} controls className="w-full h-full object-cover" />
+              ) : (
+                <img
+                  src={previewItem.coverImage || previewItem.mediaUrl || (previewItem.images && previewItem.images[0]) || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80'}
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
-            <p className="text-sm text-white/80 leading-relaxed">{previewItem.description.ar || previewItem.description.en}</p>
+            <p className="text-sm text-white/80 leading-relaxed">{getLocValue(previewItem.description, locale)}</p>
             {previewItem.demoUrl && (
               <a
                 href={previewItem.demoUrl}
@@ -591,7 +854,7 @@ export default function GalleryPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold"
               >
-                <MdLaunch /> زيارة رابط المعاينة Mباشرة
+                <MdLaunch /> Demo URL
               </a>
             )}
           </div>
@@ -600,3 +863,4 @@ export default function GalleryPage() {
     </div>
   );
 }
+

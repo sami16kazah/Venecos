@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdLabel, MdArrowBack, MdAdd, MdDelete, MdCheckCircle, MdCalculate, MdLocalShipping, MdTune, MdEuro } from 'react-icons/md';
 import CloudinaryUploader from '@/components/CloudinaryUploader';
@@ -12,7 +13,220 @@ interface IPriceTier {
   minOrder: number;
 }
 
+const dbStickersUi: Record<string, Record<string, string>> = {
+  pageTitle: {
+    ar: 'إدارة طباعة الملصقات وتسميات المنتجات',
+    en: 'Stickers & Product Label Printing Management',
+    fr: 'Gestion de l\'impression d\'autocollants & étiquettes',
+    de: 'Sticker- & Etikettendruckverwaltung',
+  },
+  pageSubtitle: {
+    ar: 'شرائح الأسعار، المواد، وحاسبة المساحة m²',
+    en: 'Price tiers, materials, and m² area calculator',
+    fr: 'Grille tarifaire, matériaux et calculateur de surface m²',
+    de: 'Preisstaffeln, Materialien und m² Flächenrechner',
+  },
+  backBtn: {
+    ar: 'الرجوع للخدمات',
+    en: 'Back to Services',
+    fr: 'Retour aux Services',
+    de: 'Zurück zu den Diensten',
+  },
+  draftBtn: {
+    ar: '💾 مسودة',
+    en: '💾 Draft',
+    fr: '💾 Brouillon',
+    de: '💾 Entwurf',
+  },
+  publishBtn: {
+    ar: '✓ حفظ ونشر',
+    en: '✓ Save & Publish',
+    fr: '✓ Enregistrer & Publier',
+    de: '✓ Speichern & Veröffentlichen',
+  },
+  multiLangTitle: {
+    ar: '🌐 النصوص والشرح بالأربع لغات',
+    en: '🌐 Text & Description (4 Languages)',
+    fr: '🌐 Textes & Descriptions (4 langues)',
+    de: '🌐 Texte & Beschreibungen (4 Sprachen)',
+  },
+  titleLabel: {
+    ar: 'عنوان الخدمة',
+    en: 'Service Title',
+    fr: 'Titre du service',
+    de: 'Servicetitel',
+  },
+  shortDescLabel: {
+    ar: 'وصف مختصر',
+    en: 'Short Description',
+    fr: 'Courte description',
+    de: 'Kurzbeschreibung',
+  },
+  fullDescLabel: {
+    ar: 'الشرح التفصيلي للملصقات والمواصفات',
+    en: 'Full Description & Specifications',
+    fr: 'Description détaillée & spécifications',
+    de: 'Vollständige Beschreibung & Spezifikationen',
+  },
+  simTitle: {
+    ar: 'محاكاة حساب السعر المباشر (Legacy Simulator)',
+    en: 'Live Price Calculation Simulator',
+    fr: 'Simulateur de calcul de prix en direct',
+    de: 'Live-Preissimulationsrechner',
+  },
+  mediaTitle: {
+    ar: 'صور غلاف وعينات ملصقات المنتجات (Cloudinary Uploader)',
+    en: 'Cover Image & Product Sticker Samples (Cloudinary Uploader)',
+    fr: 'Image de couverture et échantillons d\'autocollants',
+    de: 'Titelbild und Etikettenbeispiele',
+  },
+  dropCoverLabel: {
+    ar: 'إسقاط صورة غلاف الملصق',
+    en: 'Drop sticker cover image here',
+    fr: 'Déposer l\'image de couverture ici',
+    de: 'Sticker-Titelbild hier ablegen',
+  },
+  optionsTitle: {
+    ar: 'خيارات المواد والشكل والإنهاء',
+    en: 'Material, Shape & Finishing Options',
+    fr: 'Options de matériau, forme et finition',
+    de: 'Material-, Form- und Veredelungsoptionen',
+  },
+  materialTypeLabel: {
+    ar: 'نوع المادة (Material Type)',
+    en: 'Material Type',
+    fr: 'Type de matériau',
+    de: 'Materialart',
+  },
+  shapeLabel: {
+    ar: 'شكل الملصق (Sticker Shape)',
+    en: 'Sticker Shape',
+    fr: 'Forme de l\'autocollant',
+    de: 'Stickerform',
+  },
+  sizeBoundsTitle: {
+    ar: 'حدود المقاس بالسنتمتر (cm)',
+    en: 'Dimensions Range (cm)',
+    fr: 'Plage de dimensions (cm)',
+    de: 'Größenbereich (cm)',
+  },
+  minSizeLabel: {
+    ar: 'الحد الأدنى للمقاس (Min Size cm)',
+    en: 'Minimum Dimensions (Min Size cm)',
+    fr: 'Dimensions minimales (cm)',
+    de: 'Mindestgröße (cm)',
+  },
+  maxSizeLabel: {
+    ar: 'الحد الأقصى للمقاس (Max Size cm)',
+    en: 'Maximum Dimensions (Max Size cm)',
+    fr: 'Dimensions maximales (cm)',
+    de: 'Maximale Größe (cm)',
+  },
+  widthLabel: {
+    ar: 'عرض',
+    en: 'Width',
+    fr: 'Largeur',
+    de: 'Breite',
+  },
+  heightLabel: {
+    ar: 'ارتفاع',
+    en: 'Height',
+    fr: 'Hauteur',
+    de: 'Höhe',
+  },
+  tiersTitle: {
+    ar: 'جدول الأسعار حسب شرائح الكميات (€/m²)',
+    en: 'Quantity Price Tiers (€/m²)',
+    fr: 'Barème de prix par quantité (€/m²)',
+    de: 'Preisstaffeln nach Menge (€/m²)',
+  },
+  addTierBtn: {
+    ar: 'إضافة شريحة',
+    en: 'Add Tier',
+    fr: 'Ajouter un palier',
+    de: 'Staffel hinzufügen',
+  },
+  qtyFromCol: {
+    ar: 'الكمية من',
+    en: 'Quantity From',
+    fr: 'Quantité de',
+    de: 'Menge ab',
+  },
+  qtyToCol: {
+    ar: 'الكمية إلى (0 = بلا حد)',
+    en: 'Quantity To (0 = no limit)',
+    fr: 'Quantité jusqu\'à (0 = illimité)',
+    de: 'Menge bis (0 = unbegrenzt)',
+  },
+  priceM2Col: {
+    ar: 'سعر المتر² (€/m²)',
+    en: 'Price per m² (€/m²)',
+    fr: 'Prix au m² (€/m²)',
+    de: 'Preis pro m² (€/m²)',
+  },
+  minOrderCol: {
+    ar: 'الحد الأدنى للطلب (€)',
+    en: 'Minimum Order (€)',
+    fr: 'Commande minimum (€)',
+    de: 'Mindestbestellung (€)',
+  },
+  deleteCol: {
+    ar: 'حذف',
+    en: 'Delete',
+    fr: 'Supprimer',
+    de: 'Löschen',
+  },
+  quantityLabel: {
+    ar: 'الكمية',
+    en: 'Quantity',
+    fr: 'Quantité',
+    de: 'Menge',
+  },
+  shippingTitle: {
+    ar: 'أسعار ومواعيد الشحن والتوصيل',
+    en: 'Shipping Rates & Delivery Timeframes',
+    fr: 'Frais d\'expédition & Délais de livraison',
+    de: 'Versandkosten & Lieferzeiten',
+  },
+  shipEULabel: {
+    ar: '🇪🇺 داخل الاتحاد الأوروبي',
+    en: '🇪🇺 Inside European Union (EU)',
+    fr: '🇪🇺 Union Européenne (UE)',
+    de: '🇪🇺 Innerhalb der Europäischen Union (EU)',
+  },
+  shipWorldLabel: {
+    ar: '🌐 خارج الاتحاد الأوروبي',
+    en: '🌐 Worldwide (Non-EU)',
+    fr: '🌐 International (Hors UE)',
+    de: '🌐 Weltweit (Außerhalb der EU)',
+  },
+  shippingPriceLabel: {
+    ar: 'سعر الشحن (€)',
+    en: 'Shipping Price (€)',
+    fr: 'Frais de port (€)',
+    de: 'Versandpreis (€)',
+  },
+  deliveryTimeLabel: {
+    ar: 'فترة التسليم (أيام)',
+    en: 'Delivery Timeframe (days)',
+    fr: 'Délai de livraison (jours)',
+    de: 'Lieferzeitraum (Tage)',
+  },
+  savedSuccess: {
+    ar: 'تم حفظ ونشر خدمة الملصقات بنجاح',
+    en: 'Stickers service saved & published successfully',
+    fr: 'Service d\'autocollants enregistré avec succès',
+    de: 'Stickerservice erfolgreich gespeichert',
+  },
+};
+
 export default function StickersServicePage() {
+  const params = useParams();
+  const locale = (params?.locale as string) || 'ar';
+  const isRtl = locale === 'ar';
+
+  const tUi = (key: string) => dbStickersUi[key]?.[locale] || dbStickersUi[key]?.['en'] || '';
+
   const [activeLangTab, setActiveLangTab] = useState<'ar' | 'en' | 'fr' | 'de'>('ar');
   const [saved, setSaved] = useState(false);
 
@@ -27,7 +241,7 @@ export default function StickersServicePage() {
   const [formData, setFormData] = useState({
     title: { ar: 'طباعة الملصقات وتسميات المنتجات', en: 'Sticker Labels & Custom Die-Cut', fr: 'Autocollants sur mesure', de: 'Sticker & Etiketten' },
     shortDesc: { ar: 'ملصقات عالية الجودة بأشكال ومواد متنوعة للمنتجات والتغليف', en: 'High quality stickers for products & packaging', fr: 'Autocollants haute qualité', de: 'Hochwertige Sticker' },
-    fullDesc: { ar: 'طباعة وفصل ملصقات مخصصة مقاومة للماء مع قص ليزر دقيق وباقات كمية مرنة.', en: 'Waterproof custom sticker printing with precision die-cut.', fr: 'Impression autocollants étanches.', de: 'Wasserdichter Stickerdruck.' },
+    fullDesc: { ar: 'طباعة وفصل ملصقات مخصصة مقاومة للماء مع قص ليزر دقيق وباقات كمية مرنة.', en: 'Waterproof custom sticker printing with precision die-cut.', fr: 'Impression autocollants étanches avec découpe sur mesure.', de: 'Wasserdichter Stickerdruck mit Präzisionsstanzung.' },
     minW: 2,
     minH: 2,
     maxW: 100,
@@ -78,44 +292,66 @@ export default function StickersServicePage() {
     setPriceTiers(updated);
   };
 
-  // Calculator Logic matching Legacy
   const calculateSimPrice = () => {
-    if (!simQty || !simW || !simH || !priceTiers.length) return { price: 0, detail: 'أدخل البيانات والحجم' };
+    if (!simQty || !simW || !simH || !priceTiers.length) return { price: 0, detail: isRtl ? 'أدخل البيانات والحجم' : 'Enter dimensions & quantity' };
     const tier = priceTiers.find(t => simQty >= t.qtyFrom && (t.qtyTo === 0 || simQty <= t.qtyTo));
-    if (!tier) return { price: 0, detail: 'الكمية خارج نطاق الشرائح' };
+    if (!tier) return { price: 0, detail: isRtl ? 'الكمية خارج نطاق الشرائح' : 'Quantity out of bounds' };
 
     const m2 = (simW * simH) / 10000;
     const raw = tier.pricePerM2 * m2 * simQty;
     const final = Math.max(raw, tier.minOrder);
     return {
       price: Math.round(final * 100) / 100,
-      detail: `${tier.pricePerM2}€/m² × ${m2.toFixed(4)}m² × ${simQty} قطعة${final > raw ? ' (حد أدنى)' : ''}`
+      detail: `${tier.pricePerM2}€/m² × ${m2.toFixed(4)}m² × ${simQty} pcs${final > raw ? ' (min)' : ''}`
     };
   };
 
   const simResult = calculateSimPrice();
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    try {
+      await fetch('/api/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceKey: 'stickers',
+          locale,
+          title: formData.title.en || formData.title.ar || 'Custom Sticker Printing',
+          description: formData.shortDesc.en || formData.shortDesc.ar || 'High quality custom stickers and labels',
+          iconName: 'FaTag',
+          iconType: 'react-icon',
+          order: 6,
+          isSpecial: true,
+          subServices: priceTiers.map((t, idx) => ({
+            title: `Tier ${idx + 1}: ${t.qtyFrom} - ${t.qtyTo === 0 ? 'Unlimited' : t.qtyTo} pcs`,
+            description: `€${t.pricePerM2}/m² (Min Order: €${t.minOrder})`,
+            price: t.pricePerM2
+          }))
+        })
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Header */}
-      <div className="flex items-center justify-between bg-venecos-black/90 p-6 rounded-2xl border border-venecos-gold/20 shadow-xl">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-venecos-black/90 p-6 rounded-2xl border border-venecos-gold/20 shadow-xl">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-yellow-600 flex items-center justify-center text-white text-2xl shadow-lg">
             <MdLabel />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">إدارة طباعة الملصقات (Stickers Service Manager)</h1>
-            <p className="text-xs text-white/60">مطابق 1:1 للنسخة المعتمدة — شرائح الأسعار، المواد، وحاسبة المساحة m²</p>
+            <h1 className="text-xl font-bold text-white">{tUi('pageTitle')}</h1>
+            <p className="text-xs text-white/60">{tUi('pageSubtitle')}</p>
           </div>
         </div>
-        <Link href="/dashboard/services" className="flex items-center gap-1.5 text-xs text-venecos-gold border border-venecos-gold/30 px-4 py-2 rounded-xl hover:bg-venecos-gold/10 font-bold">
-          <MdArrowBack /> الرجوع للخدمات
+        <Link href={`/${locale}/dashboard/services`} className="flex items-center gap-1.5 text-xs text-venecos-gold border border-venecos-gold/30 px-4 py-2 rounded-xl hover:bg-venecos-gold/10 font-bold">
+          <MdArrowBack className={isRtl ? '' : 'rotate-180'} /> {tUi('backBtn')}
         </Link>
       </div>
 
@@ -123,7 +359,7 @@ export default function StickersServicePage() {
         {/* Multilingual Text Content */}
         <div className="bg-venecos-black/70 border border-white/10 rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
-            <h3 className="text-sm font-bold text-venecos-gold">النصوص باللغات الأربع</h3>
+            <h3 className="text-sm font-bold text-venecos-gold">{tUi('multiLangTitle')}</h3>
             <div className="flex gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
               {(['ar', 'en', 'fr', 'de'] as const).map((lang) => (
                 <button
@@ -142,21 +378,30 @@ export default function StickersServicePage() {
 
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-bold text-white/80 mb-1">عنوان الخدمة ({activeLangTab.toUpperCase()})</label>
+              <label className="block text-xs font-bold text-white/80 mb-1">{tUi('titleLabel')} ({activeLangTab.toUpperCase()})</label>
               <input
                 type="text"
                 value={formData.title[activeLangTab]}
                 onChange={(e) => setFormData({ ...formData, title: { ...formData.title, [activeLangTab]: e.target.value } })}
-                className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2 text-white text-sm"
+                className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2 text-white text-sm focus:border-venecos-gold outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-white/80 mb-1">وصف مختصر ({activeLangTab.toUpperCase()})</label>
+              <label className="block text-xs font-bold text-white/80 mb-1">{tUi('shortDescLabel')} ({activeLangTab.toUpperCase()})</label>
               <textarea
                 rows={2}
                 value={formData.shortDesc[activeLangTab]}
                 onChange={(e) => setFormData({ ...formData, shortDesc: { ...formData.shortDesc, [activeLangTab]: e.target.value } })}
-                className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2 text-white text-sm resize-none"
+                className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2 text-white text-sm resize-none focus:border-venecos-gold outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-white/80 mb-1">{tUi('fullDescLabel')} ({activeLangTab.toUpperCase()})</label>
+              <textarea
+                rows={3}
+                value={formData.fullDesc[activeLangTab] || ''}
+                onChange={(e) => setFormData({ ...formData, fullDesc: { ...formData.fullDesc, [activeLangTab]: e.target.value } })}
+                className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2 text-white text-sm resize-none focus:border-venecos-gold outline-none"
               />
             </div>
           </div>
@@ -164,9 +409,9 @@ export default function StickersServicePage() {
 
         {/* Media Dropzone */}
         <div className="bg-venecos-black/70 border border-white/10 rounded-2xl p-6 space-y-4">
-          <h3 className="text-sm font-bold text-venecos-gold">صور غلاف وعينات ملصقات المنتجات (Cloudinary Uploader)</h3>
+          <h3 className="text-sm font-bold text-venecos-gold">{tUi('mediaTitle')}</h3>
           <CloudinaryUploader
-            label="إسقاط صورة غلاف الملصق"
+            label={tUi('dropCoverLabel')}
             currentUrl={formData.coverImage}
             onUploadSuccess={(url) => setFormData({ ...formData, coverImage: url })}
           />
@@ -175,11 +420,11 @@ export default function StickersServicePage() {
         {/* Material, Shape & Finish Options */}
         <div className="bg-venecos-black/70 border border-white/10 rounded-2xl p-6 space-y-5">
           <h3 className="text-sm font-bold text-venecos-gold flex items-center gap-2">
-            <MdTune /> خيارات المواد والشكل والإنهاء
+            <MdTune /> {tUi('optionsTitle')}
           </h3>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-2">نوع المادة (Material Type)</label>
+            <label className="block text-xs font-bold text-white/80 mb-2">{tUi('materialTypeLabel')}</label>
             <div className="flex flex-wrap gap-2">
               {materials.map((m) => (
                 <button
@@ -199,7 +444,7 @@ export default function StickersServicePage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-white/80 mb-2">شكل الملصق (Sticker Shape)</label>
+            <label className="block text-xs font-bold text-white/80 mb-2">{tUi('shapeLabel')}</label>
             <div className="flex flex-wrap gap-2">
               {shapes.map((s) => (
                 <button
@@ -221,23 +466,23 @@ export default function StickersServicePage() {
 
         {/* Size Bounds */}
         <div className="bg-venecos-black/70 border border-white/10 rounded-2xl p-6 space-y-4">
-          <h3 className="text-sm font-bold text-venecos-gold">حدود المقاس بالسنتمتر (cm)</h3>
+          <h3 className="text-sm font-bold text-venecos-gold">{tUi('sizeBoundsTitle')}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white/5 p-4 rounded-xl border border-white/10 space-y-2">
-              <span className="block text-xs font-bold text-red-400">الحد الأدنى للمقاس (Min Size cm)</span>
+              <span className="block text-xs font-bold text-red-400">{tUi('minSizeLabel')}</span>
               <div className="flex items-center gap-2">
-                <input type="number" value={formData.minW} onChange={(e) => setFormData({ ...formData, minW: Number(e.target.value) })} className="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-white font-bold text-center" placeholder="عرض" />
+                <input type="number" value={formData.minW} onChange={(e) => setFormData({ ...formData, minW: Number(e.target.value) })} className="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-white font-bold text-center" placeholder={tUi('widthLabel')} />
                 <span className="text-white/40">×</span>
-                <input type="number" value={formData.minH} onChange={(e) => setFormData({ ...formData, minH: Number(e.target.value) })} className="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-white font-bold text-center" placeholder="ارتفاع" />
+                <input type="number" value={formData.minH} onChange={(e) => setFormData({ ...formData, minH: Number(e.target.value) })} className="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-white font-bold text-center" placeholder={tUi('heightLabel')} />
               </div>
             </div>
 
             <div className="bg-white/5 p-4 rounded-xl border border-white/10 space-y-2">
-              <span className="block text-xs font-bold text-emerald-400">الحد الأقصى للمقاس (Max Size cm)</span>
+              <span className="block text-xs font-bold text-emerald-400">{tUi('maxSizeLabel')}</span>
               <div className="flex items-center gap-2">
-                <input type="number" value={formData.maxW} onChange={(e) => setFormData({ ...formData, maxW: Number(e.target.value) })} className="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-white font-bold text-center" placeholder="عرض" />
+                <input type="number" value={formData.maxW} onChange={(e) => setFormData({ ...formData, maxW: Number(e.target.value) })} className="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-white font-bold text-center" placeholder={tUi('widthLabel')} />
                 <span className="text-white/40">×</span>
-                <input type="number" value={formData.maxH} onChange={(e) => setFormData({ ...formData, maxH: Number(e.target.value) })} className="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-white font-bold text-center" placeholder="ارتفاع" />
+                <input type="number" value={formData.maxH} onChange={(e) => setFormData({ ...formData, maxH: Number(e.target.value) })} className="w-full bg-black/40 border border-white/15 rounded-xl px-3 py-2 text-white font-bold text-center" placeholder={tUi('heightLabel')} />
               </div>
             </div>
           </div>
@@ -246,9 +491,9 @@ export default function StickersServicePage() {
         {/* Quantity × Price/m² Table */}
         <div className="bg-venecos-black/70 border border-white/10 rounded-2xl p-6 space-y-4">
           <div className="flex justify-between items-center border-b border-white/10 pb-3">
-            <h3 className="text-sm font-bold text-venecos-gold">جدول الأسعار حسب شرائح الكميات (€/m²)</h3>
+            <h3 className="text-sm font-bold text-venecos-gold">{tUi('tiersTitle')}</h3>
             <button type="button" onClick={handleAddTier} className="flex items-center gap-1 text-xs bg-venecos-gold/20 text-venecos-gold border border-venecos-gold/40 px-3 py-1.5 rounded-xl font-bold hover:bg-venecos-gold/30">
-              <MdAdd /> إضافة شريحة
+              <MdAdd /> {tUi('addTierBtn')}
             </button>
           </div>
 
@@ -256,11 +501,11 @@ export default function StickersServicePage() {
             <table className="w-full text-right text-xs text-white">
               <thead className="bg-white/5 border-b border-white/10 text-white/60 font-bold">
                 <tr>
-                  <th className="p-3">الكمية من</th>
-                  <th className="p-3">الكمية إلى (0 = بلا حد)</th>
-                  <th className="p-3">سعر المتر² (€/m²)</th>
-                  <th className="p-3">الحد الأدنى للطلب (€)</th>
-                  <th className="p-3 text-center">حذف</th>
+                  <th className="p-3">{tUi('qtyFromCol')}</th>
+                  <th className="p-3">{tUi('qtyToCol')}</th>
+                  <th className="p-3">{tUi('priceM2Col')}</th>
+                  <th className="p-3">{tUi('minOrderCol')}</th>
+                  <th className="p-3 text-center">{tUi('deleteCol')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -293,20 +538,20 @@ export default function StickersServicePage() {
         {/* Live Simulation Calculator */}
         <div className="bg-venecos-black/70 border border-venecos-gold/30 rounded-2xl p-6 space-y-4">
           <h3 className="text-sm font-bold text-venecos-gold flex items-center gap-2">
-            <MdCalculate /> محاكاة حساب السعر المباشر (Legacy Simulator)
+            <MdCalculate /> {tUi('simTitle')}
           </h3>
           <div className="flex flex-wrap items-end gap-4 bg-white/5 p-4 rounded-xl border border-white/10">
             <div>
-              <label className="block text-[11px] font-bold text-white/70 mb-1">الكمية</label>
+              <label className="block text-[11px] font-bold text-white/70 mb-1">{tUi('quantityLabel')}</label>
               <input type="number" value={simQty} onChange={(e) => setSimQty(Number(e.target.value))} className="w-24 bg-black/50 border border-white/15 rounded-xl px-3 py-2 text-center font-bold text-blue-400 text-sm" />
             </div>
             <div>
-              <label className="block text-[11px] font-bold text-white/70 mb-1">العرض (cm)</label>
+              <label className="block text-[11px] font-bold text-white/70 mb-1">{tUi('widthLabel')} (cm)</label>
               <input type="number" value={simW} onChange={(e) => setSimW(Number(e.target.value))} className="w-24 bg-black/50 border border-white/15 rounded-xl px-3 py-2 text-center font-bold text-white text-sm" />
             </div>
             <span className="text-white/40 font-bold pb-2">×</span>
             <div>
-              <label className="block text-[11px] font-bold text-white/70 mb-1">الارتفاع (cm)</label>
+              <label className="block text-[11px] font-bold text-white/70 mb-1">{tUi('heightLabel')} (cm)</label>
               <input type="number" value={simH} onChange={(e) => setSimH(Number(e.target.value))} className="w-24 bg-black/50 border border-white/15 rounded-xl px-3 py-2 text-center font-bold text-white text-sm" />
             </div>
             <span className="text-white/40 font-bold pb-2">=</span>
@@ -320,18 +565,18 @@ export default function StickersServicePage() {
         {/* Shipping Rates */}
         <div className="bg-venecos-black/70 border border-white/10 rounded-2xl p-6 space-y-4">
           <h3 className="text-sm font-bold text-venecos-gold flex items-center gap-2">
-            <MdLocalShipping /> أسعار ومواعيد الشحن والتوصيل
+            <MdLocalShipping /> {tUi('shippingTitle')}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-xl space-y-3">
-              <span className="block text-xs font-bold text-blue-400">🇪🇺 داخل الاتحاد الأوروبي</span>
+              <span className="block text-xs font-bold text-blue-400">{tUi('shipEULabel')}</span>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[10px] text-white/60 mb-1">سعر الشحن (€)</label>
+                  <label className="block text-[10px] text-white/60 mb-1">{tUi('shippingPriceLabel')}</label>
                   <input type="number" step="0.01" value={formData.shipEU} onChange={(e) => setFormData({ ...formData, shipEU: Number(e.target.value) })} className="w-full bg-black/40 border border-white/15 rounded-lg px-3 py-1.5 text-white font-bold text-xs" />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-white/60 mb-1">فترة التسليم (أيام)</label>
+                  <label className="block text-[10px] text-white/60 mb-1">{tUi('deliveryTimeLabel')}</label>
                   <div className="flex items-center gap-1">
                     <input type="number" value={formData.shipEUFrom} onChange={(e) => setFormData({ ...formData, shipEUFrom: Number(e.target.value) })} className="w-full bg-black/40 border border-white/15 rounded-lg px-2 py-1.5 text-center text-xs" />
                     <span className="text-white/40">-</span>
@@ -342,14 +587,14 @@ export default function StickersServicePage() {
             </div>
 
             <div className="bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-xl space-y-3">
-              <span className="block text-xs font-bold text-venecos-gold">🌐 خارج الاتحاد الأوروبي</span>
+              <span className="block text-xs font-bold text-venecos-gold">{tUi('shipWorldLabel')}</span>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[10px] text-white/60 mb-1">سعر الشحن (€)</label>
+                  <label className="block text-[10px] text-white/60 mb-1">{tUi('shippingPriceLabel')}</label>
                   <input type="number" step="0.01" value={formData.shipWorld} onChange={(e) => setFormData({ ...formData, shipWorld: Number(e.target.value) })} className="w-full bg-black/40 border border-white/15 rounded-lg px-3 py-1.5 text-white font-bold text-xs" />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-white/60 mb-1">فترة التسليم (أيام)</label>
+                  <label className="block text-[10px] text-white/60 mb-1">{tUi('deliveryTimeLabel')}</label>
                   <div className="flex items-center gap-1">
                     <input type="number" value={formData.shipWorldFrom} onChange={(e) => setFormData({ ...formData, shipWorldFrom: Number(e.target.value) })} className="w-full bg-black/40 border border-white/15 rounded-lg px-2 py-1.5 text-center text-xs" />
                     <span className="text-white/40">-</span>
@@ -361,11 +606,19 @@ export default function StickersServicePage() {
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
-          {saved && <span className="text-emerald-400 text-xs font-bold flex items-center gap-1"><MdCheckCircle /> تم الحفظ بنجاح</span>}
-          <button type="submit" className="px-6 py-2.5 bg-venecos-gold hover:opacity-90 text-black font-extrabold text-sm rounded-xl shadow-lg">
-            حفظ إعدادات الملصقات 1:1
-          </button>
+        <div className="sticky bottom-0 bg-venecos-black/95 border-t border-white/10 p-4 flex items-center justify-between rounded-t-2xl shadow-2xl backdrop-blur-md">
+          <div>{saved && <span className="text-emerald-400 text-xs font-bold flex items-center gap-1"><MdCheckCircle /> {tUi('savedSuccess')}</span>}</div>
+          <div className="flex items-center gap-3">
+            <Link href={`/${locale}/dashboard/services`} className="px-5 py-2.5 rounded-xl border border-white/20 text-white text-xs font-bold hover:bg-white/10">
+              {tUi('backBtn')}
+            </Link>
+            <button type="button" onClick={() => setSaved(true)} className="px-5 py-2.5 rounded-xl border border-venecos-gold/40 text-venecos-gold text-xs font-bold hover:bg-venecos-gold/10">
+              {tUi('draftBtn')}
+            </button>
+            <button type="submit" className="px-6 py-2.5 bg-gradient-to-r from-venecos-gold to-yellow-500 text-black font-extrabold text-xs rounded-xl shadow-lg hover:opacity-90">
+              {tUi('publishBtn')}
+            </button>
+          </div>
         </div>
       </form>
     </div>

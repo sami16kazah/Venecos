@@ -4,13 +4,6 @@ import ServiceContent from '@/models/ServiceContent';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
-// Seed default services natively mapped 
-const defaultServices = [
-  { title: "Coding", description: "Expert web and mobile development using cutting edge technologies. Build scalable, high-performance applications.", iconName: "FaCode", order: 1, isSpecial: true },
-  { title: "UI Design", description: "Premium UI/UX design focused on modern aesthetics, user-centric approaches, and responsive layouts tailored to your brand.", iconName: "FaPaintBrush", order: 2, isSpecial: true },
-  { title: "Video Design", description: "High-quality video production, motion graphics, and post-production editing to visually captivate your audience.", iconName: "FaVideo", order: 3, isSpecial: true }
-];
-
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -20,14 +13,12 @@ export async function GET(req: Request) {
     
     let services = await ServiceContent.find({ locale }).sort({ order: 1 }).lean();
     
-    // Seed generic static defaults exactly once dynamically 
-    if (services.length === 0 && locale === 'en') {
-      const docs = defaultServices.map(s => ({ ...s, locale }));
-      services = await ServiceContent.insertMany(docs);
-    } else if (services.length === 0) {
-      // Create empty ones or localized copies from english default structure
-      const docs = defaultServices.map(s => ({ ...s, locale, title: `${s.title} (${locale})` }));
-      services = await ServiceContent.insertMany(docs);
+    // Fallback if no services exist for active locale
+    if (services.length === 0) {
+      services = await ServiceContent.find({ locale: 'ar' }).sort({ order: 1 }).lean();
+    }
+    if (services.length === 0) {
+      services = await ServiceContent.find({}).sort({ order: 1 }).lean();
     }
 
     return NextResponse.json(services, { status: 200 });
@@ -39,30 +30,62 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any)?.role !== 'admin') {
+    const userRole = (session?.user as any)?.role;
+    if (!session || (userRole !== 'admin' && userRole !== 'employee')) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    const { locale, title, description, iconType, iconName, iconUrl, order, isSpecial, subServices } = await req.json();
+    const { serviceKey, locale = 'en', title, description, iconType = 'react-icon', iconName, iconUrl, order = 0, isSpecial = false, subServices = [] } = await req.json();
 
-    if (!locale || !title || !description || (!iconName && !iconUrl)) {
+    if (!title || !description) {
       return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
     }
 
     await connectToDatabase();
-    const newService = await ServiceContent.create({ 
-      locale, 
-      title, 
-      description, 
-      iconType: iconType || 'react-icon', 
-      iconName, 
-      iconUrl, 
-      order: order || 0,
-      isSpecial: !!isSpecial,
-      subServices: subServices || []
-    });
 
-    return NextResponse.json({ message: 'Service created successfully', data: newService }, { status: 201 });
+    // If serviceKey is provided, upsert across all 4 locales so the service is available globally
+    const localesToUpdate = ['ar', 'en', 'fr', 'de'];
+    let primaryService = null;
+
+    if (serviceKey) {
+      for (const loc of localesToUpdate) {
+        const existing = await ServiceContent.findOne({ serviceKey, locale: loc });
+        const updated = await ServiceContent.findOneAndUpdate(
+          { serviceKey, locale: loc },
+          {
+            $set: {
+              serviceKey,
+              locale: loc,
+              title: existing?.title || title,
+              description: existing?.description || description,
+              iconType: iconType || 'react-icon',
+              iconName: iconName || 'FaServer',
+              iconUrl,
+              order,
+              isSpecial: !!isSpecial,
+              subServices: subServices || []
+            }
+          },
+          { upsert: true, new: true, setDefaultsOnInsert: true }
+        );
+        if (loc === locale) primaryService = updated;
+      }
+    } else {
+      primaryService = await ServiceContent.create({
+        serviceKey,
+        locale,
+        title,
+        description,
+        iconType,
+        iconName,
+        iconUrl,
+        order,
+        isSpecial: !!isSpecial,
+        subServices: subServices || []
+      });
+    }
+
+    return NextResponse.json({ message: 'Service published successfully', data: primaryService }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ message: error.message || 'Error creating content' }, { status: 500 });
   }
@@ -71,19 +94,30 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any)?.role !== 'admin') {
+    const userRole = (session?.user as any)?.role;
+    if (!session || (userRole !== 'admin' && userRole !== 'employee')) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    const { _id, title, description, iconType, iconName, iconUrl, order, isSpecial, subServices } = await req.json();
-    if (!_id) return NextResponse.json({ message: 'ID required' }, { status: 400 });
+    const { _id, serviceKey, locale, title, description, iconType, iconName, iconUrl, order, isSpecial, subServices } = await req.json();
+    if (!_id && !serviceKey) return NextResponse.json({ message: 'ID or serviceKey required' }, { status: 400 });
 
     await connectToDatabase();
-    const updated = await ServiceContent.findByIdAndUpdate(
-      _id,
-      { title, description, iconType, iconName, iconUrl, order, isSpecial: !!isSpecial, subServices: subServices || [] },
-      { new: true }
-    );
+    
+    let updated;
+    if (_id) {
+      updated = await ServiceContent.findByIdAndUpdate(
+        _id,
+        { title, description, iconType, iconName, iconUrl, order, isSpecial: !!isSpecial, subServices: subServices || [] },
+        { new: true }
+      );
+    } else if (serviceKey && locale) {
+      updated = await ServiceContent.findOneAndUpdate(
+        { serviceKey, locale },
+        { title, description, iconType, iconName, iconUrl, order, isSpecial: !!isSpecial, subServices: subServices || [] },
+        { new: true, upsert: true }
+      );
+    }
 
     return NextResponse.json({ message: 'Service updated', data: updated }, { status: 200 });
   } catch (error: any) {
@@ -94,7 +128,8 @@ export async function PUT(req: Request) {
 export async function DELETE(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || (session.user as any)?.role !== 'admin') {
+    const userRole = (session?.user as any)?.role;
+    if (!session || (userRole !== 'admin' && userRole !== 'employee')) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 

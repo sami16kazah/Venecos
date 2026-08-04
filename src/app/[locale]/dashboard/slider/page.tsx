@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useParams } from 'next/navigation';
 import { 
   MdAdd, MdEdit, MdDelete, MdCheckCircle, MdCancel, 
   MdImage, MdVideoLibrary, MdSlideshow, MdLink, MdArrowUpward, MdArrowDownward,
   MdFormatAlignRight, MdFormatAlignCenter, MdFormatAlignLeft, MdRemoveRedEye
 } from 'react-icons/md';
+import CloudinaryUploader from '@/components/CloudinaryUploader';
 
 interface ISlide {
   _id?: string;
@@ -27,7 +29,109 @@ interface ISlide {
   status: string;
 }
 
+const dbSliderUi: Record<string, Record<string, string>> = {
+  pageTitle: {
+    ar: 'إدارة السلايدر',
+    en: 'Slider Management',
+    fr: 'Gestion du Slider',
+    de: 'Slider-Verwaltung',
+  },
+  pageSubtitle: {
+    ar: 'شرائح الصفحة الرئيسية — يدعم صور/فيديو وخيارات التنسيق بالأربع لغات',
+    en: 'Main homepage hero slides — Supports 4K images/videos with 4-language support',
+    fr: 'Diapositives principales du site — Prise en charge 4K images/vidéos et 4 langues',
+    de: 'Hauptseiten-Slider — Unterstützt 4K-Bilder/Videos und 4 Sprachen',
+  },
+  addNewSlide: {
+    ar: 'إضافة شريحة جديدة',
+    en: 'Add New Slide',
+    fr: 'Ajouter une nouvelle diapositive',
+    de: 'Neue Folie hinzufügen',
+  },
+  editSlide: {
+    ar: 'تعديل الشريحة',
+    en: 'Edit Slide',
+    fr: 'Modifier la diapositive',
+    de: 'Folie bearbeiten',
+  },
+  loading: {
+    ar: 'جاري التحميل...',
+    en: 'Loading slides...',
+    fr: 'Chargement des diapositives...',
+    de: 'Folien werden geladen...',
+  },
+  emptySlides: {
+    ar: 'لا توجد شرائح بعد',
+    en: 'No slides created yet',
+    fr: 'Aucune diapositive pour le moment',
+    de: 'Noch keine Folien vorhanden',
+  },
+  addFirstSlide: {
+    ar: 'إضافة أول شريحة',
+    en: 'Add First Slide',
+    fr: 'Ajouter la première diapositive',
+    de: 'Erste Folie hinzufügen',
+  },
+  publishedStatus: {
+    ar: 'منشورة',
+    en: 'Published',
+    fr: 'Publié',
+    de: 'Veröffentlicht',
+  },
+  hiddenStatus: {
+    ar: 'مخفية',
+    en: 'Hidden',
+    fr: 'Masqué',
+    de: 'Ausgeblendet',
+  },
+  noTitle: {
+    ar: 'شريحة بدون عنوان',
+    en: 'Untitled Slide',
+    fr: 'Diapositive sans titre',
+    de: 'Unbenannte Folie',
+  },
+  noSubtitle: {
+    ar: 'لا يوجد نص فرعي',
+    en: 'No subtitle provided',
+    fr: 'Pas de sous-titre',
+    de: 'Kein Untertitel',
+  },
+  deleteConfirm: {
+    ar: 'هل أنت تأكد من حذف هذه الشريحة؟',
+    en: 'Are you sure you want to delete this slide?',
+    fr: 'Êtes-vous sûr de vouloir supprimer cette diapositive ?',
+    de: 'Sind Sie sicher, dass Sie diese Folie löschen möchten?',
+  },
+  mediaImage: {
+    ar: 'صورة',
+    en: 'Image',
+    fr: 'Image',
+    de: 'Bild',
+  },
+  mediaVideo: {
+    ar: 'فيديو',
+    en: 'Video',
+    fr: 'Vidéo',
+    de: 'Video',
+  },
+};
+
+function getLocField(val: any, lang: string): string {
+  if (!val) return '';
+  if (typeof val === 'string') return val;
+  if (typeof val === 'object') {
+    return val[lang] || val['en'] || val['ar'] || val['fr'] || val['de'] || Object.values(val)[0] || '';
+  }
+  return String(val);
+}
+
 export default function SliderPage() {
+  const params = useParams();
+  const locale = (params?.locale as string) || 'ar';
+  const isRtl = locale === 'ar';
+
+  const tUi = (key: string) => dbSliderUi[key]?.[locale] || dbSliderUi[key]?.['en'] || '';
+
   const [slides, setSlides] = useState<ISlide[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
@@ -121,7 +225,7 @@ export default function SliderPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت تأكد من حذف هذه الشريحة؟')) return;
+    if (!confirm(tUi('deleteConfirm'))) return;
     try {
       const res = await fetch(`/api/slider/${id}`, { method: 'DELETE' });
       if (res.ok) fetchSlides();
@@ -154,7 +258,6 @@ export default function SliderPage() {
 
     setSlides(newSlides);
 
-    // Save orders
     try {
       await Promise.all([
         fetch(`/api/slider/${newSlides[index]._id}`, {
@@ -181,16 +284,16 @@ export default function SliderPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-venecos-black/90 p-6 rounded-2xl border border-venecos-gold/20 shadow-xl">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
             <MdSlideshow className="text-venecos-gold text-3xl" />
-            إدارة السلايدر (Slider Management)
+            {tUi('pageTitle')}
           </h1>
           <p className="text-white/60 text-xs md:text-sm mt-1">
-            شرائح الصفحة الرئيسية ({slides.length}/12) — يدعم صور/فيديو 4K وخيارات التنسيق بالأربع لغات
+            {tUi('pageSubtitle')} ({slides.length}/12)
           </p>
         </div>
         <button
@@ -199,145 +302,148 @@ export default function SliderPage() {
           className="flex items-center gap-2 bg-gradient-to-r from-venecos-gold to-yellow-500 hover:opacity-90 disabled:opacity-50 text-black px-5 py-2.5 rounded-xl font-bold text-sm shadow-md transition-all self-start md:self-auto"
         >
           <MdAdd className="text-lg" />
-          إضافة شريحة جديدة
+          {tUi('addNewSlide')}
         </button>
       </div>
 
       {/* Slide list */}
       {loading ? (
-        <div className="text-center py-16 text-white/50 animate-pulse">جاري التحميل...</div>
+        <div className="text-center py-16 text-white/50 animate-pulse">{tUi('loading')}</div>
       ) : slides.length === 0 ? (
         <div className="bg-venecos-black/50 border border-white/10 rounded-2xl p-12 text-center text-white/60 space-y-4">
           <MdImage className="text-5xl text-venecos-gold/40 mx-auto" />
-          <p className="text-lg font-medium">لا توجد شرائح بعد</p>
+          <p className="text-lg font-medium">{tUi('emptySlides')}</p>
           <button
             onClick={() => handleOpenModal()}
             className="inline-flex items-center gap-2 bg-venecos-gold/20 text-venecos-gold border border-venecos-gold/40 px-4 py-2 rounded-xl text-sm font-bold hover:bg-venecos-gold/30 transition-all"
           >
-            <MdAdd /> إضافة أول شريحة
+            <MdAdd /> {tUi('addFirstSlide')}
           </button>
         </div>
       ) : (
         <div className="space-y-4">
-          {slides.map((slide, index) => (
-            <div
-              key={slide._id}
-              className={`bg-venecos-black/80 border ${slide.active ? 'border-white/10 hover:border-venecos-gold/40' : 'border-red-500/20 opacity-60'} rounded-2xl overflow-hidden shadow-lg transition-all flex flex-col md:flex-row items-stretch`}
-            >
-              {/* Index number */}
-              <div className="w-12 bg-white/5 border-l border-white/10 flex items-center justify-center font-bold text-venecos-gold text-lg">
-                {index + 1}
-              </div>
+          {slides.map((slide, index) => {
+            const titleText = getLocField(slide.title, locale);
+            const subtitleText = getLocField(slide.subtitle, locale);
+            const btnLabel = getLocField(slide.btnText, locale);
 
-              {/* Media Thumbnail */}
-              <div className="w-full md:w-56 h-36 bg-gray-900 border-b md:border-b-0 md:border-l border-white/10 relative overflow-hidden flex-shrink-0">
-                {slide.mediaType === 'video' ? (
-                  slide.ytUrl ? (
-                    <iframe src={getYoutubeEmbed(slide.ytUrl)} className="w-full h-full pointer-events-none" />
+            return (
+              <div
+                key={slide._id}
+                className={`bg-venecos-black/80 border ${slide.active ? 'border-white/10 hover:border-venecos-gold/40' : 'border-red-500/20 opacity-60'} rounded-2xl overflow-hidden shadow-lg transition-all flex flex-col md:flex-row items-stretch`}
+              >
+                {/* Index number */}
+                <div className="w-12 bg-white/5 border-l border-white/10 flex items-center justify-center font-bold text-venecos-gold text-lg">
+                  {index + 1}
+                </div>
+
+                {/* Media Thumbnail */}
+                <div className="w-full md:w-56 h-36 bg-gray-900 border-b md:border-b-0 md:border-l border-white/10 relative overflow-hidden flex-shrink-0">
+                  {slide.mediaType === 'video' ? (
+                    slide.ytUrl ? (
+                      <iframe src={getYoutubeEmbed(slide.ytUrl)} className="w-full h-full pointer-events-none" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-blue-900/40 to-black flex flex-col items-center justify-center text-blue-400">
+                        <MdVideoLibrary className="text-4xl mb-1" />
+                        <span className="text-[10px] uppercase tracking-widest font-bold">{tUi('mediaVideo')}</span>
+                      </div>
+                    )
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-blue-900/40 to-black flex flex-col items-center justify-center text-blue-400">
-                      <MdVideoLibrary className="text-4xl mb-1" />
-                      <span className="text-[10px] uppercase tracking-widest font-bold">فيديو</span>
-                    </div>
-                  )
-                ) : (
-                  <img
-                    src={slide.imageUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80'}
-                    alt={slide.title.ar}
-                    className="w-full h-full object-cover"
-                  />
-                )}
-                <span className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded border border-white/20">
-                  {slide.mediaType === 'video' ? '🎬 فيديو' : '🖼️ صورة'}
-                </span>
-              </div>
-
-              {/* Info */}
-              <div className="p-5 flex-1 space-y-2 flex flex-col justify-center min-w-0">
-                <h3 className="text-base font-bold text-white truncate">
-                  {slide.title.ar || slide.title.en || 'شريحة بدون عنوان'}
-                </h3>
-                <p className="text-xs text-white/60 line-clamp-1">
-                  {slide.subtitle.ar || slide.subtitle.en || 'لا يوجد نص فرعي'}
-                </p>
-                <div className="flex flex-wrap gap-2 text-[11px] pt-1">
-                  {slide.btnText?.ar && (
-                    <span className="px-2.5 py-0.5 bg-venecos-gold/10 border border-venecos-gold/30 rounded-full text-venecos-gold font-medium">
-                      🎯 {slide.btnText.ar}
-                    </span>
+                    <img
+                      src={slide.imageUrl || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80'}
+                      alt={titleText}
+                      className="w-full h-full object-cover"
+                    />
                   )}
-                  {slide.btnUrl && (
-                    <span className="px-2.5 py-0.5 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 font-mono">
-                      🔗 {slide.btnUrl}
-                    </span>
-                  )}
-                  <span className="px-2.5 py-0.5 bg-white/5 border border-white/10 rounded-full text-white/60">
-                    ⏱️ {slide.duration || 5}s
-                  </span>
-                  <span className="px-2.5 py-0.5 bg-white/5 border border-white/10 rounded-full text-white/60">
-                    📐 {slide.vPosition || 'وسط'} / {slide.textAlign || 'وسط'}
+                  <span className="absolute bottom-2 right-2 bg-black/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded border border-white/20">
+                    {slide.mediaType === 'video' ? `🎬 ${tUi('mediaVideo')}` : `🖼️ ${tUi('mediaImage')}`}
                   </span>
                 </div>
-              </div>
 
-              {/* Status & Actions */}
-              <div className="p-4 bg-white/5 border-t md:border-t-0 md:border-r border-white/10 flex items-center justify-between md:justify-center gap-3">
-                <button
-                  onClick={() => handleToggleActive(slide)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all ${
-                    slide.active
-                      ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
-                      : 'bg-red-500/20 text-red-400 border-red-500/40'
-                  }`}
-                >
-                  {slide.active ? <MdCheckCircle /> : <MdCancel />}
-                  {slide.active ? 'منشورة' : 'مخفية'}
-                </button>
+                {/* Info */}
+                <div className="p-5 flex-1 space-y-2 flex flex-col justify-center min-w-0">
+                  <h3 className="text-base font-bold text-white truncate">
+                    {titleText || tUi('noTitle')}
+                  </h3>
+                  <p className="text-xs text-white/60 line-clamp-1">
+                    {subtitleText || tUi('noSubtitle')}
+                  </p>
+                  <div className="flex flex-wrap gap-2 text-[11px] pt-1">
+                    {btnLabel && (
+                      <span className="px-2.5 py-0.5 bg-venecos-gold/10 border border-venecos-gold/30 rounded-full text-venecos-gold font-medium">
+                        🎯 {btnLabel}
+                      </span>
+                    )}
+                    {slide.btnUrl && (
+                      <span className="px-2.5 py-0.5 bg-blue-500/10 border border-blue-500/30 rounded-full text-blue-400 font-mono">
+                        🔗 {slide.btnUrl}
+                      </span>
+                    )}
+                    <span className="px-2.5 py-0.5 bg-white/5 border border-white/10 rounded-full text-white/60">
+                      ⏱️ {slide.duration || 5}s
+                    </span>
+                  </div>
+                </div>
 
-                <div className="flex items-center gap-1">
+                {/* Status & Actions */}
+                <div className="p-4 bg-white/5 border-t md:border-t-0 md:border-r border-white/10 flex items-center justify-between md:justify-center gap-3">
                   <button
-                    onClick={() => handleMoveOrder(index, -1)}
-                    disabled={index === 0}
-                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white disabled:opacity-30"
-                    title="للأعلى"
+                    onClick={() => handleToggleActive(slide)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all ${
+                      slide.active
+                        ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40'
+                        : 'bg-red-500/20 text-red-400 border-red-500/40'
+                    }`}
                   >
-                    <MdArrowUpward />
+                    {slide.active ? <MdCheckCircle /> : <MdCancel />}
+                    {slide.active ? tUi('publishedStatus') : tUi('hiddenStatus')}
                   </button>
-                  <button
-                    onClick={() => handleMoveOrder(index, 1)}
-                    disabled={index === slides.length - 1}
-                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white disabled:opacity-30"
-                    title="للأسفل"
-                  >
-                    <MdArrowDownward />
-                  </button>
-                  <button
-                    onClick={() => handleOpenModal(slide)}
-                    className="p-2 rounded-lg bg-white/10 hover:bg-venecos-gold/20 text-white hover:text-venecos-gold transition-all"
-                  >
-                    <MdEdit />
-                  </button>
-                  <button
-                    onClick={() => slide._id && handleDelete(slide._id)}
-                    className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all"
-                  >
-                    <MdDelete />
-                  </button>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleMoveOrder(index, -1)}
+                      disabled={index === 0}
+                      className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white disabled:opacity-30"
+                      title="Move Up"
+                    >
+                      <MdArrowUpward />
+                    </button>
+                    <button
+                      onClick={() => handleMoveOrder(index, 1)}
+                      disabled={index === slides.length - 1}
+                      className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white disabled:opacity-30"
+                      title="Move Down"
+                    >
+                      <MdArrowDownward />
+                    </button>
+                    <button
+                      onClick={() => handleOpenModal(slide)}
+                      className="p-2 rounded-lg bg-white/10 hover:bg-venecos-gold/20 text-white hover:text-venecos-gold transition-all"
+                    >
+                      <MdEdit />
+                    </button>
+                    <button
+                      onClick={() => slide._id && handleDelete(slide._id)}
+                      className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all"
+                    >
+                      <MdDelete />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
-      {/* Modal matching Legacy 1:1 */}
+      {/* Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-venecos-black border border-venecos-gold/30 rounded-2xl w-full max-w-4xl max-h-[92vh] overflow-y-auto p-6 space-y-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <h2 className="text-xl font-bold text-white flex items-center gap-2">
                 <MdSlideshow className="text-venecos-gold" />
-                {editingSlide ? 'تعديل الشريحة' : 'إضافة شريحة جديدة'}
+                {editingSlide ? tUi('editSlide') : tUi('addNewSlide')}
               </h2>
               <button
                 onClick={() => setModalOpen(false)}
@@ -351,7 +457,7 @@ export default function SliderPage() {
               {/* Media Section */}
               <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
                 <h3 className="text-sm font-bold text-venecos-gold flex items-center gap-2 border-b border-white/10 pb-2">
-                  <MdVideoLibrary /> وسيط الشريحة (صورة أو فيديو)
+                  <MdVideoLibrary /> {tUi('slideMedia')}
                 </h3>
 
                 {/* Media Type Selector */}
@@ -366,7 +472,7 @@ export default function SliderPage() {
                     }`}
                   >
                     <MdImage className="text-xl" />
-                    صورة غلاف (Image)
+                    {tUi('coverImageLabel')}
                   </button>
                   <button
                     type="button"
@@ -378,13 +484,27 @@ export default function SliderPage() {
                     }`}
                   >
                     <MdVideoLibrary className="text-xl" />
-                    فيديو غلاف (Video/YouTube)
+                    {tUi('videoCoverLabel')}
                   </button>
                 </div>
 
+                <CloudinaryUploader
+                  label={tUi('uploadDeviceLabel')}
+                  sublabel="JPG, PNG, WEBP · MP4, WEBM"
+                  acceptTypes="image/*,video/*"
+                  onUploadSuccess={(url) => {
+                    if (url.includes('/video/') || url.match(/\.(mp4|webm|mov)$/i)) {
+                      setFormData((prev) => ({ ...prev, videoUrl: url, mediaType: 'video' }));
+                    } else {
+                      setFormData((prev) => ({ ...prev, imageUrl: url, mediaType: 'image' }));
+                    }
+                  }}
+                  currentUrl={formData.imageUrl || formData.videoUrl}
+                />
+
                 {formData.mediaType === 'image' ? (
                   <div>
-                    <label className="block text-xs font-bold text-white/80 mb-1.5">رابط الصورة (Image URL) *</label>
+                    <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('directImageUrlLabel')}</label>
                     <input
                       type="text"
                       value={formData.imageUrl}
@@ -396,7 +516,7 @@ export default function SliderPage() {
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-white/80 mb-1.5">رابط فيديو (Direct MP4 URL)</label>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('directVideoUrlLabel')}</label>
                       <input
                         type="text"
                         value={formData.videoUrl}
@@ -406,7 +526,7 @@ export default function SliderPage() {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-bold text-white/80 mb-1.5">رابط YouTube</label>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('youtubeUrlLabel')}</label>
                       <input
                         type="text"
                         value={formData.ytUrl}
@@ -421,7 +541,7 @@ export default function SliderPage() {
                 {/* Overlay Opacity Slider */}
                 <div>
                   <div className="flex justify-between items-center text-xs font-bold mb-1">
-                    <span className="text-white/80">شفافية التعتيم (Overlay Opacity)</span>
+                    <span className="text-white/80">{tUi('overlayOpacityLabel')}</span>
                     <span className="text-venecos-gold font-mono">{formData.overlayOpacity}%</span>
                   </div>
                   <input
@@ -438,7 +558,7 @@ export default function SliderPage() {
               {/* Multi-language Texts */}
               <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <h3 className="text-sm font-bold text-venecos-gold">النصوص بالأربع لغات</h3>
+                  <h3 className="text-sm font-bold text-venecos-gold">{tUi('multiLangTitle')}</h3>
                   <div className="flex gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
                     {(['ar', 'en', 'fr', 'de'] as const).map((lang) => (
                       <button
@@ -459,7 +579,7 @@ export default function SliderPage() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs font-bold text-white/80 mb-1.5">العنوان الرئيسي ({activeLangTab.toUpperCase()})</label>
+                    <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('mainTitleLabel')} ({activeLangTab.toUpperCase()})</label>
                     <input
                       type="text"
                       value={formData.title[activeLangTab]}
@@ -467,13 +587,13 @@ export default function SliderPage() {
                         ...formData,
                         title: { ...formData.title, [activeLangTab]: e.target.value }
                       })}
-                      placeholder="عنوان كبير وجذاب..."
+                      placeholder="Title..."
                       className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-white/80 mb-1.5">النص الفرعي ({activeLangTab.toUpperCase()})</label>
+                    <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('subtitleLabel')} ({activeLangTab.toUpperCase()})</label>
                     <textarea
                       rows={2}
                       value={formData.subtitle[activeLangTab]}
@@ -481,13 +601,13 @@ export default function SliderPage() {
                         ...formData,
                         subtitle: { ...formData.subtitle, [activeLangTab]: e.target.value }
                       })}
-                      placeholder="وصف مختصر أو شعار..."
+                      placeholder="Subtitle..."
                       className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none resize-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-white/80 mb-1.5">نص الزر CTA ({activeLangTab.toUpperCase()})</label>
+                    <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('ctaTextLabel')} ({activeLangTab.toUpperCase()})</label>
                     <input
                       type="text"
                       value={formData.btnText[activeLangTab]}
@@ -495,7 +615,7 @@ export default function SliderPage() {
                         ...formData,
                         btnText: { ...formData.btnText, [activeLangTab]: e.target.value }
                       })}
-                      placeholder="مثال: تصفح خدماتنا / Explore Services"
+                      placeholder="Explore Services..."
                       className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
                     />
                   </div>
@@ -506,63 +626,63 @@ export default function SliderPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
                   <h4 className="text-xs font-bold text-white/90 flex items-center gap-1.5">
-                    <MdLink className="text-venecos-gold text-base" /> رابط وتصميم الزر
+                    <MdLink className="text-venecos-gold text-base" /> {tUi('btnLinkStyle')}
                   </h4>
                   <div>
-                    <label className="block text-[11px] font-bold text-white/70 mb-1">رابط الزر (URL)</label>
+                    <label className="block text-[11px] font-bold text-white/70 mb-1">{tUi('btnUrlLabel')}</label>
                     <input
                       type="text"
                       value={formData.btnUrl}
                       onChange={(e) => setFormData({ ...formData, btnUrl: e.target.value })}
-                      placeholder="/services أو https://..."
+                      placeholder="/services..."
                       className="w-full bg-white/5 border border-white/15 rounded-xl px-3 py-2 text-white text-xs focus:border-venecos-gold outline-none"
                     />
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-white/70 mb-1">نمط الزر</label>
+                    <label className="block text-[11px] font-bold text-white/70 mb-1">{tUi('btnStyleLabel')}</label>
                     <select
                       value={formData.btnStyle}
                       onChange={(e) => setFormData({ ...formData, btnStyle: e.target.value })}
                       className="w-full bg-venecos-black border border-white/15 rounded-xl px-3 py-2 text-white text-xs focus:border-venecos-gold outline-none"
                     >
-                      <option value="ذهبي مملوء">ذهبي مملوء (Gold Solid)</option>
-                      <option value="ذهبي شفاف">ذهبي شفاف (Gold Outline)</option>
-                      <option value="أبيض مملوء">أبيض مملوء (White Solid)</option>
-                      <option value="أبيض شفاف">أبيض شفاف (White Outline)</option>
+                      <option value="ذهبي مملوء">Gold Solid</option>
+                      <option value="ذهبي شفاف">Gold Outline</option>
+                      <option value="أبيض مملوء">White Solid</option>
+                      <option value="أبيض شفاف">White Outline</option>
                     </select>
                   </div>
                 </div>
 
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
-                  <h4 className="text-xs font-bold text-white/90">موضع النص والمدة</h4>
+                  <h4 className="text-xs font-bold text-white/90">{tUi('textPositionDuration')}</h4>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-[11px] font-bold text-white/70 mb-1">الموضع العمودي</label>
+                      <label className="block text-[11px] font-bold text-white/70 mb-1">{tUi('vPositionLabel')}</label>
                       <select
                         value={formData.vPosition}
                         onChange={(e) => setFormData({ ...formData, vPosition: e.target.value })}
                         className="w-full bg-venecos-black border border-white/15 rounded-xl px-3 py-2 text-white text-xs focus:border-venecos-gold outline-none"
                       >
-                        <option value="أعلى">أعلى (Top)</option>
-                        <option value="وسط">وسط (Middle)</option>
-                        <option value="أسفل">أسفل (Bottom)</option>
+                        <option value="أعلى">Top</option>
+                        <option value="وسط">Middle</option>
+                        <option value="أسفل">Bottom</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-white/70 mb-1">المحاذاة الأفشية</label>
+                      <label className="block text-[11px] font-bold text-white/70 mb-1">{tUi('textAlignLabel')}</label>
                       <select
                         value={formData.textAlign}
                         onChange={(e) => setFormData({ ...formData, textAlign: e.target.value })}
                         className="w-full bg-venecos-black border border-white/15 rounded-xl px-3 py-2 text-white text-xs focus:border-venecos-gold outline-none"
                       >
-                        <option value="يمين">يمين (Right)</option>
-                        <option value="وسط">وسط (Center)</option>
-                        <option value="يسار">يسار (Left)</option>
+                        <option value="يمين">Right</option>
+                        <option value="وسط">Center</option>
+                        <option value="يسار">Left</option>
                       </select>
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[11px] font-bold text-white/70 mb-1">مدة العرض (بالثواني)</label>
+                    <label className="block text-[11px] font-bold text-white/70 mb-1">{tUi('durationLabel')}</label>
                     <input
                       type="number"
                       min="2"
@@ -582,13 +702,13 @@ export default function SliderPage() {
                   onClick={() => setModalOpen(false)}
                   className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-bold transition-all"
                 >
-                  إلغاء
+                  {tUi('cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-venecos-gold to-yellow-500 hover:opacity-90 text-black text-sm font-bold shadow-lg transition-all"
                 >
-                  {editingSlide ? 'حفظ التعديلات' : 'إضافة الشريحة'}
+                  {editingSlide ? tUi('saveChanges') : tUi('addSlideBtn')}
                 </button>
               </div>
             </form>

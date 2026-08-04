@@ -8,6 +8,7 @@ export interface ISubService {
 }
 
 export interface IServiceContent extends Document {
+  serviceKey?: string;
   locale: string;
   title: string;
   description: string;
@@ -22,6 +23,7 @@ export interface IServiceContent extends Document {
 }
 
 const ServiceContentSchema: Schema = new Schema({
+  serviceKey: { type: String },
   locale: { type: String, required: true },
   title: { type: String, required: true },
   description: { type: String, required: true },
