@@ -45,6 +45,8 @@ export default function ExchangeRatesPage() {
     );
   };
 
+  const [savedSuccess, setSavedSuccess] = useState(false);
+
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -55,7 +57,8 @@ export default function ExchangeRatesPage() {
       });
 
       if (res.ok) {
-        alert('تم حفظ أسعار الصرف بنجاح!');
+        setSavedSuccess(true);
+        setTimeout(() => setSavedSuccess(false), 3000);
         fetchRates();
       }
     } catch (err) {
@@ -79,6 +82,11 @@ export default function ExchangeRatesPage() {
           </p>
         </div>
         <div className="flex items-center gap-3 self-start md:self-auto">
+          {savedSuccess && (
+            <span className="text-emerald-400 font-bold text-xs bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-xl">
+              ✓ تم حفظ الأسعار بنجاح!
+            </span>
+          )}
           {lastUpdate && (
             <div className="hidden sm:flex items-center gap-1.5 text-xs text-white/60 bg-white/5 border border-white/10 px-3 py-2 rounded-xl">
               <MdAccessTime className="text-venecos-gold text-base" />

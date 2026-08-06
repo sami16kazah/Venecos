@@ -10,54 +10,7 @@ import {
 import * as FaIcons from 'react-icons/fa';
 import * as MdIcons from 'react-icons/md';
 
-// Local string parser for multi-language objects
-function getLocString(val: any, lang: string): string {
-  if (!val) return '';
-  let targetStr = '';
-  if (typeof val === 'object') {
-    targetStr = val[lang] || val['en'] || val['ar'] || val['fr'] || val['de'] || Object.values(val)[0] || '';
-  } else if (typeof val === 'string') {
-    if (val.trim().startsWith('{') && val.trim().endsWith('}')) {
-      try {
-        const parsed = JSON.parse(val);
-        targetStr = parsed[lang] || parsed['en'] || parsed['ar'] || parsed['fr'] || parsed['de'] || '';
-      } catch (e) {
-        targetStr = val;
-      }
-    } else {
-      targetStr = val;
-    }
-  } else {
-    targetStr = String(val);
-  }
-
-  if (!targetStr) return '';
-
-  if (lang !== 'ar') {
-    if (targetStr.includes('40%') || targetStr.includes('٤٠٪') || targetStr.includes('40')) {
-      if (lang === 'en') return '40% OFF Limited Time';
-      if (lang === 'fr') return '40% de réduction - Durée limitée';
-      if (lang === 'de') return '40% Rabatt - Begrenzte Zeit';
-    }
-    if (targetStr.includes('20%') || targetStr.includes('٢٠٪') || targetStr.includes('20')) {
-      if (lang === 'en') return '20% OFF Special Deal';
-      if (lang === 'fr') return '20% de réduction';
-      if (lang === 'de') return '20% Rabatt';
-    }
-    if (targetStr.includes('خصم')) {
-      if (lang === 'en') return 'Special Discount Offer';
-      if (lang === 'fr') return 'Offre Spéciale de Réduction';
-      if (lang === 'de') return 'Besonderer Rabatt';
-    }
-    if (targetStr.includes('باقة') || targetStr.includes('حصرية')) {
-      if (lang === 'en') return 'Exclusive Offer Package';
-      if (lang === 'fr') return 'Forfait Offre Exclusive';
-      if (lang === 'de') return 'Exklusives Angebotspaket';
-    }
-  }
-
-  return targetStr;
-}
+import { getLocString } from '@/lib/i18nUtils';
 
 // Icon Resolver Component
 function ServiceIcon({ iconName, className = "text-2xl text-venecos-gold" }: { iconName?: string; className?: string }) {
@@ -298,6 +251,21 @@ const uiText: Record<string, Record<string, string>> = {
   statsSatisfaction: { ar: 'رضا العملاء', en: 'Client Satisfaction', fr: 'Satisfaction Clients', de: 'Kundenzufriedenheit' },
   statsOffices: { ar: 'فروع عالمية', en: 'Global Offices', fr: 'Bureaux Internationaux', de: 'Globale Standorte' },
   statsSupport: { ar: 'دعم فني متاح', en: '24/7 Support', fr: 'Support 24/7', de: '24/7 Support' },
+  catTechTitle: { ar: 'الخدمات التقنية والسحابية', en: 'Tech & Cloud Services', fr: 'Services Techniques & Cloud', de: 'Technische & Cloud-Dienste' },
+  catDesignTitle: { ar: 'خدمات التصميم والإنتاج الإبداعي', en: 'Creative Design & Media Production', fr: 'Design Créatif & Production Média', de: 'Kreatives Design & Medienproduktion' },
+  catPrintTitle: { ar: 'خدمات الطباعة والدعاية الشاملة', en: 'Printing & Merchandise Services', fr: 'Services d\'Impression & Publicité', de: 'Druck- & Werbedienste' },
+  catContentTitle: { ar: 'خدمات المحتوى والإنتاج الصوتي', en: 'Content & Voice Over Services', fr: 'Services de Contenu & Voix Off', de: 'Inhalts- & Voice-Over-Dienste' },
+  servicesAvailable: { ar: 'خدمات متاحة', en: 'services available', fr: 'services disponibles', de: 'verfügbare Dienste' },
+  viewAllServicesBtn: { ar: 'عرض دليل كافة الخدمات ➔', en: 'View All Services Directory ➔', fr: 'Voir le répertoire des services ➔', de: 'Alle Dienste anzeigen ➔' },
+  bannerTechBadge: { ar: 'البرمجة والتطوير', en: 'Software & Development', fr: 'Développement & Logiciels', de: 'Software & Entwicklung' },
+  bannerTechTitle: { ar: 'نحوّل أفكارك لتطبيقات تعمل فعلاً', en: 'We turn your ideas into functional applications', fr: 'Nous transformons vos idées en applications fonctionnelles', de: 'Wir verwandeln Ihre Ideen in funktionierende Anwendungen' },
+  bannerTechDesc: { ar: 'مواقع React/Next.js، تطبيقات موبايل iOS/Android، APIs وأنظمة إدارة مخصصة. نبدأ بتحليل احتياجاتك وننتهي بتسليم مشروع جاهز للإطلاق.', en: 'React/Next.js websites, iOS/Android mobile apps, APIs & custom management systems. We analyze your needs and deliver ready-to-launch projects.', fr: 'Sites React/Next.js, applications mobiles iOS/Android, APIs et systèmes de gestion sur mesure. Nous analysons vos besoins et livrons des projets prêts à lancer.', de: 'React/Next.js Webseiten, iOS/Android Apps, APIs & benutzerdefinierte Systeme. Wir analysieren Ihre Bedürfnisse und liefern startbereite Projekte.' },
+  bannerDesignBadge: { ar: 'تصميم وإعلانات', en: 'Design & Advertising', fr: 'Design & Publicité', de: 'Design & Werbung' },
+  bannerDesignTitle: { ar: 'صورة تساوي ألف كلمة - تصنع الكلمات الصح', en: 'A picture worth a thousand words - making the right statement', fr: 'Une image vaut mille mots - marquer les esprits', de: 'Ein Bild sagt mehr als tausend Worte - das richtige Statement setzen' },
+  bannerDesignDesc: { ar: 'جلسات تصوير استوديو، إخراج سينمائي، وإعلانات موشن جرافيك ورندر ثلاثي الأبعاد تجذب الانتباه وتعزز مبيعات علاماتك التجارية.', en: 'Studio photo sessions, cinematic direction, motion graphics ads and 3D rendering to boost your brand sales.', fr: 'Séances photo studio, réalisation cinématographique, publicités motion design et rendu 3D pour booster vos ventes.', de: 'Studio-Fotoshootings, Regie, Motion-Graphics-Werbung und 3D-Rendering zur Steigerung Ihres Markenumsatzes.' },
+  bannerPrintBadge: { ar: 'طباعة ودعاية', en: 'Print & Merchandise', fr: 'Impression & Publicité', de: 'Druck & Werbeartikel' },
+  bannerPrintTitle: { ar: 'مطبوعاتك واجهتك الأولى أمام كل عميل', en: 'Your prints are your brand\'s first impression', fr: 'Vos impressions sont la première impression de votre marque', de: 'Ihre Drucke sind der erste Eindruck Ihrer Marke' },
+  bannerPrintDesc: { ar: 'كروت عمل، ملصقات فينيل مقاومة للماء، طباعة حريرية وUV على الأكواب والهدايا الدعائية ومجسمات 3D عالية الدقة.', en: 'Business cards, waterproof vinyl stickers, silk screen & UV printing on mugs, corporate gifts and high-precision 3D models.', fr: 'Cartes de visite, autocollants en vinyle étanches, sérigraphie et impression UV sur tasses, cadeaux d\'entreprise et modèles 3D.', de: 'Visitenkarten, wasserdichte Vinylsticker, Sieb- und UV-Druck auf Tassen, Werbegeschenken und hochpräzisen 3D-Modellen.' },
 };
 
 function tUi(key: string, lang: string): string {
@@ -604,7 +572,7 @@ export default function PublicHomepageClient({
             href={`/${locale}/services`}
             className="text-xs font-bold text-venecos-gold hover:underline border border-venecos-gold/30 bg-venecos-gold/10 px-4 py-2 rounded-xl"
           >
-            عرض دليل كافة الخدمات ➔
+            {tUi('viewAllServicesBtn', locale)}
           </Link>
         </div>
 
@@ -616,8 +584,8 @@ export default function PublicHomepageClient({
                 💻
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white">الخدمات التقنية والسحابية</h3>
-                <span className="text-[11px] text-white/50">{categorizedServices.tech.length} خدمات متاحة</span>
+                <h3 className="text-xl font-bold text-white">{tUi('catTechTitle', locale)}</h3>
+                <span className="text-[11px] text-white/50">{categorizedServices.tech.length} {tUi('servicesAvailable', locale)}</span>
               </div>
             </div>
           </div>
@@ -657,11 +625,11 @@ export default function PublicHomepageClient({
           <div className="bg-gradient-to-r from-cyan-950/40 via-neutral-900/90 to-neutral-950 border border-cyan-500/30 p-6 md:p-8 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="space-y-3 max-w-xl">
               <span className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[10px] font-bold px-3 py-1 rounded-full uppercase">
-                البرمجة والتطوير
+                {tUi('bannerTechBadge', locale)}
               </span>
-              <h4 className="text-2xl font-black text-white">نحوّل أفكارك لتطبيقات تعمل فعلاً</h4>
+              <h4 className="text-2xl font-black text-white">{tUi('bannerTechTitle', locale)}</h4>
               <p className="text-xs text-white/70 leading-relaxed">
-                مواقع React/Next.js، تطبيقات موبايل iOS/Android، APIs وأنظمة إدارة مخصصة. نبدأ بتحليل احتياجاتك وننتهي بتسليم مشروع جاهز للإطلاق.
+                {tUi('bannerTechDesc', locale)}
               </p>
             </div>
             <div className="w-24 h-24 bg-cyan-500/10 rounded-2xl border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-4xl shrink-0">
@@ -678,8 +646,8 @@ export default function PublicHomepageClient({
                 🎨
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white">خدمات التصميم والإنتاج الإبداعي</h3>
-                <span className="text-[11px] text-white/50">{categorizedServices.design.length} خدمات متاحة</span>
+                <h3 className="text-xl font-bold text-white">{tUi('catDesignTitle', locale)}</h3>
+                <span className="text-[11px] text-white/50">{categorizedServices.design.length} {tUi('servicesAvailable', locale)}</span>
               </div>
             </div>
           </div>
@@ -717,11 +685,11 @@ export default function PublicHomepageClient({
           <div className="bg-gradient-to-r from-purple-950/40 via-neutral-900/90 to-neutral-950 border border-purple-500/30 p-6 md:p-8 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="space-y-3 max-w-xl">
               <span className="bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[10px] font-bold px-3 py-1 rounded-full uppercase">
-                تصميم وإعلانات
+                {tUi('bannerDesignBadge', locale)}
               </span>
-              <h4 className="text-2xl font-black text-white">صورة تساوي ألف كلمة - تصنع الكلمات الصح</h4>
+              <h4 className="text-2xl font-black text-white">{tUi('bannerDesignTitle', locale)}</h4>
               <p className="text-xs text-white/70 leading-relaxed">
-                جلسات تصوير استوديو، إخراج سينمائي، وإعلانات موشن جرافيك ورندر ثلاثي الأبعاد تجذب الانتباه وتعزز مبيعات علاماتك التجارية.
+                {tUi('bannerDesignDesc', locale)}
               </p>
             </div>
             <div className="w-24 h-24 bg-purple-500/10 rounded-2xl border border-purple-500/30 flex items-center justify-center text-purple-400 text-4xl shrink-0">
@@ -738,8 +706,8 @@ export default function PublicHomepageClient({
                 🖨️
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white">خدمات الطباعة والدعاية الشاملة</h3>
-                <span className="text-[11px] text-white/50">{categorizedServices.print.length} خدمات متاحة</span>
+                <h3 className="text-xl font-bold text-white">{tUi('catPrintTitle', locale)}</h3>
+                <span className="text-[11px] text-white/50">{categorizedServices.print.length} {tUi('servicesAvailable', locale)}</span>
               </div>
             </div>
           </div>
@@ -777,11 +745,11 @@ export default function PublicHomepageClient({
           <div className="bg-gradient-to-r from-amber-950/40 via-neutral-900/90 to-neutral-950 border border-amber-500/30 p-6 md:p-8 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="space-y-3 max-w-xl">
               <span className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-bold px-3 py-1 rounded-full uppercase">
-                طباعة ودعاية
+                {tUi('bannerPrintBadge', locale)}
               </span>
-              <h4 className="text-2xl font-black text-white">مطبوعاتك واجهتك الأولى أمام كل عميل</h4>
+              <h4 className="text-2xl font-black text-white">{tUi('bannerPrintTitle', locale)}</h4>
               <p className="text-xs text-white/70 leading-relaxed">
-                كروت عمل، ملصقات فينيل مقاومة للماء، طباعة حريرية وUV على الأكواب والهدايا الدعائية ومجسمات 3D عالية الدقة.
+                {tUi('bannerPrintDesc', locale)}
               </p>
             </div>
             <div className="w-24 h-24 bg-amber-500/10 rounded-2xl border border-amber-500/30 flex items-center justify-center text-amber-400 text-4xl shrink-0">
@@ -798,8 +766,8 @@ export default function PublicHomepageClient({
                 🎙️
               </div>
               <div>
-                <h3 className="text-xl font-bold text-white">خدمات المحتوى والإنتاج الصوتي</h3>
-                <span className="text-[11px] text-white/50">{categorizedServices.content.length} خدمات متاحة</span>
+                <h3 className="text-xl font-bold text-white">{tUi('catContentTitle', locale)}</h3>
+                <span className="text-[11px] text-white/50">{categorizedServices.content.length} {tUi('servicesAvailable', locale)}</span>
               </div>
             </div>
           </div>

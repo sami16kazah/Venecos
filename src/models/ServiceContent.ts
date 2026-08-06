@@ -5,6 +5,13 @@ export interface ISubService {
   title: string;
   description: string;
   price: number;
+  badge?: string;
+  priceFrom?: number;
+  priceTo?: number;
+  deliveryDuration?: string;
+  deliveryAndRevisions?: string[];
+  ownershipAndRights?: string[];
+  image?: string;
 }
 
 export interface IServiceContent extends Document {
@@ -34,8 +41,15 @@ const ServiceContentSchema: Schema = new Schema({
   isSpecial: { type: Boolean, default: false },
   subServices: [{
     title: { type: String, required: true },
-    description: { type: String, required: true },
-    price: { type: Number, required: true }
+    description: { type: String, default: '' },
+    price: { type: Number, default: 0 },
+    badge: { type: String, default: '' },
+    priceFrom: { type: Number, default: 0 },
+    priceTo: { type: Number, default: 0 },
+    deliveryDuration: { type: String, default: '' },
+    deliveryAndRevisions: [{ type: String }],
+    ownershipAndRights: [{ type: String }],
+    image: { type: String, default: '' }
   }]
 }, {
   timestamps: true

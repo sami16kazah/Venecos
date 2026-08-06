@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdMic, MdArrowBack, MdCheckCircle, MdAudioFile, MdSave, MdPerson, MdChildCare, MdAdd, MdDelete } from 'react-icons/md';
 import CloudinaryUploader from '@/components/CloudinaryUploader';
+import DashboardPackageManager from '@/components/DashboardPackageManager';
+import { ISubService } from '@/models/ServiceContent';
+
+// ... dbVoiceUi ...
 
 interface IAudioSample {
   id: number;
@@ -177,6 +181,66 @@ export default function VoiceOverServicePage() {
   const tUi = (key: string) => dbVoiceUi[key]?.[locale] || dbVoiceUi[key]?.['en'] || '';
 
   const [saved, setSaved] = useState(false);
+  const [packages, setPackages] = useState<ISubService[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch('/api/services?serviceKey=voiceover');
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            const arDoc = items.find((i: any) => i.locale === 'ar');
+            if (arDoc && arDoc.subServices) {
+              setPackages(arDoc.subServices);
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const savePackagesToDb = async (newPackages: ISubService[]) => {
+    try {
+      await fetch('/api/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceKey: 'voiceover',
+          titles: {
+            ar: 'التعليق الصوتي والهندسة الصوتية',
+            en: 'Voiceover & Audio Engineering',
+            fr: 'Voix off & ingénierie sonore',
+            de: 'Voiceover & Tontechnik',
+          },
+          descriptions: {
+            ar: 'تسجيل تعليق صوتي احترافي بأصوات وإسكتشات متنوعة',
+            en: 'Professional voiceover recording & sound design',
+            fr: 'Enregistrement de voix off professionnelle et design sonore',
+            de: 'Professionelle Voiceover-Aufnahmen und Sounddesign',
+          },
+          iconName: 'FaMicrophone',
+          iconType: 'react-icon',
+          order: 8,
+          isSpecial: false,
+          subServices: newPackages
+        })
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await savePackagesToDb(packages);
+  };
+
   const [selectedVoiceTypes, setSelectedVoiceTypes] = useState<string[]>(['male']);
 
   const [formData, setFormData] = useState({
@@ -239,35 +303,6 @@ export default function VoiceOverServicePage() {
     const updated = [...priceTiers];
     (updated[idx] as any)[field] = value;
     setPriceTiers(updated);
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await fetch('/api/services', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          serviceKey: 'voiceover',
-          locale,
-          title: formData.titleEn || formData.titleAr || 'Voice Over Services',
-          description: formData.shortEn || formData.shortAr || 'Professional studio voice over in multiple languages & accents',
-          iconName: 'FaMicrophone',
-          iconType: 'react-icon',
-          order: 8,
-          isSpecial: true,
-          subServices: priceTiers.map((t, idx) => ({
-            title: `Tier ${idx + 1}: ${t.wordsFrom} - ${t.wordsTo} words`,
-            description: `Price: €${t.priceFrom}-${t.priceTo} / Delivery: ${t.daysFrom}-${t.daysTo} ${t.daysUnit}`,
-            price: t.priceFrom || 15
-          }))
-        })
-      });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
-      console.error(err);
-    }
   };
 
   return (
@@ -631,6 +666,16 @@ export default function VoiceOverServicePage() {
               </tbody>
             </table>
           </div>
+        </div>
+
+        {/* Packages & Plans Manager */}
+        <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 shadow-xl">
+          <DashboardPackageManager
+            serviceKey="voiceover"
+            packages={packages}
+            onChange={setPackages}
+            onSave={savePackagesToDb}
+          />
         </div>
 
         {/* Sticky Bottom Bar */}

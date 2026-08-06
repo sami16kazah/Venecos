@@ -311,5 +311,39 @@
     "title": "Notifications",
     "noNotifications": "Tout est à jour !",
     "markAllRead": "Tout marquer comme lu"
+  },
+  "Homepage": {
+    "ourServicesBadge": "NOS SERVICES | VENECOS",
+    "ourServicesTitle": "Nos Services",
+    "viewAllServicesBtn": "Voir le répertoire des services ➔",
+    "catTechTitle": "Services Techniques & Cloud",
+    "catDesignTitle": "Design Créatif & Production Média",
+    "catPrintTitle": "Services d'Impression & Publicité",
+    "catContentTitle": "Services de Contenu & Voix Off",
+    "servicesAvailable": "services disponibles",
+    "bannerTechBadge": "Développement & Logiciels",
+    "bannerTechTitle": "Nous transformons vos idées en applications fonctionnelles",
+    "bannerTechDesc": "Sites React/Next.js, applications mobiles iOS/Android, APIs et systèmes de gestion sur mesure. Nous analysons vos besoins et livrons des projets prêts à lancer.",
+    "bannerDesignBadge": "Design & Publicité",
+    "bannerDesignTitle": "Une image vaut mille mots - marquer les esprits",
+    "bannerDesignDesc": "Séances photo studio, réalisation cinématographique, publicités motion design et rendu 3D pour booster vos ventes.",
+    "bannerPrintBadge": "Impression & Publicité",
+    "bannerPrintTitle": "Vos impressions sont la première impression de votre marque",
+    "bannerPrintDesc": "Cartes de visite, autocollants en vinyle étanches, sérigraphie et impression UV sur tasses, cadeaux d'entreprise et modèles 3D."
+  },
+  "PackageCards": {
+    "featuredBadge": "Le Plus Populaire",
+    "fromLabel": "De",
+    "toLabel": "À",
+    "deliveryTime": "Délai de livraison",
+    "termsBtn": "Conditions",
+    "orderBtn": "Commander"
+  },
+  "TermsModal": {
+    "title": "Conditions Générales de Service",
+    "deliveryTitle": "Livraison & Révisions",
+    "rightsTitle": "Propriété & Droits d'Auteur",
+    "agreeNotice": "En cliquant sur \"Commander\", vous acceptez ces conditions dans leur totalité.",
+    "orderNowBtn": "Commander Maintenant"
   }
 }

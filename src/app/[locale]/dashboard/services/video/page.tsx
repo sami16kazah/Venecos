@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdVideoLibrary, MdArrowBack, MdCheckCircle, MdImage, MdPlayCircle, MdTune, MdSave } from 'react-icons/md';
 import CloudinaryUploader from '@/components/CloudinaryUploader';
+import DashboardPackageManager from '@/components/DashboardPackageManager';
+import { ISubService } from '@/models/ServiceContent';
 
 const dbVideoUi: Record<string, Record<string, string>> = {
   pageTitle: {
@@ -182,28 +184,68 @@ export default function VideoProductionServicePage() {
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const [packages, setPackages] = useState<ISubService[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch('/api/services?serviceKey=video');
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            const arDoc = items.find((i: any) => i.locale === 'ar');
+            const enDoc = items.find((i: any) => i.locale === 'en');
+            const frDoc = items.find((i: any) => i.locale === 'fr');
+            const deDoc = items.find((i: any) => i.locale === 'de');
+
+            if (arDoc && arDoc.subServices) {
+              setPackages(arDoc.subServices);
+            }
+
+            setFormData(prev => ({
+              ...prev,
+              titleAr: arDoc?.title || prev.titleAr,
+              titleEn: enDoc?.title || prev.titleEn,
+              titleFr: frDoc?.title || prev.titleFr,
+              titleDe: deDoc?.title || prev.titleDe,
+              shortAr: arDoc?.description || prev.shortAr,
+              shortEn: enDoc?.description || prev.shortEn,
+              shortFr: frDoc?.description || prev.shortFr,
+              shortDe: deDoc?.description || prev.shortDe,
+            }));
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const savePackagesToDb = async (newPackages: ISubService[]) => {
     try {
       await fetch('/api/services', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           serviceKey: 'video',
-          locale,
-          title: formData.titleEn || formData.titleAr || 'Video Production & Motion Graphics',
-          description: formData.shortEn || formData.shortAr || 'High quality 4K video production and animation',
+          titles: {
+            ar: formData.titleAr,
+            en: formData.titleEn,
+            fr: formData.titleFr,
+            de: formData.titleDe,
+          },
+          descriptions: {
+            ar: formData.shortAr,
+            en: formData.shortEn,
+            fr: formData.shortFr,
+            de: formData.shortDe,
+          },
           iconName: 'FaVideo',
           iconType: 'react-icon',
           order: 3,
           isSpecial: true,
-          subServices: [
-            {
-              title: `Video Package (${formData.durFrom}-${formData.durTo} ${formData.durUnit})`,
-              description: `Resolutions: ${selectedResolutions.join(', ')}`,
-              price: formData.priceFrom || 200
-            }
-          ]
+          subServices: newPackages
         })
       });
       setSaved(true);
@@ -211,6 +253,11 @@ export default function VideoProductionServicePage() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await savePackagesToDb(packages);
   };
 
   return (
@@ -589,6 +636,16 @@ export default function VideoProductionServicePage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Packages & Plans Manager */}
+        <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 shadow-xl">
+          <DashboardPackageManager
+            serviceKey="video"
+            packages={packages}
+            onChange={setPackages}
+            onSave={savePackagesToDb}
+          />
         </div>
 
         {/* Sticky Bottom Action Bar */}

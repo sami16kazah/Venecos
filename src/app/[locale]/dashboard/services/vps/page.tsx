@@ -1,9 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdDns, MdArrowBack, MdCheckCircle, MdSave } from 'react-icons/md';
+import DashboardPackageManager from '@/components/DashboardPackageManager';
+import { ISubService } from '@/models/ServiceContent';
 
 const dbVpsUi: Record<string, Record<string, string>> = {
   pageTitle: {
@@ -143,28 +145,52 @@ export default function VpsServicePage() {
     controlPanel: 'cPanel (€15/mo), Plesk (€12/mo), CyberPanel (Free)',
   });
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const [packages, setPackages] = useState<ISubService[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch('/api/services?serviceKey=vps');
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            const arDoc = items.find((i: any) => i.locale === 'ar');
+            if (arDoc && arDoc.subServices) {
+              setPackages(arDoc.subServices);
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const savePackagesToDb = async (newPackages: ISubService[]) => {
     try {
       await fetch('/api/services', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           serviceKey: 'vps',
-          locale,
-          title: locale === 'ar' ? 'السيرفرات السحابية (VPS)' : locale === 'fr' ? 'Serveurs Cloud (VPS)' : locale === 'de' ? 'Cloud-Server (VPS)' : 'Cloud VPS Servers',
-          description: locale === 'ar' ? 'سيرفرات سحابية عالية الأداء في ألمانيا وفرنسا' : 'High performance cloud VPS servers with DDoS protection',
+          titles: {
+            ar: 'السيرفرات السحابية (VPS)',
+            en: 'Cloud VPS Servers',
+            fr: 'Serveurs VPS Cloud',
+            de: 'Cloud VPS-Server',
+          },
+          descriptions: {
+            ar: 'سيرفرات سحابية عالية الأداء في ألمانيا وفرنسا مع حماية DDoS كاملة',
+            en: 'High performance cloud VPS servers with DDoS protection',
+            fr: 'Serveurs VPS cloud haute performance avec protection DDoS',
+            de: 'Leistungsstarke VPS-Server mit DDoS-Schutz',
+          },
           iconName: 'FaCloud',
           iconType: 'react-icon',
           order: 2,
           isSpecial: true,
-          subServices: [
-            {
-              title: formData.packageName || 'VPS Core',
-              description: `${formData.vcpu} vCPU / ${formData.ram}GB RAM / ${formData.storage}GB NVMe / ${formData.location}`,
-              price: Number(formData.monthlyPrice) || 29.99
-            }
-          ]
+          subServices: newPackages
         })
       });
       setSaved(true);
@@ -172,6 +198,11 @@ export default function VpsServicePage() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await savePackagesToDb(packages);
   };
 
   return (
@@ -294,6 +325,16 @@ export default function VpsServicePage() {
               className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2.5 text-white text-xs focus:border-venecos-gold outline-none"
             />
           </div>
+        </div>
+
+        {/* Packages & Plans Manager */}
+        <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 shadow-xl">
+          <DashboardPackageManager
+            serviceKey="vps"
+            packages={packages}
+            onChange={setPackages}
+            onSave={savePackagesToDb}
+          />
         </div>
 
         {/* Sticky Bottom Bar */}

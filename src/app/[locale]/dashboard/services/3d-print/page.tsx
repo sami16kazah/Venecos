@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Md3dRotation, MdArrowBack, MdCheckCircle, MdAdd, MdDelete, MdTune } from 'react-icons/md';
 import CloudinaryUploader from '@/components/CloudinaryUploader';
+import DashboardPackageManager from '@/components/DashboardPackageManager';
+import { ISubService } from '@/models/ServiceContent';
+
+// ... db3dPrintUi ...
 
 const db3dPrintUi: Record<string, Record<string, string>> = {
   pageTitle: {
@@ -102,7 +106,6 @@ export default function ThreeDPrintServicePage() {
 
   const [activeLangTab, setActiveLangTab] = useState<'ar' | 'en' | 'fr' | 'de'>('ar');
   const [saved, setSaved] = useState(false);
-
   const [formData, setFormData] = useState({
     title: {
       ar: 'الطباعة ثلاثية الأبعاد (3D Printing)',
@@ -126,6 +129,56 @@ export default function ThreeDPrintServicePage() {
     coverImage: '',
   });
 
+  const [packages, setPackages] = useState<ISubService[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch('/api/services?serviceKey=3d-print');
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            const arDoc = items.find((i: any) => i.locale === 'ar');
+            if (arDoc && arDoc.subServices) {
+              setPackages(arDoc.subServices);
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const savePackagesToDb = async (newPackages: ISubService[]) => {
+    try {
+      await fetch('/api/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceKey: '3d-print',
+          titles: formData.title,
+          descriptions: formData.shortDesc,
+          iconName: 'FaCube',
+          iconType: 'react-icon',
+          order: 11,
+          isSpecial: false,
+          subServices: newPackages
+        })
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await savePackagesToDb(packages);
+  };
+
   const [materials, setMaterials] = useState([
     { name: 'PLA Standard', priceGram: 0.12 },
     { name: 'PETG Technical', priceGram: 0.18 },
@@ -145,35 +198,6 @@ export default function ThreeDPrintServicePage() {
     const updated = [...materials];
     (updated[idx] as any)[field] = field === 'priceGram' ? Number(val) : val;
     setMaterials(updated);
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await fetch('/api/services', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          serviceKey: '3d-print',
-          locale,
-          title: formData.title[activeLangTab] || formData.title.ar || '3D Printing Services',
-          description: formData.shortDesc[activeLangTab] || formData.shortDesc.ar || 'Custom 3D printing in PLA, PETG, Resin & ABS',
-          iconName: 'FaBoxes',
-          iconType: 'react-icon',
-          order: 10,
-          isSpecial: true,
-          subServices: materials.map(m => ({
-            title: `3D Print Material: ${m.name}`,
-            description: `Rate: €${m.priceGram}/gram`,
-            price: m.priceGram
-          }))
-        })
-      });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
-      console.error(err);
-    }
   };
 
   return (
@@ -314,6 +338,16 @@ export default function ThreeDPrintServicePage() {
               onUploadSuccess={(url) => setFormData({ ...formData, sampleStlFile: url })}
             />
           </div>
+        </div>
+
+        {/* Packages & Plans Manager */}
+        <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 shadow-xl">
+          <DashboardPackageManager
+            serviceKey="3d-print"
+            packages={packages}
+            onChange={setPackages}
+            onSave={savePackagesToDb}
+          />
         </div>
 
         {/* Sticky Footer */}

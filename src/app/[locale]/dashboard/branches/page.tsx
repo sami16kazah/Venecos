@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { MdAdd, MdEdit, MdDelete, MdLocationOn, MdPhone, MdEmail, MdAccessTime, MdCheckCircle } from 'react-icons/md';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 
 interface IWorkingHour {
   days: string;
@@ -121,13 +122,20 @@ export default function BranchesPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('هل أنت تأكد من حذف هذا الفرع؟')) return;
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
     try {
-      const res = await fetch(`/api/branches/${id}`, { method: 'DELETE' });
+      setDeleteLoading(true);
+      const res = await fetch(`/api/branches/${deleteId}`, { method: 'DELETE' });
       if (res.ok) fetchBranches();
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteLoading(false);
+      setDeleteId(null);
     }
   };
 
@@ -231,7 +239,7 @@ export default function BranchesPage() {
                     <MdEdit />
                   </button>
                   <button
-                    onClick={() => branch._id && handleDelete(branch._id)}
+                    onClick={() => branch._id && setDeleteId(branch._id)}
                     className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400"
                   >
                     <MdDelete />
@@ -379,6 +387,13 @@ export default function BranchesPage() {
           </div>
         </div>
       )}
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!deleteId}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+        loading={deleteLoading}
+      />
     </div>
   );
 }

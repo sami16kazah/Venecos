@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdPrint, MdArrowBack, MdCheckCircle, MdImage, MdAdd, MdDelete, MdTune, MdCalculate, MdLocalShipping, MdInfo } from 'react-icons/md';
 import CloudinaryUploader from '@/components/CloudinaryUploader';
+import DashboardPackageManager from '@/components/DashboardPackageManager';
+import { ISubService } from '@/models/ServiceContent';
 
 interface IPriceTier {
   qtyFrom: number;
@@ -253,43 +255,86 @@ export default function PaperPrintServicePage() {
 
   const [saved, setSaved] = useState(false);
   const [activeLangTab, setActiveLangTab] = useState<'ar' | 'en' | 'fr' | 'de'>('ar');
+  const [packages, setPackages] = useState<ISubService[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch('/api/services?serviceKey=paper-print');
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            const arDoc = items.find((i: any) => i.locale === 'ar');
+            if (arDoc && arDoc.subServices) {
+              setPackages(arDoc.subServices);
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const savePackagesToDb = async (newPackages: ISubService[]) => {
+    try {
+      await fetch('/api/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceKey: 'paper-print',
+          titles: {
+            ar: formData.nameAr || 'الطباعة الورقية',
+            en: formData.nameEn || 'Paper Printing Services',
+            fr: formData.nameFr || 'Impression papier',
+            de: formData.nameDe || 'Papierdruckdienste',
+          },
+          descriptions: {
+            ar: formData.descAr || 'طباعة ورقية احترافية',
+            en: formData.descEn || 'High quality custom paper printing services',
+            fr: formData.descFr || 'Service d\'impression papier sur mesure',
+            de: formData.descDe || 'Professioneller Papierdruckdienste',
+          },
+          iconName: 'FaPrint',
+          iconType: 'react-icon',
+          order: 5,
+          isSpecial: true,
+          subServices: newPackages
+        })
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const materials = [
     { id: 'paper', ar: 'ورقي', en: 'Paper', fr: 'Papier', de: 'Papier' },
-    { id: 'transparent', ar: 'شفاف (Transparent)', en: 'Transparent', fr: 'Transparent', de: 'Transparent' },
+    { id: 'transparent', ar: 'شفاف', en: 'Transparent', fr: 'Transparent', de: 'Transparent' },
     { id: 'waterproof', ar: 'مقاوم للماء', en: 'Waterproof', fr: 'Étanche', de: 'Wasserfest' },
-    { id: 'vinyl', ar: 'فينيل (Vinyl)', en: 'Vinyl', fr: 'Vinyle', de: 'Vinyl' },
-    { id: 'kraft', ar: 'كرافت', en: 'Kraft', fr: 'Kraft', de: 'Kraftpapier' },
-    { id: 'phosphor', ar: 'فوسفوري', en: 'Phosphorescent', fr: 'Phosphorescent', de: 'Phosphoreszierend' },
-    { id: 'mirror', ar: 'مرآة (Mirror)', en: 'Mirror', fr: 'Miroir', de: 'Spiegel' },
-    { id: 'oneway', ar: 'One Way Vision', en: 'One Way Vision', fr: 'One Way Vision', de: 'One-Way-Vision' },
+    { id: 'kraft', ar: 'كرافت', en: 'Kraft Paper', fr: 'Papier Kraft', de: 'Kraftpapier' },
   ];
 
   const shapes = [
     { id: 'square', ar: 'مربع / مستطيل', en: 'Square / Rectangle', fr: 'Carré / Rectangulaire', de: 'Quadratisch / Rechteckig' },
     { id: 'circle', ar: 'دائري / بيضاوي', en: 'Circle / Oval', fr: 'Cercle / Ovale', de: 'Kreis / Oval' },
-    { id: 'diecut', ar: 'مقطوع حسب الشكل (Die Cut)', en: 'Die Cut', fr: 'Découpe sur forme', de: 'Stanzschnitt' },
-    { id: 'kisscut', ar: 'Kiss Cut', en: 'Kiss Cut', fr: 'Kiss Cut', de: 'Kiss-Cut' },
-    { id: 'custom', ar: 'مخصص', en: 'Custom', fr: 'Personnalisé', de: 'Individuell' },
+    { id: 'diecut', ar: 'قص على الشكل', en: 'Die Cut', fr: 'Découpe à la forme', de: 'Stanzschnitt' },
   ];
 
   const finishes = [
-    { id: 'matte', ar: 'مطفي (Matte)', en: 'Matte', fr: 'Mat', de: 'Matt' },
-    { id: 'glossy', ar: 'لامع (Glossy)', en: 'Glossy', fr: 'Brillant', de: 'Glänzend' },
-    { id: 'uv', ar: 'UV Spot', en: 'UV Spot', fr: 'Vernis UV', de: 'UV-Lack' },
-    { id: 'nofinish', ar: 'بدون تشطيب', en: 'No Finishing', fr: 'Sans finition', de: 'Ohne Veredelung' },
+    { id: 'matte', ar: 'سلوفان مطفي', en: 'Matte Lamination', fr: 'Pelliculage mat', de: 'Matte Kaschierung' },
+    { id: 'glossy', ar: 'سلوفان لامع', en: 'Glossy Lamination', fr: 'Pelliculage brillant', de: 'Glänzende Kaschierung' },
+    { id: 'uv', ar: 'UV Spot', en: 'Spot UV', fr: 'Vernis sélectif UV', de: 'Spot-UV' },
   ];
 
   const usages = [
-    { id: 'indoor', ar: 'داخلي', en: 'Indoor', fr: 'Intérieur', de: 'Innenbereich' },
-    { id: 'outdoor', ar: 'خارجي', en: 'Outdoor', fr: 'Extérieur', de: 'Außenbereich' },
-    { id: 'sun', ar: 'مقاوم للشمس', en: 'Sun Resistant', fr: 'Résistant au soleil', de: 'Sonnengeschützt' },
-    { id: 'heat', ar: 'مقاوم للحرارة', en: 'Heat Resistant', fr: 'Résistant à la chaleur', de: 'Hitzebeständig' },
-    { id: 'fridge', ar: 'للثلاجات', en: 'For Refrigerators', fr: 'Pour frigos', de: 'Für Kühlschränke' },
-    { id: 'vehicles', ar: 'للسيارات', en: 'For Vehicles', fr: 'Pour véhicules', de: 'Für Fahrzeuge' },
+    { id: 'indoor', ar: 'استخدام داخلي', en: 'Indoor Use', fr: 'Usage intérieur', de: 'Innenbereich' },
+    { id: 'outdoor', ar: 'استخدام خارجي', en: 'Outdoor Use', fr: 'Usage extérieur', de: 'Außenbereich' },
   ];
 
-  const [selectedMaterials, setSelectedMaterials] = useState<string[]>(['paper', 'vinyl']);
+  const [selectedMaterials, setSelectedMaterials] = useState<string[]>(['paper', 'kraft']);
   const [selectedShapes, setSelectedShapes] = useState<string[]>(['square', 'diecut']);
   const [selectedFinishes, setSelectedFinishes] = useState<string[]>(['matte']);
   const [selectedUsages, setSelectedUsages] = useState<string[]>(['indoor']);
@@ -371,31 +416,7 @@ export default function PaperPrintServicePage() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await fetch('/api/services', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          serviceKey: 'paper-print',
-          locale,
-          title: formData.nameEn || formData.nameAr || 'Paper Printing Services',
-          description: formData.descEn || formData.descAr || 'High quality custom paper printing services',
-          iconName: 'FaPrint',
-          iconType: 'react-icon',
-          order: 5,
-          isSpecial: true,
-          subServices: priceTiers.map((t, idx) => ({
-            title: `Tier ${idx + 1}: ${t.qtyFrom} - ${t.qtyTo === 0 ? 'Unlimited' : t.qtyTo} units`,
-            description: `€${t.pricePerM2}/m² (Min Order: €${t.minOrder})`,
-            price: t.pricePerM2
-          }))
-        })
-      });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
-      console.error(err);
-    }
+    await savePackagesToDb(packages);
   };
 
   return (
@@ -839,6 +860,16 @@ export default function PaperPrintServicePage() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Packages & Plans Manager */}
+        <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 shadow-xl">
+          <DashboardPackageManager
+            serviceKey="paper-print"
+            packages={packages}
+            onChange={setPackages}
+            onSave={savePackagesToDb}
+          />
         </div>
 
         {/* Sticky Bottom Bar */}

@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdEditDocument, MdArrowBack, MdCheckCircle, MdTune, MdSave } from 'react-icons/md';
 import CloudinaryUploader from '@/components/CloudinaryUploader';
+import DashboardPackageManager from '@/components/DashboardPackageManager';
+import { ISubService } from '@/models/ServiceContent';
+
+// ... dbContentUi ...
 
 const dbContentUi: Record<string, Record<string, string>> = {
   pageTitle: {
@@ -156,6 +160,55 @@ export default function ContentWritingServicePage() {
 
   const [activeLangTab, setActiveLangTab] = useState<'ar' | 'en' | 'fr' | 'de'>('ar');
   const [saved, setSaved] = useState(false);
+  const [packages, setPackages] = useState<ISubService[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch('/api/services?serviceKey=content-writing');
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            const arDoc = items.find((i: any) => i.locale === 'ar');
+            if (arDoc && arDoc.subServices) {
+              setPackages(arDoc.subServices);
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const savePackagesToDb = async (newPackages: ISubService[]) => {
+    try {
+      await fetch('/api/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceKey: 'content-writing',
+          titles: formData.title,
+          descriptions: formData.shortDesc,
+          iconName: 'FaPen',
+          iconType: 'react-icon',
+          order: 9,
+          isSpecial: false,
+          subServices: newPackages
+        })
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await savePackagesToDb(packages);
+  };
 
   const contentTypes = [
     { id: 'seo', ar: 'مقالات متوافقة مع SEO', en: 'SEO-Friendly Articles', fr: 'Articles optimisés SEO', de: 'SEO-optimierte Artikel' },
@@ -192,37 +245,6 @@ export default function ContentWritingServicePage() {
       setList(list.filter(i => i !== item));
     } else {
       setList([...list, item]);
-    }
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await fetch('/api/services', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          serviceKey: 'content-writing',
-          locale,
-          title: formData.title[activeLangTab] || formData.title.ar || 'Content Writing & Copywriting',
-          description: formData.shortDesc[activeLangTab] || formData.shortDesc.ar || 'SEO friendly articles and persuasive copywriting',
-          iconName: 'FaPen',
-          iconType: 'react-icon',
-          order: 9,
-          isSpecial: true,
-          subServices: [
-            {
-              title: `Content Package (€${formData.pricePer100Words}/100 words)`,
-              description: `Min words: ${formData.minWordsOrder} / Delivery: ${formData.deliveryDaysFrom}-${formData.deliveryDaysTo} days`,
-              price: (formData.minWordsOrder / 100) * formData.pricePer100Words
-            }
-          ]
-        })
-      });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
-      console.error(err);
     }
   };
 
@@ -387,6 +409,16 @@ export default function ContentWritingServicePage() {
               <input type="number" value={formData.deliveryDaysTo} onChange={(e) => setFormData({ ...formData, deliveryDaysTo: Number(e.target.value) })} className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2 text-white font-bold text-center text-sm" />
             </div>
           </div>
+        </div>
+
+        {/* Packages & Plans Manager */}
+        <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 shadow-xl">
+          <DashboardPackageManager
+            serviceKey="content-writing"
+            packages={packages}
+            onChange={setPackages}
+            onSave={savePackagesToDb}
+          />
         </div>
 
         {/* Sticky Footer */}

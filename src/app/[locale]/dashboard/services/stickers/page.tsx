@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdLabel, MdArrowBack, MdAdd, MdDelete, MdCheckCircle, MdCalculate, MdLocalShipping, MdTune, MdEuro } from 'react-icons/md';
 import CloudinaryUploader from '@/components/CloudinaryUploader';
+import DashboardPackageManager from '@/components/DashboardPackageManager';
+import { ISubService } from '@/models/ServiceContent';
+
+// ... interface IPriceTier ...
 
 interface IPriceTier {
   qtyFrom: number;
@@ -229,6 +233,55 @@ export default function StickersServicePage() {
 
   const [activeLangTab, setActiveLangTab] = useState<'ar' | 'en' | 'fr' | 'de'>('ar');
   const [saved, setSaved] = useState(false);
+  const [packages, setPackages] = useState<ISubService[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch('/api/services?serviceKey=stickers');
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            const arDoc = items.find((i: any) => i.locale === 'ar');
+            if (arDoc && arDoc.subServices) {
+              setPackages(arDoc.subServices);
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const savePackagesToDb = async (newPackages: ISubService[]) => {
+    try {
+      await fetch('/api/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceKey: 'stickers',
+          titles: formData.title,
+          descriptions: formData.shortDesc,
+          iconName: 'FaTags',
+          iconType: 'react-icon',
+          order: 6,
+          isSpecial: false,
+          subServices: newPackages
+        })
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await savePackagesToDb(packages);
+  };
 
   const [materials, setMaterials] = useState<string[]>(['Vinyl فينيل مقاوم للماء', 'Paper Glossy ورقي لامع', 'Transparent شفاف', 'Metallic Foil ذهبي/فضائي']);
   const [shapes, setShapes] = useState<string[]>(['دائري (Circle)', 'مربع (Square)', 'قص مخصص (Die-Cut)', 'بيضاوي (Oval)']);
@@ -308,34 +361,7 @@ export default function StickersServicePage() {
 
   const simResult = calculateSimPrice();
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await fetch('/api/services', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          serviceKey: 'stickers',
-          locale,
-          title: formData.title.en || formData.title.ar || 'Custom Sticker Printing',
-          description: formData.shortDesc.en || formData.shortDesc.ar || 'High quality custom stickers and labels',
-          iconName: 'FaTag',
-          iconType: 'react-icon',
-          order: 6,
-          isSpecial: true,
-          subServices: priceTiers.map((t, idx) => ({
-            title: `Tier ${idx + 1}: ${t.qtyFrom} - ${t.qtyTo === 0 ? 'Unlimited' : t.qtyTo} pcs`,
-            description: `€${t.pricePerM2}/m² (Min Order: €${t.minOrder})`,
-            price: t.pricePerM2
-          }))
-        })
-      });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  // ...
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -604,6 +630,15 @@ export default function StickersServicePage() {
               </div>
             </div>
           </div>
+        </div>
+        {/* Packages & Plans Manager */}
+        <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 shadow-xl">
+          <DashboardPackageManager
+            serviceKey="stickers"
+            packages={packages}
+            onChange={setPackages}
+            onSave={savePackagesToDb}
+          />
         </div>
 
         <div className="sticky bottom-0 bg-venecos-black/95 border-t border-white/10 p-4 flex items-center justify-between rounded-t-2xl shadow-2xl backdrop-blur-md">

@@ -11,24 +11,7 @@ import {
 import * as FaIcons from 'react-icons/fa';
 import * as MdIcons from 'react-icons/md';
 
-function getLocString(val: any, lang: string): string {
-  if (!val) return '';
-  if (typeof val === 'object') {
-    return val[lang] || val['en'] || val['ar'] || val['fr'] || val['de'] || Object.values(val)[0] || '';
-  }
-  if (typeof val === 'string') {
-    if (val.trim().startsWith('{') && val.trim().endsWith('}')) {
-      try {
-        const parsed = JSON.parse(val);
-        return parsed[lang] || parsed['en'] || parsed['ar'] || parsed['fr'] || parsed['de'] || val;
-      } catch (e) {
-        return val;
-      }
-    }
-    return val;
-  }
-  return String(val);
-}
+import { getLocString, getLocArray } from '@/lib/i18nUtils';
 
 function ServiceIcon({ iconName, className = "text-4xl text-venecos-gold" }: { iconName?: string; className?: string }) {
   if (!iconName) return <FaIcons.FaCode className={className} />;
@@ -41,17 +24,31 @@ function ServiceIcon({ iconName, className = "text-4xl text-venecos-gold" }: { i
 
 const uiDict: Record<string, Record<string, string>> = {
   backToServices: { ar: 'العودة لجميع الخدمات', en: 'Back to All Services', fr: 'Retour aux services', de: 'Zurück zu allen Diensten' },
-  availablePackages: { ar: 'الباقات والخطط المتاحة', en: 'Available Packages & Plans', fr: 'Forfaits disponibles', de: 'Verfügbare Pakete' },
-  orderPackage: { ar: 'اطلب هذه الباقة الآن ➔', en: 'Order Package Now ➔', fr: 'Commander ce forfait ➔', de: 'Dieses Paket bestellen ➔' },
-  featuresIncluded: { ar: 'المميزات المتضمنة بالخدمة:', en: 'Key Features Included:', fr: 'Caractéristiques incluses :', de: 'Enthaltene Funktionen:' },
+  availablePackages: { ar: 'الباقات والخطط المتاحة', en: 'Available Packages & Plans', fr: 'Forfaits & plans disponibles', de: 'Verfügbare Pakete & Pläne' },
+  availablePackagesLabel: { ar: 'باقات متاحة', en: 'PACKAGES AVAILABLE', fr: 'FORFAITS DISPONIBLES', de: 'PAKETE VERFÜGBAR' },
+  fromLabel: { ar: 'من', en: 'From', fr: 'De', de: 'Ab' },
+  toLabel: { ar: 'إلى', en: 'To', fr: 'À', de: 'Bis' },
+  deliveryTimeLabel: { ar: 'مدة التسليم:', en: 'Delivery Time:', fr: 'Délai de livraison :', de: 'Lieferzeit:' },
+  defaultDeliveryDuration: { ar: '24 — 48 ساعة', en: '24 — 48 Hours', fr: '24 — 48 Heures', de: '24 — 48 Stunden' },
+  termsBtn: { ar: 'الشروط', en: 'Terms', fr: 'Conditions', de: 'Bedingungen' },
+  orderServiceBtn: { ar: 'طلب الخدمة', en: 'Order Service', fr: 'Commander', de: 'Dienst bestellen' },
+  termsModalTitle: { ar: 'شروط وأحكام الباقة — ', en: 'Package Terms & Conditions — ', fr: 'Conditions du forfait — ', de: 'Paketbedingungen — ' },
+  deliveryRevisionsTitle: { ar: '📋 التسليم والمراجعات', en: '📋 Delivery & Revisions', fr: '📋 Livraison & Révisions', de: '📋 Lieferung & Überarbeitungen' },
+  paymentRightsTitle: { ar: '📋 الدفع والإلغاء وحقوق الملكية', en: '📋 Payment, Cancellation & Ownership Rights', fr: '📋 Paiement, Annulation & Droits', de: '📋 Zahlung, Stornierung & Rechte' },
+  termsConsentWarning: { 
+    ar: 'بالضغط على "طلب الخدمة" فإنك توافق على هذه الشروط كاملةً. للاستفسار تواصل معنا قبل تأكيد الطلب.', 
+    en: 'By clicking "Order Service Now" you accept these terms in full. Contact us for any inquiries prior to order placement.', 
+    fr: 'En cliquant sur "Commander", vous acceptez pleinement ces conditions. Contactez-nous pour toute question.', 
+    de: 'Mit dem Klick auf "Dienst jetzt bestellen" akzeptieren Sie diese Bedingungen vollständig.' 
+  },
+  orderNowBtn: { ar: 'طلب الخدمة الآن', en: 'Order Service Now', fr: 'Commander le service maintenant', de: 'Dienst jetzt bestellen' },
   calcTitle: { ar: 'محاكي وسيموليتر الحاسبة الفورية', en: 'Instant Price Calculator Simulator', fr: 'Simulateur de prix instantané', de: 'Sofortiger Preissimulator' },
+  calcSubtitle: { ar: 'اختر أبعاد وحجم المطبوعات واحسب تكلفة التوريد فورياً', en: 'Select print dimensions & quantity to simulate instant pricing', fr: 'Sélectionnez les dimensions pour calculer le prix instantané', de: 'Wählen Sie Maße und Menge für die sofortige Preissimulation' },
   widthLabel: { ar: 'العرض (سم)', en: 'Width (cm)', fr: 'Largeur (cm)', de: 'Breite (cm)' },
   heightLabel: { ar: 'الارتفاع (سم)', en: 'Height (cm)', fr: 'Hauteur (cm)', de: 'Höhe (cm)' },
   qtyLabel: { ar: 'الكمية المطلوب طباعتها', en: 'Quantity (pcs)', fr: 'Quantité', de: 'Menge' },
   estTotal: { ar: 'السعر التقديري الإجمالي:', en: 'Estimated Total Price:', fr: 'Prix estimé total :', de: 'Geschätzter Gesamtpreis:' },
-  materialsTitle: { ar: 'الخامات والتشطيبات المتاحة', en: 'Available Materials & Finishes', fr: 'Matériaux & Finitions', de: 'Materialien & Veredelungen' },
-  guaranteeTitle: { ar: 'ضمان الاستقرار والجودة العالية', en: 'High Quality & Stability Guarantee', fr: 'Garantie de qualité et stabilité', de: 'Qualitäts- und Stabilitätsgarantie' },
-  specsTitle: { ar: 'المواصفات الفنية المتقدمة', en: 'Advanced Technical Specifications', fr: 'Spécifications techniques', de: 'Technische Spezifikationen' },
+  calcOrderBtn: { ar: 'اطلب بنفس الأبعاد الآن ➔', en: 'Order With These Dimensions Now ➔', fr: 'Commander avec ces dimensions ➔', de: 'Mit diesen Maßen bestellen ➔' },
   noPackages: { ar: 'لا توجد باقات محددة لهذه الخدمة حالياً، يمكنك التواصل معنا مباشرة.', en: 'No specific packages listed yet. Contact us directly!', fr: 'Aucun forfait répertorié. Contactez-nous !', de: 'Noch keine Pakete gelistet.' }
 };
 
@@ -71,6 +68,9 @@ export default function ServiceDetailClient({
   const title = getLocString(service.title, locale);
   const description = getLocString(service.description, locale);
   const subServices = service.subServices || [];
+
+  // Selected Package Terms Modal state
+  const [selectedTermsPkg, setSelectedTermsPkg] = useState<any | null>(null);
 
   // Simulator Calculator State (for Print Services)
   const [simW, setSimW] = useState(10);
@@ -318,7 +318,7 @@ export default function ServiceDetailClient({
         </div>
       )}
 
-      {/* ══ AVAILABLE PACKAGES & TIERS LISTING ══ */}
+      {/* ══ AVAILABLE PACKAGES & TIERS LISTING (PHOTO 2 & PHOTO 3 DESIGN) ══ */}
       <div className="space-y-6">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <h2 className="text-2xl font-black text-white flex items-center gap-3">
@@ -326,8 +326,8 @@ export default function ServiceDetailClient({
             {tUi('availablePackages')}
           </h2>
 
-          <span className="text-xs text-venecos-gold font-mono font-bold bg-venecos-gold/10 px-3 py-1 rounded-full border border-venecos-gold/30">
-            {subServices.length} PACKAGES AVAILABLE
+          <span className="text-xs text-venecos-gold font-mono font-bold bg-venecos-gold/10 px-3 py-1 rounded-full border border-venecos-gold/30 uppercase">
+            {subServices.length} {tUi('availablePackagesLabel') || 'PACKAGES AVAILABLE'}
           </span>
         </div>
 
@@ -336,42 +336,102 @@ export default function ServiceDetailClient({
             {tUi('noPackages')}
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {subServices.map((sub: any, i: number) => {
               const subTitle = getLocString(sub.title, locale);
               const subDesc = getLocString(sub.description, locale);
+              const subBadge = getLocString(sub.badge, locale);
+              const subDuration = getLocString(sub.deliveryDuration, locale) || tUi('defaultDeliveryDuration');
+              const priceFrom = sub.priceFrom || sub.price || 20;
+              const priceTo = sub.priceTo || priceFrom || 35;
               const subId = sub._id?.toString() || i;
 
               return (
                 <div
                   key={subId}
-                  className="bg-venecos-black/90 border border-white/15 hover:border-venecos-gold/60 rounded-3xl p-6 md:p-8 shadow-2xl transition-all duration-300 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 group relative overflow-hidden"
+                  className="bg-venecos-black/90 border border-venecos-gold/30 hover:border-venecos-gold rounded-3xl overflow-hidden shadow-2xl transition-all duration-300 flex flex-col justify-between group relative"
                 >
-                  <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-venecos-gold opacity-0 group-hover:opacity-100 transition-opacity" />
-
-                  <div className="space-y-3 flex-grow">
-                    <div className="flex items-center gap-3">
-                      <span className="w-8 h-8 rounded-xl bg-venecos-gold/20 text-venecos-gold border border-venecos-gold/40 flex items-center justify-center font-mono font-black text-sm">
-                        0{i + 1}
-                      </span>
-                      <h3 className="text-2xl font-bold text-white group-hover:text-venecos-gold transition-colors">
-                        {subTitle}
-                      </h3>
+                  {/* Top Badge Header */}
+                  {subBadge ? (
+                    <div className="bg-gradient-to-r from-venecos-gold via-yellow-500 to-amber-600 text-black text-[11px] font-black px-4 py-1.5 flex items-center justify-between shadow-md">
+                      <span>★ {subBadge}</span>
+                      <span className="opacity-80 font-mono">0{i + 1}</span>
                     </div>
+                  ) : (
+                    <div className="bg-white/5 border-b border-white/10 px-4 py-1.5 flex justify-end">
+                      <span className="text-[10px] text-white/40 font-mono font-bold">0{i + 1}</span>
+                    </div>
+                  )}
 
-                    <p className="text-sm text-white/70 leading-relaxed max-w-3xl">
-                      {subDesc}
-                    </p>
+                  {/* Thumbnail / Header Area */}
+                  <div className="h-40 bg-gradient-to-b from-gray-900 to-black relative flex items-center justify-center border-b border-white/10">
+                    {sub.image ? (
+                      <img src={sub.image} alt={subTitle} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-20 h-20 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-4xl text-venecos-gold/60 shadow-inner">
+                        📄
+                      </div>
+                    )}
                   </div>
 
-                  <div className="shrink-0 flex flex-col md:items-end gap-3 w-full md:w-auto pt-4 md:pt-0 border-t border-white/10 md:border-t-0">
-                    <div className="text-3xl md:text-4xl font-black text-venecos-gold font-mono tracking-tight">
-                      €{sub.price}
+                  {/* Body Content */}
+                  <div className="p-5 md:p-6 space-y-4 flex-grow flex flex-col justify-between">
+                    <div className="space-y-2">
+                      <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-venecos-gold transition-colors leading-tight">
+                        {subTitle}
+                      </h3>
+                      <p className="text-xs text-white/60 line-clamp-3 leading-relaxed">
+                        {subDesc}
+                      </p>
                     </div>
 
-                    <Link href={`/${locale}/services/${serviceId}/order?subId=${subId}`}>
-                      <button className="w-full md:w-auto bg-gradient-to-r from-venecos-gold to-yellow-500 hover:opacity-90 active:scale-95 text-black font-extrabold py-3.5 px-8 rounded-2xl shadow-xl transition-all text-xs tracking-wider uppercase">
-                        {tUi('orderPackage')}
+                    <div className="space-y-3 pt-2">
+                      {/* Price Range Box */}
+                      <div className="bg-white/5 border border-venecos-gold/20 rounded-2xl p-3 flex items-center justify-between text-xs font-mono">
+                        <div className="text-center flex-1">
+                          <span className="block text-[10px] text-white/50 mb-0.5">{tUi('fromLabel')}</span>
+                          <span className="text-lg font-black text-venecos-gold font-mono">€{priceFrom}</span>
+                        </div>
+                        <span className="text-white/30 font-bold">—</span>
+                        <div className="text-center flex-1">
+                          <span className="block text-[10px] text-white/50 mb-0.5">{tUi('toLabel')}</span>
+                          <span className="text-lg font-black text-venecos-gold font-mono">€{priceTo}</span>
+                        </div>
+                      </div>
+
+                      {/* Delivery Duration Box */}
+                      <div className="bg-white/5 border border-white/10 rounded-2xl p-2.5 flex items-center justify-center gap-2 text-xs text-white/80 font-medium">
+                        <span>⏱️</span>
+                        <span>{tUi('deliveryTimeLabel')} <strong>{subDuration}</strong></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card Bottom Action Bar (PHOTO 2 DESIGN) */}
+                  <div className="p-4 bg-white/5 border-t border-white/10 flex items-center gap-2">
+                    {/* Terms Button */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedTermsPkg(sub)}
+                      className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center gap-1.5 transition-all border border-white/10"
+                    >
+                      📋 <span>{tUi('termsBtn')}</span>
+                    </button>
+
+                    {/* More Button */}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedTermsPkg(sub)}
+                      className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs transition-all border border-white/10"
+                      title="More details"
+                    >
+                      ...
+                    </button>
+
+                    {/* Order Service Button */}
+                    <Link href={`/${locale}/services/${serviceId}/order?subId=${subId}`} className="flex-1">
+                      <button className="w-full bg-gradient-to-r from-venecos-gold via-yellow-500 to-amber-500 hover:opacity-90 text-black font-extrabold py-2.5 px-3 rounded-xl shadow-lg transition-all text-xs flex items-center justify-center gap-1.5">
+                        🛒 <span>{tUi('orderServiceBtn')}</span>
                       </button>
                     </Link>
                   </div>
@@ -381,6 +441,106 @@ export default function ServiceDetailClient({
           </div>
         )}
       </div>
+
+      {/* ══ TERMS & CONDITIONS MODAL (PHOTO 3 DESIGN) ══ */}
+      {selectedTermsPkg && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-venecos-black border border-venecos-gold/40 rounded-3xl w-full max-w-4xl max-h-[92vh] overflow-y-auto p-6 md:p-8 space-y-6 shadow-2xl text-right" dir={isRtl ? 'rtl' : 'ltr'}>
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-2">
+                <span className="w-9 h-9 rounded-xl bg-venecos-gold/20 text-venecos-gold border border-venecos-gold/40 flex items-center justify-center text-lg">📋</span>
+                <h3 className="text-xl font-bold text-white">
+                  {tUi('termsModalTitle')}{getLocString(selectedTermsPkg.title, locale)}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedTermsPkg(null)}
+                className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* 2-Column Rules Grid (PHOTO 3 DESIGN) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Column 1: Delivery & Revisions */}
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3">
+                <h4 className="text-sm font-bold text-venecos-gold flex items-center gap-2 border-b border-white/10 pb-2">
+                  {tUi('deliveryRevisionsTitle')}
+                </h4>
+                <ul className="space-y-2 text-xs text-white/80 leading-relaxed">
+                  {getLocArray(selectedTermsPkg.deliveryAndRevisions, locale).length > 0 ? (
+                    getLocArray(selectedTermsPkg.deliveryAndRevisions, locale).map((rule: string, rIdx: number) => (
+                      <li key={rIdx} className="flex items-start gap-2">
+                        <span className="text-venecos-gold mt-0.5">•</span>
+                        <span>{rule}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <>
+                      <li className="flex items-start gap-2"><span className="text-venecos-gold">•</span><span>{locale === 'ar' ? 'يشمل السعر ما يصل إلى 3 جولات مراجعة.' : 'Includes up to 3 revision rounds.'}</span></li>
+                      <li className="flex items-start gap-2"><span className="text-venecos-gold">•</span><span>{locale === 'ar' ? 'يُحسب وقت التسليم من استلام جميع المواد.' : 'Delivery time starts upon receiving all assets.'}</span></li>
+                    </>
+                  )}
+                </ul>
+              </div>
+
+              {/* Column 2: Payment & Rights */}
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3">
+                <h4 className="text-sm font-bold text-venecos-gold flex items-center gap-2 border-b border-white/10 pb-2">
+                  {tUi('paymentRightsTitle')}
+                </h4>
+                <ul className="space-y-2 text-xs text-white/80 leading-relaxed">
+                  {getLocArray(selectedTermsPkg.ownershipAndRights, locale).length > 0 ? (
+                    getLocArray(selectedTermsPkg.ownershipAndRights, locale).map((rule: string, rIdx: number) => (
+                      <li key={rIdx} className="flex items-start gap-2">
+                        <span className="text-venecos-gold mt-0.5">•</span>
+                        <span>{rule}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <>
+                      <li className="flex items-start gap-2"><span className="text-venecos-gold">•</span><span>{locale === 'ar' ? 'يُدفع 50% مقدماً عند تأكيد الطلب.' : '50% deposit required upon confirmation.'}</span></li>
+                      <li className="flex items-start gap-2"><span className="text-venecos-gold">•</span><span>{locale === 'ar' ? 'لا يُسترد المبلغ المقدم بعد بدء العمل.' : 'Deposit is non-refundable once work begins.'}</span></li>
+                    </>
+                  )}
+                </ul>
+              </div>
+            </div>
+
+            {/* Warning Banner (PHOTO 3 DESIGN) */}
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 text-xs text-amber-400 leading-relaxed flex items-start gap-2">
+              <span className="text-base mt-0.5">⚠️</span>
+              <p>
+                {tUi('termsConsentWarning')}
+              </p>
+            </div>
+
+            {/* Bottom Bar (PHOTO 3 DESIGN) */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+              <div className="flex items-center gap-4 w-full md:w-auto justify-around">
+                <div className="bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-center">
+                  <span className="block text-[10px] text-white/50">{tUi('deliveryTimeLabel')}</span>
+                  <span className="text-xs font-bold text-white">⏱️ {getLocString(selectedTermsPkg.deliveryDuration, locale) || tUi('defaultDeliveryDuration')}</span>
+                </div>
+
+                <div className="bg-white/5 border border-white/10 px-4 py-2 rounded-xl text-center font-mono">
+                  <span className="block text-[10px] text-white/50">{locale === 'ar' ? 'النطاق السعري' : locale === 'fr' ? 'Gamme de prix' : locale === 'de' ? 'Preisspanne' : 'Price Range'}</span>
+                  <span className="text-sm font-black text-venecos-gold">€{selectedTermsPkg.priceFrom || selectedTermsPkg.price || 20} — €{selectedTermsPkg.priceTo || selectedTermsPkg.priceFrom || 35}</span>
+                </div>
+              </div>
+
+              <Link href={`/${locale}/services/${serviceId}/order?subId=${selectedTermsPkg._id || 0}`} className="w-full md:w-auto">
+                <button className="w-full md:w-auto bg-gradient-to-r from-venecos-gold via-yellow-500 to-amber-500 hover:opacity-90 text-black font-extrabold py-3.5 px-8 rounded-2xl shadow-xl text-xs flex items-center justify-center gap-2">
+                  🛒 <span>{tUi('orderNowBtn')}</span>
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

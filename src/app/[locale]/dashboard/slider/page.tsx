@@ -8,6 +8,7 @@ import {
   MdFormatAlignRight, MdFormatAlignCenter, MdFormatAlignLeft, MdRemoveRedEye
 } from 'react-icons/md';
 import CloudinaryUploader from '@/components/CloudinaryUploader';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 
 interface ISlide {
   _id?: string;
@@ -116,14 +117,7 @@ const dbSliderUi: Record<string, Record<string, string>> = {
   },
 };
 
-function getLocField(val: any, lang: string): string {
-  if (!val) return '';
-  if (typeof val === 'string') return val;
-  if (typeof val === 'object') {
-    return val[lang] || val['en'] || val['ar'] || val['fr'] || val['de'] || Object.values(val)[0] || '';
-  }
-  return String(val);
-}
+import { getLocString } from '@/lib/i18nUtils';
 
 export default function SliderPage() {
   const params = useParams();
@@ -224,13 +218,20 @@ export default function SliderPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm(tUi('deleteConfirm'))) return;
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
     try {
-      const res = await fetch(`/api/slider/${id}`, { method: 'DELETE' });
+      setDeleteLoading(true);
+      const res = await fetch(`/api/slider/${deleteId}`, { method: 'DELETE' });
       if (res.ok) fetchSlides();
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteLoading(false);
+      setDeleteId(null);
     }
   };
 
@@ -323,9 +324,9 @@ export default function SliderPage() {
       ) : (
         <div className="space-y-4">
           {slides.map((slide, index) => {
-            const titleText = getLocField(slide.title, locale);
-            const subtitleText = getLocField(slide.subtitle, locale);
-            const btnLabel = getLocField(slide.btnText, locale);
+            const titleText = getLocString(slide.title, locale);
+            const subtitleText = getLocString(slide.subtitle, locale);
+            const btnLabel = getLocString(slide.btnText, locale);
 
             return (
               <div
@@ -423,7 +424,7 @@ export default function SliderPage() {
                       <MdEdit />
                     </button>
                     <button
-                      onClick={() => slide._id && handleDelete(slide._id)}
+                      onClick={() => slide._id && setDeleteId(slide._id)}
                       className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 transition-all"
                     >
                       <MdDelete />
@@ -715,6 +716,13 @@ export default function SliderPage() {
           </div>
         </div>
       )}
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!deleteId}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+        loading={deleteLoading}
+      />
     </div>
   );
 }

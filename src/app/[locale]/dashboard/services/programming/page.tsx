@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdCode, MdArrowBack, MdSave, MdCheckCircle } from 'react-icons/md';
 import CloudinaryUploader from '@/components/CloudinaryUploader';
+import DashboardPackageManager from '@/components/DashboardPackageManager';
+import { ISubService } from '@/models/ServiceContent';
 
 const dbProgUi: Record<string, Record<string, string>> = {
   pageTitle: {
@@ -142,28 +144,62 @@ export default function ProgrammingServicePage() {
     },
   });
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const [packages, setPackages] = useState<ISubService[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch('/api/services?serviceKey=programming');
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            const arDoc = items.find((i: any) => i.locale === 'ar');
+            const enDoc = items.find((i: any) => i.locale === 'en');
+            const frDoc = items.find((i: any) => i.locale === 'fr');
+            const deDoc = items.find((i: any) => i.locale === 'de');
+
+            if (arDoc && arDoc.subServices) {
+              setPackages(arDoc.subServices);
+            }
+
+            setFormData(prev => ({
+              ...prev,
+              title: {
+                ar: arDoc?.title || prev.title.ar,
+                en: enDoc?.title || prev.title.en,
+                fr: frDoc?.title || prev.title.fr,
+                de: deDoc?.title || prev.title.de,
+              },
+              shortDesc: {
+                ar: arDoc?.description || prev.shortDesc.ar,
+                en: enDoc?.description || prev.shortDesc.en,
+                fr: frDoc?.description || prev.shortDesc.fr,
+                de: deDoc?.description || prev.shortDesc.de,
+              },
+            }));
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const savePackagesToDb = async (newPackages: ISubService[]) => {
     try {
       await fetch('/api/services', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           serviceKey: 'programming',
-          locale,
-          title: formData.title[activeLangTab] || formData.title.ar || 'Custom Programming Services',
-          description: formData.shortDesc[activeLangTab] || formData.shortDesc.ar || 'Custom web & app software engineering',
+          titles: formData.title,
+          descriptions: formData.shortDesc,
           iconName: 'FaCode',
           iconType: 'react-icon',
           order: 0,
           isSpecial: true,
-          subServices: [
-            {
-              title: `Custom Full-Stack Development`,
-              description: formData.fullContent[activeLangTab] || 'Web and mobile app engineering',
-              price: 499
-            }
-          ]
+          subServices: newPackages
         })
       });
       setSaved(true);
@@ -171,6 +207,11 @@ export default function ProgrammingServicePage() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await savePackagesToDb(packages);
   };
 
   return (
@@ -326,6 +367,16 @@ export default function ProgrammingServicePage() {
               />
             </div>
           </div>
+        </div>
+
+        {/* Packages & Plans Manager */}
+        <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 shadow-xl">
+          <DashboardPackageManager
+            serviceKey="programming"
+            packages={packages}
+            onChange={setPackages}
+            onSave={savePackagesToDb}
+          />
         </div>
 
         {/* Actions */}

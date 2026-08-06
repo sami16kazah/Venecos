@@ -30,6 +30,7 @@ import {
   InputAdornment
 } from '@mui/material';
 import { MdDelete, MdPerson, MdEmail, MdSecurity, MdFilterList, MdSearch } from 'react-icons/md';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 
 export default function UsersPage() {
   const t = useTranslations('Dashboard');
@@ -266,27 +267,13 @@ export default function UsersPage() {
         </TableContainer>
       )}
 
-      {/* DELETE CONFIRMATION */}
-      <Dialog open={!!deleteId} onClose={() => !deleting && setDeleteId(null)} PaperProps={{ sx: { borderRadius: 3 } }}>
-        <DialogTitle sx={{ fontWeight: 'bold' }}>{tUsers('deleteConfirmTitle') || 'Delete User?'}</DialogTitle>
-        <DialogContent>
-          <p className="text-gray-600">
-            {tUsers('deleteConfirmMsg') || 'Are you sure you want to permanently remove this user? This action cannot be undone.'}
-          </p>
-        </DialogContent>
-        <DialogActions sx={{ p: 3, pt: 0 }}>
-          <Button onClick={() => setDeleteId(null)} disabled={deleting}>{tUsers('cancel') || 'Cancel'}</Button>
-          <Button 
-            variant="contained" 
-            color="error" 
-            onClick={handleDelete}
-            disabled={deleting}
-            sx={{ borderRadius: 9999 }}
-          >
-            {deleting ? <CircularProgress size={20} color="inherit" /> : tUsers('deleteBtn') || 'Delete'}
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {/* DELETE CONFIRMATION MODAL */}
+      <DeleteConfirmModal
+        isOpen={!!deleteId}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteId(null)}
+        loading={deleting}
+      />
     </div>
   );
 }

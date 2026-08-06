@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdCameraAlt, MdArrowBack, MdCheckCircle, MdPhotoLibrary, MdTune, MdSave, MdAdd, MdDelete } from 'react-icons/md';
 import CloudinaryUploader from '@/components/CloudinaryUploader';
+import DashboardPackageManager from '@/components/DashboardPackageManager';
+import { ISubService } from '@/models/ServiceContent';
+
+// ... dbPhotoUi ...
 
 const dbPhotoUi: Record<string, Record<string, string>> = {
   pageTitle: {
@@ -211,6 +215,55 @@ export default function PhotographyServicePage() {
   const [saved, setSaved] = useState(false);
   const [saveStatusMsg, setSaveStatusMsg] = useState('');
   const [activeLangTab, setActiveLangTab] = useState<'ar' | 'en' | 'fr' | 'de'>('ar');
+  const [packages, setPackages] = useState<ISubService[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch('/api/services?serviceKey=photography');
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            const arDoc = items.find((i: any) => i.locale === 'ar');
+            if (arDoc && arDoc.subServices) {
+              setPackages(arDoc.subServices);
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const savePackagesToDb = async (newPackages: ISubService[]) => {
+    try {
+      await fetch('/api/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceKey: 'photography',
+          titles: formData.title,
+          descriptions: formData.shortDesc,
+          iconName: 'FaCamera',
+          iconType: 'react-icon',
+          order: 7,
+          isSpecial: false,
+          subServices: newPackages
+        })
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await savePackagesToDb(packages);
+  };
 
   const categories = [
     { id: 'product', ar: 'تصوير منتجات', en: 'Product Photography', fr: 'Photographie de produits', de: 'Produktfotografie' },
@@ -294,45 +347,6 @@ export default function PhotographyServicePage() {
     }
   };
 
-  const handleSave = async (isDraft: boolean) => {
-    try {
-      const payload = {
-        serviceKey: 'photography',
-        locale,
-        title: formData.title[activeLangTab] || formData.title.ar || 'Commercial Photography',
-        description: formData.shortDesc[activeLangTab] || formData.shortDesc.ar || 'High resolution studio & product photography',
-        iconName: 'FaCamera',
-        iconType: 'react-icon',
-        order: 7,
-        isSpecial: true,
-        subServices: [
-          {
-            title: `Photo Shoot Package (${formData.photosFrom}-${formData.photosTo} photos)`,
-            description: formData.fullContent[activeLangTab] || 'Full professional photo shoot services with retouching',
-            price: formData.priceFrom || 150
-          }
-        ]
-      };
-
-      const res = await fetch('/api/services', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok || res.status === 201 || res.status === 200) {
-        setSaveStatusMsg(isDraft ? '✓ Saved as draft successfully' : '✓ Service published successfully');
-      } else {
-        setSaveStatusMsg(isDraft ? '✓ Draft saved' : '✓ Service published');
-      }
-    } catch (err) {
-      setSaveStatusMsg(isDraft ? '✓ Draft saved' : '✓ Service saved');
-    }
-
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3500);
-  };
-
   return (
     <div className="space-y-6 max-w-6xl mx-auto pb-12" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Top Header */}
@@ -350,16 +364,16 @@ export default function PhotographyServicePage() {
           <Link href={`/${locale}/dashboard/services`} className="px-4 py-2 rounded-xl border border-white/20 text-white text-xs font-bold hover:bg-white/10 flex items-center gap-1">
             <MdArrowBack className={isRtl ? '' : 'rotate-180'} /> {tUi('backBtn')}
           </Link>
-          <button type="button" onClick={() => handleSave(true)} className="px-4 py-2 rounded-xl border border-venecos-gold/40 text-venecos-gold text-xs font-bold hover:bg-venecos-gold/10">
+          <button type="button" onClick={() => savePackagesToDb(packages)} className="px-4 py-2 rounded-xl border border-venecos-gold/40 text-venecos-gold text-xs font-bold hover:bg-venecos-gold/10">
             {tUi('draftBtn')}
           </button>
-          <button type="button" onClick={() => handleSave(false)} className="px-6 py-2 bg-gradient-to-r from-venecos-gold to-yellow-500 text-black font-extrabold text-xs rounded-xl shadow-md hover:opacity-90">
+          <button type="button" onClick={() => savePackagesToDb(packages)} className="px-6 py-2 bg-gradient-to-r from-venecos-gold to-yellow-500 text-black font-extrabold text-xs rounded-xl shadow-md hover:opacity-90">
             {tUi('publishBtn')}
           </button>
         </div>
       </div>
 
-      <form onSubmit={(e) => { e.preventDefault(); handleSave(false); }} className="space-y-6">
+      <form onSubmit={handleSave} className="space-y-6">
         {/* Section 1: Categories & Shooting Environment Chips */}
         <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 space-y-6 shadow-xl">
           <h3 className="text-sm font-bold text-venecos-gold border-b border-white/10 pb-3 flex items-center gap-2">
@@ -638,6 +652,16 @@ export default function PhotographyServicePage() {
           </div>
         </div>
 
+        {/* Packages & Plans Manager */}
+        <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 shadow-xl">
+          <DashboardPackageManager
+            serviceKey="photography"
+            packages={packages}
+            onChange={setPackages}
+            onSave={savePackagesToDb}
+          />
+        </div>
+
         {/* Sticky Bottom Bar */}
         <div className="sticky bottom-0 bg-venecos-black/95 border-t border-white/10 p-4 flex items-center justify-between rounded-t-2xl shadow-2xl backdrop-blur-md">
           <div>{saved && <span className="text-emerald-400 text-xs font-bold flex items-center gap-1"><MdCheckCircle /> {saveStatusMsg}</span>}</div>
@@ -645,7 +669,7 @@ export default function PhotographyServicePage() {
             <Link href={`/${locale}/dashboard/services`} className="px-5 py-2.5 rounded-xl border border-white/20 text-white text-xs font-bold hover:bg-white/10">
               {tUi('cancelBtn')}
             </Link>
-            <button type="button" onClick={() => handleSave(true)} className="px-5 py-2.5 rounded-xl border border-venecos-gold/40 text-venecos-gold text-xs font-bold hover:bg-venecos-gold/10">
+            <button type="button" onClick={handleSave} className="px-5 py-2.5 rounded-xl border border-venecos-gold/40 text-venecos-gold text-xs font-bold hover:bg-venecos-gold/10">
               {tUi('draftBtn')}
             </button>
             <button type="submit" className="px-6 py-2.5 bg-gradient-to-r from-venecos-gold to-yellow-500 text-black font-extrabold text-xs rounded-xl shadow-lg hover:opacity-90">

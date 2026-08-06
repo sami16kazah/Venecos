@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdCampaign, MdArrowBack, MdCheckCircle, MdTune, MdSave } from 'react-icons/md';
 import CloudinaryUploader from '@/components/CloudinaryUploader';
+import DashboardPackageManager from '@/components/DashboardPackageManager';
+import { ISubService } from '@/models/ServiceContent';
+
+// ... dbAdvUi ...
 
 const dbAdvUi: Record<string, Record<string, string>> = {
   pageTitle: {
@@ -108,6 +112,55 @@ export default function AdvPrintServicePage() {
 
   const [activeLangTab, setActiveLangTab] = useState<'ar' | 'en' | 'fr' | 'de'>('ar');
   const [saved, setSaved] = useState(false);
+  const [packages, setPackages] = useState<ISubService[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch('/api/services?serviceKey=adv-print');
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            const arDoc = items.find((i: any) => i.locale === 'ar');
+            if (arDoc && arDoc.subServices) {
+              setPackages(arDoc.subServices);
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const savePackagesToDb = async (newPackages: ISubService[]) => {
+    try {
+      await fetch('/api/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceKey: 'adv-print',
+          titles: formData.title,
+          descriptions: formData.shortDesc,
+          iconName: 'FaBullhorn',
+          iconType: 'react-icon',
+          order: 10,
+          isSpecial: false,
+          subServices: newPackages
+        })
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await savePackagesToDb(packages);
+  };
 
   const [allTechniques] = useState<string[]>([
     'Silk Screen طباعة حريرية',
@@ -150,37 +203,6 @@ export default function AdvPrintServicePage() {
       setSelectedTechniques(selectedTechniques.filter(t => t !== tech));
     } else {
       setSelectedTechniques([...selectedTechniques, tech]);
-    }
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await fetch('/api/services', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          serviceKey: 'adv-print',
-          locale,
-          title: formData.title[activeLangTab] || formData.title.ar || 'Advertising & Merchandise Printing',
-          description: formData.shortDesc[activeLangTab] || formData.shortDesc.ar || 'Custom printing on corporate gifts, mugs & t-shirts',
-          iconName: 'FaGift',
-          iconType: 'react-icon',
-          order: 11,
-          isSpecial: true,
-          subServices: [
-            {
-              title: `Promotional Merchandise Print Package`,
-              description: formData.fullDesc[activeLangTab] || 'High-precision custom printing for promotional merchandise',
-              price: formData.priceFrom || 5
-            }
-          ]
-        })
-      });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
-      console.error(err);
     }
   };
 
@@ -309,6 +331,16 @@ export default function AdvPrintServicePage() {
             label={tUi('dropzoneLabel')}
             currentUrl={formData.coverImage}
             onUploadSuccess={(url) => setFormData({ ...formData, coverImage: url })}
+          />
+        </div>
+
+        {/* Packages & Plans Manager */}
+        <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 shadow-xl">
+          <DashboardPackageManager
+            serviceKey="adv-print"
+            packages={packages}
+            onChange={setPackages}
+            onSave={savePackagesToDb}
           />
         </div>
 

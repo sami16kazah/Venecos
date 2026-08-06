@@ -311,5 +311,39 @@
     "title": "Benachrichtigungen",
     "noNotifications": "Alles erledigt!",
     "markAllRead": "Alle als gelesen markieren"
+  },
+  "Homepage": {
+    "ourServicesBadge": "UNSERE DIENSTE | VENECOS",
+    "ourServicesTitle": "Unsere Dienste",
+    "viewAllServicesBtn": "Alle Dienste anzeigen ➔",
+    "catTechTitle": "Technische & Cloud-Dienste",
+    "catDesignTitle": "Kreatives Design & Medienproduktion",
+    "catPrintTitle": "Druck- & Werbedienste",
+    "catContentTitle": "Inhalts- & Voice-Over-Dienste",
+    "servicesAvailable": "verfügbare Dienste",
+    "bannerTechBadge": "Software & Entwicklung",
+    "bannerTechTitle": "Wir verwandeln Ihre Ideen in funktionierende Anwendungen",
+    "bannerTechDesc": "React/Next.js Webseiten, iOS/Android Apps, APIs & benutzerdefinierte Systeme. Wir analysieren Ihre Bedürfnisse und liefern startbereite Projekte.",
+    "bannerDesignBadge": "Design & Werbung",
+    "bannerDesignTitle": "Ein Bild sagt mehr als tausend Worte - das richtige Statement setzen",
+    "bannerDesignDesc": "Studio-Fotoshootings, Regie, Motion-Graphics-Werbung und 3D-Rendering zur Steigerung Ihres Markenumsatzes.",
+    "bannerPrintBadge": "Druck & Werbeartikel",
+    "bannerPrintTitle": "Ihre Drucke sind der erste Eindruck Ihrer Marke",
+    "bannerPrintDesc": "Visitenkarten, wasserdichte Vinylsticker, Sieb- und UV-Druck auf Tassen, Werbegeschenken und hochpräzisen 3D-Modellen."
+  },
+  "PackageCards": {
+    "featuredBadge": "Am Beliebtesten",
+    "fromLabel": "Von",
+    "toLabel": "Bis",
+    "deliveryTime": "Lieferzeit",
+    "termsBtn": "Bedingungen",
+    "orderBtn": "Dienst bestellen"
+  },
+  "TermsModal": {
+    "title": "Allgemeine Geschäftsbedingungen",
+    "deliveryTitle": "Lieferung & Überarbeitungen",
+    "rightsTitle": "Eigentum & Urheberrechte",
+    "agreeNotice": "Mit dem Klick auf \"Dienst bestellen\" stimmen Sie diesen Bedingungen vollständig zu.",
+    "orderNowBtn": "Dienst jetzt bestellen"
   }
 }

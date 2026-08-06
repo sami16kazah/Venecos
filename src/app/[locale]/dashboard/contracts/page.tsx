@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { MdDescription, MdAdd, MdEdit, MdDelete, MdCheckCircle, MdComment, MdSave } from 'react-icons/md';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 
 interface IContract {
   _id?: string;
@@ -160,14 +161,7 @@ const dbContractsUi: Record<string, Record<string, string>> = {
   },
 };
 
-function getLocValue(val: any, lang: string): string {
-  if (!val) return '';
-  if (typeof val === 'string') return val;
-  if (typeof val === 'object') {
-    return val[lang] || val['en'] || val['ar'] || val['fr'] || val['de'] || Object.values(val)[0] || '';
-  }
-  return String(val);
-}
+import { getLocString } from '@/lib/i18nUtils';
 
 export default function ContractsPage() {
   const params = useParams();
@@ -257,13 +251,20 @@ export default function ContractsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm(tUi('deleteConfirm'))) return;
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
     try {
-      const res = await fetch(`/api/contracts/${id}`, { method: 'DELETE' });
+      setDeleteLoading(true);
+      const res = await fetch(`/api/contracts/${deleteId}`, { method: 'DELETE' });
       if (res.ok) fetchContracts();
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteLoading(false);
+      setDeleteId(null);
     }
   };
 
@@ -334,7 +335,7 @@ export default function ContractsPage() {
 
                 <div className="bg-white/5 p-3 rounded-xl border border-white/10 text-xs text-white/70 space-y-1">
                   <p className="font-bold text-white mb-1">{tUi('customClausesLabel')}</p>
-                  <p className="line-clamp-3 leading-relaxed">{getLocValue(contract.customClauses, locale) || tUi('noCustomClauses')}</p>
+                  <p className="line-clamp-3 leading-relaxed">{getLocString(contract.customClauses, locale) || tUi('noCustomClauses')}</p>
                 </div>
               </div>
 
@@ -348,7 +349,7 @@ export default function ContractsPage() {
                     <MdEdit />
                   </button>
                   <button
-                    onClick={() => contract._id && handleDelete(contract._id)}
+                    onClick={() => contract._id && setDeleteId(contract._id)}
                     className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400"
                   >
                     <MdDelete />
@@ -477,6 +478,14 @@ export default function ContractsPage() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!deleteId}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+        loading={deleteLoading}
+      />
     </div>
   );
 }

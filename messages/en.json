@@ -311,5 +311,39 @@
     "title": "Notifications",
     "noNotifications": "All caught up!",
     "markAllRead": "Mark all as read"
+  },
+  "Homepage": {
+    "ourServicesBadge": "OUR SERVICES | VENECOS",
+    "ourServicesTitle": "Our Services",
+    "viewAllServicesBtn": "View All Services Directory ➔",
+    "catTechTitle": "Tech & Cloud Services",
+    "catDesignTitle": "Creative Design & Media Production",
+    "catPrintTitle": "Printing & Merchandise Services",
+    "catContentTitle": "Content & Voice Over Services",
+    "servicesAvailable": "services available",
+    "bannerTechBadge": "Software & Development",
+    "bannerTechTitle": "We turn your ideas into functional applications",
+    "bannerTechDesc": "React/Next.js websites, iOS/Android mobile apps, APIs & custom management systems. We analyze your needs and deliver ready-to-launch projects.",
+    "bannerDesignBadge": "Design & Advertising",
+    "bannerDesignTitle": "A picture worth a thousand words - making the right statement",
+    "bannerDesignDesc": "Studio photo sessions, cinematic direction, motion graphics ads and 3D rendering to boost your brand sales.",
+    "bannerPrintBadge": "Print & Merchandise",
+    "bannerPrintTitle": "Your prints are your brand's first impression",
+    "bannerPrintDesc": "Business cards, waterproof vinyl stickers, silk screen & UV printing on mugs, corporate gifts and high-precision 3D models."
+  },
+  "PackageCards": {
+    "featuredBadge": "Most Popular",
+    "fromLabel": "From",
+    "toLabel": "To",
+    "deliveryTime": "Delivery Time",
+    "termsBtn": "Terms",
+    "orderBtn": "Order Service"
+  },
+  "TermsModal": {
+    "title": "Service Terms & Conditions",
+    "deliveryTitle": "Delivery & Revisions",
+    "rightsTitle": "Ownership & Intellectual Property Rights",
+    "agreeNotice": "By clicking \"Order Service\", you agree to these terms completely. Contact us for inquiries before confirming.",
+    "orderNowBtn": "Order Service Now"
   }
 }

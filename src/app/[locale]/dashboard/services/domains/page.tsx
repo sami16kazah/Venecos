@@ -1,9 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdLanguage, MdArrowBack, MdCheckCircle } from 'react-icons/md';
+import DashboardPackageManager from '@/components/DashboardPackageManager';
+import { ISubService } from '@/models/ServiceContent';
+
+// ... dbDomainsUi ...
 
 const dbDomainsUi: Record<string, Record<string, string>> = {
   pageTitle: {
@@ -76,6 +80,60 @@ export default function DomainServicePage() {
   const tUi = (key: string) => dbDomainsUi[key]?.[locale] || dbDomainsUi[key]?.['en'] || '';
 
   const [saved, setSaved] = useState(false);
+  const [packages, setPackages] = useState<ISubService[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch('/api/services?serviceKey=domains');
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            const arDoc = items.find((i: any) => i.locale === 'ar');
+            if (arDoc && arDoc.subServices) {
+              setPackages(arDoc.subServices);
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const savePackagesToDb = async (newPackages: ISubService[]) => {
+    try {
+      await fetch('/api/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceKey: 'domains',
+          titles: {
+            ar: 'حجز وتسجيل النطاقات (Domains)',
+            en: 'Domain Names Registration',
+            fr: 'Enregistrement de noms de domaine',
+            de: 'Domain-Registrierung',
+          },
+          descriptions: {
+            ar: 'حجز أسماء النطاقات وتجديدها بأفضل الأسعار',
+            en: 'Register and renew your domain names with full DNS control',
+            fr: 'Enregistrez vos noms de domaine avec contrôle DNS complet',
+            de: 'Registrieren Sie Ihre Domains mit vollständiger DNS-Kontrolle',
+          },
+          iconName: 'FaGlobe',
+          iconType: 'react-icon',
+          order: 12,
+          isSpecial: false,
+          subServices: newPackages
+        })
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const [formData, setFormData] = useState({
     extension: '.com',
@@ -174,6 +232,16 @@ export default function DomainServicePage() {
               className="w-full bg-black/40 border border-white/15 text-blue-400 font-bold text-center text-base rounded-xl px-4 py-2.5 outline-none"
             />
           </div>
+        </div>
+
+        {/* Packages & Plans Manager */}
+        <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 shadow-xl">
+          <DashboardPackageManager
+            serviceKey="domains"
+            packages={packages}
+            onChange={setPackages}
+            onSave={savePackagesToDb}
+          />
         </div>
 
         {/* Sticky Bottom Bar */}

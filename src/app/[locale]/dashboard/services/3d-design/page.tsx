@@ -1,10 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdViewInAr, MdArrowBack, MdSave, MdCheckCircle } from 'react-icons/md';
 import CloudinaryUploader from '@/components/CloudinaryUploader';
+import DashboardPackageManager from '@/components/DashboardPackageManager';
+import { ISubService } from '@/models/ServiceContent';
 
 const db3dUi: Record<string, Record<string, string>> = {
   pageTitle: {
@@ -25,102 +27,6 @@ const db3dUi: Record<string, Record<string, string>> = {
     fr: 'Retour aux Services',
     de: 'Zurück zu den Diensten',
   },
-  coverUploadTitle: {
-    ar: 'رفع غلاف مجسم الـ 3D (Cloudinary Uploader)',
-    en: 'Upload 3D Model Cover (Cloudinary Uploader)',
-    fr: 'Téléverser l\'image 3D (Cloudinary)',
-    de: '3D-Titelbild hochladen (Cloudinary)',
-  },
-  dropCoverLabel: {
-    ar: 'إسقاط صورة الرندر أو مجسم 3D',
-    en: 'Drop 3D render or model image here',
-    fr: 'Déposer le rendu 3D ici',
-    de: '3D-Rendering hier ablegen',
-  },
-  sketchfabTitle: {
-    ar: 'رابط تضمين Sketchfab 3D Viewer',
-    en: 'Sketchfab 3D Viewer Embed Link',
-    fr: 'Lien d\'intégration Sketchfab 3D Viewer',
-    de: 'Sketchfab 3D Viewer Einbettungslink',
-  },
-  pricingTitle: {
-    ar: 'السعر وفترة التسليم',
-    en: 'Pricing & Delivery Timeframe',
-    fr: 'Tarifs & Délais de livraison',
-    de: 'Preise & Lieferzeitraum',
-  },
-  priceFrom: {
-    ar: 'السعر من (€)',
-    en: 'Price From (€)',
-    fr: 'Prix à partir de (€)',
-    de: 'Preis ab (€)',
-  },
-  priceTo: {
-    ar: 'السعر إلى (€)',
-    en: 'Price To (€)',
-    fr: 'Prix jusqu\'à (€)',
-    de: 'Preis bis (€)',
-  },
-  daysFrom: {
-    ar: 'التسليم من (أيام)',
-    en: 'Delivery From (days)',
-    fr: 'Livraison de (jours)',
-    de: 'Lieferung ab (Tage)',
-  },
-  daysTo: {
-    ar: 'التسليم إلى (أيام)',
-    en: 'Delivery To (days)',
-    fr: 'Livraison jusqu\'à (jours)',
-    de: 'Lieferung bis (Tage)',
-  },
-  multiLangTitle: {
-    ar: 'النصوص والشرح بالأربع لغات',
-    en: 'Text Content (4 Languages)',
-    fr: 'Contenu textuel (4 langues)',
-    de: 'Textinhalte (4 Sprachen)',
-  },
-  titleLabel: {
-    ar: 'عنوان الخدمة',
-    en: 'Service Title',
-    fr: 'Titre du service',
-    de: 'Titel',
-  },
-  shortDescLabel: {
-    ar: 'الوصف المختصر',
-    en: 'Short Description',
-    fr: 'Courte description',
-    de: 'Kurzbeschreibung',
-  },
-  fullContentLabel: {
-    ar: 'الشرح التفصيلي للخدمة والمميزات',
-    en: 'Full Description & Specifications',
-    fr: 'Description détaillée & spécifications',
-    de: 'Vollständige Beschreibung & Spezifikationen',
-  },
-  saveBtn: {
-    ar: 'حفظ الإعدادات',
-    en: 'Save Settings',
-    fr: 'Enregistrer les paramètres',
-    de: 'Einstellungen speichern',
-  },
-  draftBtn: {
-    ar: '💾 مسودة',
-    en: '💾 Draft',
-    fr: '💾 Brouillon',
-    de: '💾 Entwurf',
-  },
-  publishBtn: {
-    ar: '✓ حفظ ونشر',
-    en: '✓ Save & Publish',
-    fr: '✓ Enregistrer & Publier',
-    de: '✓ Speichern & Veröffentlichen',
-  },
-  cancelBtn: {
-    ar: 'إلغاء',
-    en: 'Cancel',
-    fr: 'Annuler',
-    de: 'Abbrechen',
-  },
   savedSuccess: {
     ar: 'تم الحفظ بنجاح',
     en: 'Saved successfully',
@@ -138,7 +44,6 @@ export default function ThreeDDesignServicePage() {
 
   const [saved, setSaved] = useState(false);
   const [activeLangTab, setActiveLangTab] = useState<'ar' | 'en' | 'fr' | 'de'>('ar');
-
   const [formData, setFormData] = useState({
     title: {
       ar: 'التصميم والرندر ثلاثي الأبعاد (3D Design)',
@@ -166,28 +71,42 @@ export default function ThreeDDesignServicePage() {
     coverImage: '',
   });
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const [packages, setPackages] = useState<ISubService[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch('/api/services?serviceKey=3d-design');
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            const arDoc = items.find((i: any) => i.locale === 'ar');
+            if (arDoc && arDoc.subServices) {
+              setPackages(arDoc.subServices);
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const savePackagesToDb = async (newPackages: ISubService[]) => {
     try {
       await fetch('/api/services', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           serviceKey: '3d-design',
-          locale,
-          title: formData.title[activeLangTab] || formData.title.ar || '3D Design & Rendering',
-          description: formData.shortDesc[activeLangTab] || formData.shortDesc.ar || 'High resolution 3D modeling and rendering',
+          titles: formData.title,
+          descriptions: formData.shortDesc,
           iconName: 'FaCube',
           iconType: 'react-icon',
           order: 4,
-          isSpecial: true,
-          subServices: [
-            {
-              title: `3D Design Package`,
-              description: formData.fullContent[activeLangTab] || 'Interactive 3D model creation & photorealistic rendering',
-              price: formData.priceFrom || 250
-            }
-          ]
+          isSpecial: false,
+          subServices: newPackages
         })
       });
       setSaved(true);
@@ -195,6 +114,11 @@ export default function ThreeDDesignServicePage() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await savePackagesToDb(packages);
   };
 
   return (
@@ -359,6 +283,16 @@ export default function ThreeDDesignServicePage() {
               />
             </div>
           </div>
+        </div>
+
+        {/* Packages & Plans Manager */}
+        <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 shadow-xl">
+          <DashboardPackageManager
+            serviceKey="3d-design"
+            packages={packages}
+            onChange={setPackages}
+            onSave={savePackagesToDb}
+          />
         </div>
 
         {/* Sticky Footer */}

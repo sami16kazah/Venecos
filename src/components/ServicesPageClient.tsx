@@ -9,24 +9,7 @@ import {
 import * as FaIcons from 'react-icons/fa';
 import * as MdIcons from 'react-icons/md';
 
-function getLocString(val: any, lang: string): string {
-  if (!val) return '';
-  if (typeof val === 'object') {
-    return val[lang] || val['en'] || val['ar'] || val['fr'] || val['de'] || Object.values(val)[0] || '';
-  }
-  if (typeof val === 'string') {
-    if (val.trim().startsWith('{') && val.trim().endsWith('}')) {
-      try {
-        const parsed = JSON.parse(val);
-        return parsed[lang] || parsed['en'] || parsed['ar'] || parsed['fr'] || parsed['de'] || val;
-      } catch (e) {
-        return val;
-      }
-    }
-    return val;
-  }
-  return String(val);
-}
+import { getLocString } from '@/lib/i18nUtils';
 
 function ServiceIcon({ iconName, className = "text-3xl text-venecos-gold" }: { iconName?: string; className?: string }) {
   if (!iconName) return <FaIcons.FaCode className={className} />;
@@ -83,6 +66,20 @@ const uiText: Record<string, Record<string, string>> = {
   catContent: { ar: '🎙️ المحتوى والصوتيات', en: '🎙️ Content & Voice', fr: '🎙️ Contenu & Voix', de: '🎙️ Inhalt' },
   orderServiceBtn: { ar: 'اطلب الخدمة ←', en: 'Order Service ←', fr: 'Commander ←', de: 'Bestellen ←' },
   noResults: { ar: 'لم يتم العثور على خدمات تطابق البحث.', en: 'No services found matching your search.', fr: 'Aucun service ne correspond à votre recherche.', de: 'Keine Dienste gefunden.' },
+  catTechTitle: { ar: 'الخدمات التقنية والسحابية', en: 'Tech & Cloud Services', fr: 'Services Techniques & Cloud', de: 'Technische & Cloud-Dienste' },
+  catDesignTitle: { ar: 'خدمات التصميم والإنتاج الإبداعي', en: 'Creative Design & Media Production', fr: 'Design Créatif & Production Média', de: 'Kreatives Design & Medienproduktion' },
+  catPrintTitle: { ar: 'خدمات الطباعة والدعاية الشاملة', en: 'Printing & Merchandise Services', fr: 'Services d\'Impression & Publicité', de: 'Druck- & Werbedienste' },
+  catContentTitle: { ar: 'خدمات المحتوى والإنتاج الصوتي', en: 'Content & Voice Over Services', fr: 'Services de Contenu & Voix Off', de: 'Inhalts- & Voice-Over-Dienste' },
+  servicesAvailable: { ar: 'خدمات متاحة', en: 'services available', fr: 'services disponibles', de: 'verfügbare Dienste' },
+  bannerTechBadge: { ar: 'البرمجة والتطوير', en: 'Software & Development', fr: 'Développement & Logiciels', de: 'Software & Entwicklung' },
+  bannerTechTitle: { ar: 'نحوّل أفكارك لتطبيقات تعمل فعلاً', en: 'We turn your ideas into functional applications', fr: 'Nous transformons vos idées en applications fonctionnelles', de: 'Wir verwandeln Ihre Ideen in funktionierende Anwendungen' },
+  bannerTechDesc: { ar: 'مواقع React/Next.js، تطبيقات موبايل iOS/Android، APIs وأنظمة إدارة مخصصة. نبدأ بتحليل احتياجاتك وننتهي بتسليم مشروع جاهز للإطلاق.', en: 'React/Next.js websites, iOS/Android mobile apps, APIs & custom management systems. We analyze your needs and deliver ready-to-launch projects.', fr: 'Sites React/Next.js, applications mobiles iOS/Android, APIs et systèmes de gestion sur mesure. Nous analysons vos besoins et livrons des projets prêts à lancer.', de: 'React/Next.js Webseiten, iOS/Android Apps, APIs & benutzerdefinierte Systeme. Wir analysieren Ihre Bedürfnisse und liefern startbereite Projekte.' },
+  bannerDesignBadge: { ar: 'تصميم وإعلانات', en: 'Design & Advertising', fr: 'Design & Publicité', de: 'Design & Werbung' },
+  bannerDesignTitle: { ar: 'صورة تساوي ألف كلمة - تصنع الكلمات الصح', en: 'A picture worth a thousand words - making the right statement', fr: 'Une image vaut mille mots - marquer les esprits', de: 'Ein Bild sagt mehr als tausend Worte - das richtige Statement setzen' },
+  bannerDesignDesc: { ar: 'جلسات تصوير استوديو، إخراج سينمائي، وإعلانات موشن جرافيك ورندر ثلاثي الأبعاد تجذب الانتباه وتعزز مبيعات علاماتك التجارية.', en: 'Studio photo sessions, cinematic direction, motion graphics ads and 3D rendering to boost your brand sales.', fr: 'Séances photo studio, réalisation cinématographique, publicités motion design et rendu 3D pour booster vos ventes.', de: 'Studio-Fotoshootings, Regie, Motion-Graphics-Werbung und 3D-Rendering zur Steigerung Ihres Markenumsatzes.' },
+  bannerPrintBadge: { ar: 'طباعة ودعاية', en: 'Print & Merchandise', fr: 'Impression & Publicité', de: 'Druck & Werbeartikel' },
+  bannerPrintTitle: { ar: 'مطبوعاتك واجهتك الأولى أمام كل عميل', en: 'Your prints are your brand\'s first impression', fr: 'Vos impressions sont la première impression de votre marque', de: 'Ihre Drucke sind der erste Eindruck Ihrer Marke' },
+  bannerPrintDesc: { ar: 'كروت عمل، ملصقات فينيل مقاومة للماء، طباعة حريرية وUV على الأكواب والهدايا الدعائية ومجسمات 3D عالية الدقة.', en: 'Business cards, waterproof vinyl stickers, silk screen & UV printing on mugs, corporate gifts and high-precision 3D models.', fr: 'Cartes de visite, autocollants en vinyle étanches, sérigraphie et impression UV sur tasses, cadeaux d\'entreprise et modèles 3D.', de: 'Visitenkarten, wasserdichte Vinylsticker, Sieb- und UV-Druck auf Tassen, Werbegeschenken und hochpräzisen 3D-Modellen.' },
 };
 
 export default function ServicesPageClient({
@@ -208,8 +205,8 @@ export default function ServicesPageClient({
                   💻
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">الخدمات التقنية والسحابية</h3>
-                  <span className="text-[11px] text-white/50">{categorizedServices.tech.length} خدمات متاحة</span>
+                  <h3 className="text-xl font-bold text-white">{tUi('catTechTitle')}</h3>
+                  <span className="text-[11px] text-white/50">{categorizedServices.tech.length} {tUi('servicesAvailable')}</span>
                 </div>
               </div>
             </div>
@@ -247,11 +244,11 @@ export default function ServicesPageClient({
             <div className="bg-gradient-to-r from-cyan-950/40 via-neutral-900/90 to-neutral-950 border border-cyan-500/30 p-6 md:p-8 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="space-y-3 max-w-xl">
                 <span className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[10px] font-bold px-3 py-1 rounded-full uppercase">
-                  البرمجة والتطوير
+                  {tUi('bannerTechBadge')}
                 </span>
-                <h4 className="text-2xl font-black text-white">نحوّل أفكارك لتطبيقات تعمل فعلاً</h4>
+                <h4 className="text-2xl font-black text-white">{tUi('bannerTechTitle')}</h4>
                 <p className="text-xs text-white/70 leading-relaxed">
-                  مواقع React/Next.js، تطبيقات موبايل iOS/Android، APIs وأنظمة إدارة مخصصة. نبدأ بتحليل احتياجاتك وننتهي بتسليم مشروع جاهز للإطلاق.
+                  {tUi('bannerTechDesc')}
                 </p>
               </div>
               <div className="w-24 h-24 bg-cyan-500/10 rounded-2xl border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-4xl shrink-0">
@@ -270,8 +267,8 @@ export default function ServicesPageClient({
                   🎨
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">خدمات التصميم والإنتاج الإبداعي</h3>
-                  <span className="text-[11px] text-white/50">{categorizedServices.design.length} خدمات متاحة</span>
+                  <h3 className="text-xl font-bold text-white">{tUi('catDesignTitle')}</h3>
+                  <span className="text-[11px] text-white/50">{categorizedServices.design.length} {tUi('servicesAvailable')}</span>
                 </div>
               </div>
             </div>
@@ -309,11 +306,11 @@ export default function ServicesPageClient({
             <div className="bg-gradient-to-r from-purple-950/40 via-neutral-900/90 to-neutral-950 border border-purple-500/30 p-6 md:p-8 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="space-y-3 max-w-xl">
                 <span className="bg-purple-500/20 text-purple-300 border border-purple-500/40 text-[10px] font-bold px-3 py-1 rounded-full uppercase">
-                  تصميم وإعلانات
+                  {tUi('bannerDesignBadge')}
                 </span>
-                <h4 className="text-2xl font-black text-white">صورة تساوي ألف كلمة - تصنع الكلمات الصح</h4>
+                <h4 className="text-2xl font-black text-white">{tUi('bannerDesignTitle')}</h4>
                 <p className="text-xs text-white/70 leading-relaxed">
-                  جلسات تصوير استوديو، إخراج سينمائي، وإعلانات موشن جرافيك ورندر ثلاثي الأبعاد تجذب الانتباه وتعزز مبيعات علاماتك التجارية.
+                  {tUi('bannerDesignDesc')}
                 </p>
               </div>
               <div className="w-24 h-24 bg-purple-500/10 rounded-2xl border border-purple-500/30 flex items-center justify-center text-purple-400 text-4xl shrink-0">
@@ -332,8 +329,8 @@ export default function ServicesPageClient({
                   🖨️
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">خدمات الطباعة والدعاية الشاملة</h3>
-                  <span className="text-[11px] text-white/50">{categorizedServices.print.length} خدمات متاحة</span>
+                  <h3 className="text-xl font-bold text-white">{tUi('catPrintTitle')}</h3>
+                  <span className="text-[11px] text-white/50">{categorizedServices.print.length} {tUi('servicesAvailable')}</span>
                 </div>
               </div>
             </div>
@@ -371,11 +368,11 @@ export default function ServicesPageClient({
             <div className="bg-gradient-to-r from-amber-950/40 via-neutral-900/90 to-neutral-950 border border-amber-500/30 p-6 md:p-8 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="space-y-3 max-w-xl">
                 <span className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-bold px-3 py-1 rounded-full uppercase">
-                  طباعة ودعاية
+                  {tUi('bannerPrintBadge')}
                 </span>
-                <h4 className="text-2xl font-black text-white">مطبوعاتك واجهتك الأولى أمام كل عميل</h4>
+                <h4 className="text-2xl font-black text-white">{tUi('bannerPrintTitle')}</h4>
                 <p className="text-xs text-white/70 leading-relaxed">
-                  كروت عمل، ملصقات فينيل مقاومة للماء، طباعة حريرية وUV على الأكواب والهدايا الدعائية ومجسمات 3D عالية الدقة.
+                  {tUi('bannerPrintDesc')}
                 </p>
               </div>
               <div className="w-24 h-24 bg-amber-500/10 rounded-2xl border border-amber-500/30 flex items-center justify-center text-amber-400 text-4xl shrink-0">
@@ -394,8 +391,8 @@ export default function ServicesPageClient({
                   🎙️
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">خدمات المحتوى والإنتاج الصوتي</h3>
-                  <span className="text-[11px] text-white/50">{categorizedServices.content.length} خدمات متاحة</span>
+                  <h3 className="text-xl font-bold text-white">{tUi('catContentTitle')}</h3>
+                  <span className="text-[11px] text-white/50">{categorizedServices.content.length} {tUi('servicesAvailable')}</span>
                 </div>
               </div>
             </div>

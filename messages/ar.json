@@ -311,5 +311,39 @@
     "title": "التنبيهات",
     "noNotifications": "لا توجد تنبيهات جديدة!",
     "markAllRead": "تحديد الكل كمقروء"
+  },
+  "Homepage": {
+    "ourServicesBadge": "خدماتنا | VENECOS",
+    "ourServicesTitle": "خدماتنا",
+    "viewAllServicesBtn": "عرض دليل كافة الخدمات ➔",
+    "catTechTitle": "الخدمات التقنية والسحابية",
+    "catDesignTitle": "خدمات التصميم والإنتاج الإبداعي",
+    "catPrintTitle": "خدمات الطباعة والدعاية الشاملة",
+    "catContentTitle": "خدمات المحتوى والإنتاج الصوتي",
+    "servicesAvailable": "خدمات متاحة",
+    "bannerTechBadge": "البرمجة والتطوير",
+    "bannerTechTitle": "نحوّل أفكارك لتطبيقات تعمل فعلاً",
+    "bannerTechDesc": "مواقع React/Next.js، تطبيقات موبايل iOS/Android، APIs وأنظمة إدارة مخصصة. نبدأ بتحليل احتياجاتك وننتهي بتسليم مشروع جاهز للإطلاق.",
+    "bannerDesignBadge": "تصميم وإعلانات",
+    "bannerDesignTitle": "صورة تساوي ألف كلمة - تصنع الكلمات الصح",
+    "bannerDesignDesc": "جلسات تصوير استوديو، إخراج سينمائي، وإعلانات موشن جرافيك ورندر ثلاثي الأبعاد تجذب الانتباه وتعزز مبيعات علاماتك التجارية.",
+    "bannerPrintBadge": "طباعة ودعاية",
+    "bannerPrintTitle": "مطبوعاتك واجهتك الأولى أمام كل عميل",
+    "bannerPrintDesc": "كروت عمل، ملصقات فينيل مقاومة للماء، طباعة حريرية وUV على الأكواب والهدايا الدعائية ومجسمات 3D عالية الدقة."
+  },
+  "PackageCards": {
+    "featuredBadge": "الأكثر طلباً",
+    "fromLabel": "من",
+    "toLabel": "إلى",
+    "deliveryTime": "مدة التسليم",
+    "termsBtn": "الشروط",
+    "orderBtn": "طلب الخدمة"
+  },
+  "TermsModal": {
+    "title": "شروط وأحكام تقديم الخدمة",
+    "deliveryTitle": "التسليم والمراجعات",
+    "rightsTitle": "الملكية وحقوق الملكية الفكرية",
+    "agreeNotice": "بالضغط على \"طلب الخدمة\" فإنك توافق على هذه الشروط كاملةً. للاستفسار تواصل معنا قبل تأكيد الطلب.",
+    "orderNowBtn": "طلب الخدمة الآن"
   }
 }

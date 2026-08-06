@@ -8,6 +8,7 @@ import {
   MdLaunch, MdImage, MdVideoLibrary, MdCode, MdPrint, MdColorLens, MdViewCarousel
 } from 'react-icons/md';
 import CloudinaryUploader from '@/components/CloudinaryUploader';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 
 interface IGalleryItem {
   _id?: string;
@@ -200,14 +201,7 @@ const dbGalleryUi: Record<string, Record<string, string>> = {
   },
 };
 
-function getLocValue(val: any, lang: string): string {
-  if (!val) return '';
-  if (typeof val === 'string') return val;
-  if (typeof val === 'object') {
-    return val[lang] || val['en'] || val['ar'] || val['fr'] || val['de'] || Object.values(val)[0] || '';
-  }
-  return String(val);
-}
+import { getLocString } from '@/lib/i18nUtils';
 
 export default function GalleryPage() {
   const params = useParams();
@@ -323,13 +317,20 @@ export default function GalleryPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm(tUi('deleteConfirm'))) return;
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const confirmDelete = async () => {
+    if (!deleteId) return;
     try {
-      const res = await fetch(`/api/gallery/${id}`, { method: 'DELETE' });
+      setDeleteLoading(true);
+      const res = await fetch(`/api/gallery/${deleteId}`, { method: 'DELETE' });
       if (res.ok) fetchItems();
     } catch (err) {
       console.error(err);
+    } finally {
+      setDeleteLoading(false);
+      setDeleteId(null);
     }
   };
 
@@ -439,8 +440,8 @@ export default function GalleryPage() {
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {items.map((item) => {
-            const titleText = getLocValue(item.title, locale);
-            const descText = getLocValue(item.description, locale);
+            const titleText = getLocString(item.title, locale);
+            const descText = getLocString(item.description, locale);
             const videoSrc = item.videoUrl || item.mediaUrl || '';
             const coverSrc = item.coverImage || item.mediaUrl || (item.images && item.images[0]) || 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80';
 
@@ -530,7 +531,7 @@ export default function GalleryPage() {
                       <MdEdit />
                     </button>
                     <button
-                      onClick={() => item._id && handleDelete(item._id)}
+                      onClick={() => item._id && setDeleteId(item._id)}
                       className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400"
                     >
                       <MdDelete />
@@ -556,7 +557,7 @@ export default function GalleryPage() {
             </thead>
             <tbody className="divide-y divide-white/5">
               {items.map((item) => {
-                const titleText = getLocValue(item.title, locale);
+                const titleText = getLocString(item.title, locale);
 
                 return (
                   <tr key={item._id} className="hover:bg-white/5 transition-all">
@@ -589,7 +590,7 @@ export default function GalleryPage() {
                           <MdEdit />
                         </button>
                         <button
-                          onClick={() => item._id && handleDelete(item._id)}
+                          onClick={() => item._id && setDeleteId(item._id)}
                           className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400"
                         >
                           <MdDelete />
@@ -833,7 +834,7 @@ export default function GalleryPage() {
         <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
           <div className="bg-venecos-black border border-venecos-gold/30 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl space-y-4 p-6">
             <div className="flex justify-between items-center border-b border-white/10 pb-3">
-              <h3 className="text-lg font-bold text-white">{getLocValue(previewItem.title, locale)}</h3>
+              <h3 className="text-lg font-bold text-white">{getLocString(previewItem.title, locale)}</h3>
               <button onClick={() => setPreviewItem(null)} className="text-white/60 hover:text-white">✕</button>
             </div>
             <div className="h-64 rounded-xl overflow-hidden bg-gray-900">
@@ -846,7 +847,7 @@ export default function GalleryPage() {
                 />
               )}
             </div>
-            <p className="text-sm text-white/80 leading-relaxed">{getLocValue(previewItem.description, locale)}</p>
+            <p className="text-sm text-white/80 leading-relaxed">{getLocString(previewItem.description, locale)}</p>
             {previewItem.demoUrl && (
               <a
                 href={previewItem.demoUrl}
@@ -860,6 +861,13 @@ export default function GalleryPage() {
           </div>
         </div>
       )}
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!deleteId}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteId(null)}
+        loading={deleteLoading}
+      />
     </div>
   );
 }

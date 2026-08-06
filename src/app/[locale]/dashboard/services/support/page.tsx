@@ -1,9 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { MdHeadset, MdArrowBack, MdSave, MdCheckCircle } from 'react-icons/md';
+import DashboardPackageManager from '@/components/DashboardPackageManager';
+import { ISubService } from '@/models/ServiceContent';
+
+// ... dbSupportUi ...
 
 const dbSupportUi: Record<string, Record<string, string>> = {
   pageTitle: {
@@ -149,6 +153,55 @@ export default function SupportServicePage() {
 
   const [saved, setSaved] = useState(false);
   const [activeLangTab, setActiveLangTab] = useState<'ar' | 'en' | 'fr' | 'de'>('ar');
+  const [packages, setPackages] = useState<ISubService[]>([]);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch('/api/services?serviceKey=support');
+        if (res.ok) {
+          const items = await res.json();
+          if (Array.isArray(items) && items.length > 0) {
+            const arDoc = items.find((i: any) => i.locale === 'ar');
+            if (arDoc && arDoc.subServices) {
+              setPackages(arDoc.subServices);
+            }
+          }
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadData();
+  }, []);
+
+  const savePackagesToDb = async (newPackages: ISubService[]) => {
+    try {
+      await fetch('/api/services', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          serviceKey: 'support',
+          titles: formData.title,
+          descriptions: formData.shortDesc,
+          iconName: 'FaHeadset',
+          iconType: 'react-icon',
+          order: 13,
+          isSpecial: false,
+          subServices: newPackages
+        })
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await savePackagesToDb(packages);
+  };
 
   const [formData, setFormData] = useState({
     priceFrom: 20,
@@ -175,38 +228,6 @@ export default function SupportServicePage() {
       de: 'Vollständiger technischer Support inklusive Fehlerbehebung und Sicherheits-Tuning.',
     },
   });
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      await fetch('/api/services', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          serviceKey: 'support',
-          locale,
-          title: formData.title[activeLangTab] || formData.title.ar || 'Technical Support & Maintenance',
-          description: formData.shortDesc[activeLangTab] || formData.shortDesc.ar || 'Server and website troubleshooting & maintenance',
-          iconName: 'FaHeadset',
-          iconType: 'react-icon',
-          order: 13,
-          isSpecial: true,
-          subServices: [
-            {
-              title: `Technical Support Package`,
-              description: formData.fullContent[activeLangTab] || 'Full technical support including bug fixes and security tuning',
-              price: formData.priceFrom || 20
-            }
-          ]
-        })
-      });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
   return (
     <div className="space-y-6 max-w-6xl mx-auto" dir={isRtl ? 'rtl' : 'ltr'}>
       {/* Header */}
@@ -378,6 +399,16 @@ export default function SupportServicePage() {
               />
             </div>
           </div>
+        </div>
+
+        {/* Packages & Plans Manager */}
+        <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 shadow-xl">
+          <DashboardPackageManager
+            serviceKey="support"
+            packages={packages}
+            onChange={setPackages}
+            onSave={savePackagesToDb}
+          />
         </div>
 
         {/* Sticky Bottom Actions */}

@@ -111,8 +111,8 @@ export async function seedDatabase(force = false) {
         order: 0,
         isSpecial: true,
         subServices: [
-          { title: 'Full Stack Web App', description: 'React, Next.js, Node.js & MongoDB', price: 499 },
-          { title: 'Mobile App (iOS / Android)', description: 'Cross-platform mobile application', price: 799 },
+          { title: { ar: 'تطبيق ويب متكامل', en: 'Full Stack Web App', fr: 'Application Web Complète', de: 'Full Stack Web-App' }, description: { ar: 'تطبيق React و Next.js و Node.js و MongoDB', en: 'React, Next.js, Node.js & MongoDB', fr: 'React, Next.js, Node.js & MongoDB', de: 'React, Next.js, Node.js & MongoDB' }, price: 499 },
+          { title: { ar: 'تطبيق مويل (iOS / Android)', en: 'Mobile App (iOS / Android)', fr: 'Application Mobile (iOS / Android)', de: 'Mobile App (iOS / Android)' }, description: { ar: 'تطبيق محمول متعدد المنصات عالية السرعة', en: 'Cross-platform mobile application', fr: 'Application mobile multiplateforme', de: 'Plattformübergreifende mobile Anwendung' }, price: 799 },
         ]
       },
       {
@@ -123,9 +123,9 @@ export async function seedDatabase(force = false) {
         order: 1,
         isSpecial: true,
         subServices: [
-          { title: 'Starter Plan', description: '10 GB SSD + 1 Website', price: 49 },
-          { title: 'Business Plan', description: '50 GB NVMe + 5 Websites', price: 99 },
-          { title: 'Pro Unlimited', description: '150 GB NVMe + 20 Websites', price: 199 },
+          { title: { ar: 'الباقة الأساسية', en: 'Starter Plan', fr: 'Plan Débutant', de: 'Starter-Paket' }, description: { ar: '10 جيجابايت SSD + موقع واحد', en: '10 GB SSD + 1 Website', fr: '10 Go SSD + 1 Site', de: '10 GB SSD + 1 Webseite' }, price: 49 },
+          { title: { ar: 'باقة الأعمال', en: 'Business Plan', fr: 'Plan Business', de: 'Business-Paket' }, description: { ar: '50 جيجابايت NVMe + 5 مواقع', en: '50 GB NVMe + 5 Websites', fr: '50 Go NVMe + 5 Sites', de: '50 GB NVMe + 5 Webseiten' }, price: 99 },
+          { title: { ar: 'الباقة الاحترافية', en: 'Pro Unlimited', fr: 'Plan Pro', de: 'Profi-Paket' }, description: { ar: '150 جيجابايت NVMe + 20 موقع', en: '150 GB NVMe + 20 Websites', fr: '150 Go NVMe + 20 Sites', de: '150 GB NVMe + 20 Webseiten' }, price: 199 },
         ]
       },
       {
@@ -136,8 +136,8 @@ export async function seedDatabase(force = false) {
         order: 2,
         isSpecial: true,
         subServices: [
-          { title: 'VPS Core 2 vCPU', description: '4GB RAM + 80GB NVMe', price: 299 },
-          { title: 'VPS Business 4 vCPU', description: '8GB RAM + 160GB NVMe', price: 499 },
+          { title: { ar: 'سيرفر كور 2 vCPU', en: 'VPS Core 2 vCPU', fr: 'VPS Core 2 vCPU', de: 'VPS Core 2 vCPU' }, description: { ar: '4 جيجابايت رام + 80 جيجابايت NVMe', en: '4GB RAM + 80GB NVMe', fr: '4Go RAM + 80Go NVMe', de: '4GB RAM + 80GB NVMe' }, price: 299 },
+          { title: { ar: 'سيرفر الأعمال 4 vCPU', en: 'VPS Business 4 vCPU', fr: 'VPS Business 4 vCPU', de: 'VPS Business 4 vCPU' }, description: { ar: '8 جيجابايت رام + 160 جيجابايت NVMe', en: '8GB RAM + 160GB NVMe', fr: '8Go RAM + 160Go NVMe', de: '8GB RAM + 160GB NVMe' }, price: 499 },
         ]
       },
       {
@@ -148,8 +148,8 @@ export async function seedDatabase(force = false) {
         order: 3,
         isSpecial: true,
         subServices: [
-          { title: 'Promo Video (30s)', description: 'Full HD / 4K Motion Graphics', price: 350 },
-          { title: 'Documentary Video 4K', description: 'Cinematic filming and editing', price: 850 },
+          { title: { ar: 'فيديو إعلاني (30 ثانية)', en: 'Promo Video (30s)', fr: 'Vidéo Promo (30s)', de: 'Werbevideo (30s)' }, description: { ar: 'موشن جرافيك بدقة Full HD / 4K', en: 'Full HD / 4K Motion Graphics', fr: 'Motion Graphics Full HD / 4K', de: 'Full HD / 4K Motion Graphics' }, price: 350 },
+          { title: { ar: 'فيديو وثائقي سينمائي 4K', en: 'Documentary Video 4K', fr: 'Vidéo Documentaire 4K', de: 'Dokumentarfilm 4K' }, description: { ar: 'تصوير وإخراج سينمائي احترافي', en: 'Cinematic filming and editing', fr: 'Tournage et montage cinématographique', de: 'Kinomäßige Filmaufnahme und Schnitt' }, price: 850 },
         ]
       },
       {
@@ -160,7 +160,7 @@ export async function seedDatabase(force = false) {
         order: 4,
         isSpecial: false,
         subServices: [
-          { title: '3D Product Rendering', description: '360° product angles & lighting', price: 450 },
+          { title: { ar: 'رندر منتجات ثلاثي الأبعاد', en: '3D Product Rendering', fr: 'Rendu Produit 3D', de: '3D-Produkt-Rendering' }, description: { ar: 'زوايا 360 درجة ومعالجة إضاءة واقعية', en: '360° product angles & lighting', fr: 'Angles de produit 360° et éclairage', de: '360°-Produktwinkel & Beleuchtung' }, price: 450 },
         ]
       },
       {
@@ -171,8 +171,8 @@ export async function seedDatabase(force = false) {
         order: 5,
         isSpecial: false,
         subServices: [
-          { title: '1000 Business Cards', description: '350gsm premium paper matte lamination', price: 45 },
-          { title: '500 A4 Flyers', description: 'Full color double sided printing', price: 85 },
+          { title: { ar: '1000 كرت شخصي فاخر', en: '1000 Business Cards', fr: '1000 Cartes de Visite', de: '1000 Visitenkarten' }, description: { ar: 'ورق 350 جرام مع سلوفان مطفي', en: '350gsm premium paper matte lamination', fr: 'Papier premium 350g pelliculage mat', de: '350g Premium-Papier matte Kaschierung' }, price: 45 },
+          { title: { ar: '500 بروشور A4 ملون', en: '500 A4 Flyers', fr: '500 Dépliants A4', de: '500 A4 Flyer' }, description: { ar: 'طباعة وجهين بأعلى جودة بالألوان', en: 'Full color double sided printing', fr: 'Impression couleur recto verso', de: 'Beidseitiger Vollfarbdruck' }, price: 85 },
         ]
       },
       {
@@ -183,7 +183,7 @@ export async function seedDatabase(force = false) {
         order: 6,
         isSpecial: false,
         subServices: [
-          { title: 'Vinyl Stickers 10m²', description: 'Waterproof die-cut stickers', price: 120 },
+          { title: { ar: 'ملصقات فينيل 10م²', en: 'Vinyl Stickers 10m²', fr: 'Autocollants Vinyle 10m²', de: 'Vinylsticker 10m²' }, description: { ar: 'ملصقات فينيل داي كت مقاومة للماء', en: 'Waterproof die-cut stickers', fr: 'Autocollants découpés étanches', de: 'Wasserdichte gestanzte Sticker' }, price: 120 },
         ]
       },
       {
@@ -194,7 +194,7 @@ export async function seedDatabase(force = false) {
         order: 7,
         isSpecial: false,
         subServices: [
-          { title: 'Product Photo Package', description: '10 high-res edited product photos', price: 150 },
+          { title: { ar: 'باقة تصوير المنتجات', en: 'Product Photo Package', fr: 'Forfait Photo Produit', de: 'Produktfoto-Paket' }, description: { ar: '10 صور منتجات عالية الدقة مع معالجة احترافية', en: '10 high-res edited product photos', fr: '10 photos de produits haute résolution retouchées', de: '10 hochauflösende bearbeitete Produktfotos' }, price: 150 },
         ]
       },
       {
@@ -205,7 +205,7 @@ export async function seedDatabase(force = false) {
         order: 8,
         isSpecial: false,
         subServices: [
-          { title: 'Commercial Voice Over (100 words)', description: 'Studio recorded & mastered', price: 80 },
+          { title: { ar: 'تعليق صوتي إعلاني (100 كلمة)', en: 'Commercial Voice Over (100 words)', fr: 'Voix Off Publicitaire (100 mots)', de: 'Werbesprachaufnahme (100 Wörter)' }, description: { ar: 'تسجيل استوديو احترافي مع الهندسة الصوتية', en: 'Studio recorded & mastered', fr: 'Enregistré et mixé en studio', de: 'Im Studio aufgenommen und gemastert' }, price: 80 },
         ]
       },
       {
@@ -216,7 +216,7 @@ export async function seedDatabase(force = false) {
         order: 9,
         isSpecial: false,
         subServices: [
-          { title: 'SEO Articles Package', description: '5 exclusive 1000-word articles', price: 150 },
+          { title: { ar: 'باقة مقالات SEO المتوافقة', en: 'SEO Articles Package', fr: 'Forfait Articles SEO', de: 'SEO-Artikel-Paket' }, description: { ar: '5 مقالات حصرية بعمق 1000 كلمة', en: '5 exclusive 1000-word articles', fr: '5 articles exclusifs de 1000 mots', de: '5 exklusive Artikel mit je 1000 Wörtern' }, price: 150 },
         ]
       },
       {
@@ -227,7 +227,7 @@ export async function seedDatabase(force = false) {
         order: 10,
         isSpecial: false,
         subServices: [
-          { title: 'Promotional Items Package', description: 'Custom branded gifts and mugs', price: 95 },
+          { title: { ar: 'باقة الهدايا والأكواب الإعلانية', en: 'Promotional Items Package', fr: 'Forfait Objets Promotionnels', de: 'Werbeartikel-Paket' }, description: { ar: 'طباعة اسم وشعار الشركة على الهدايا والأكواب', en: 'Custom branded gifts and mugs', fr: 'Cadeaux et tasses personnalisés', de: 'Individuell bedruckte Geschenke und Tassen' }, price: 95 },
         ]
       },
       {
@@ -238,7 +238,7 @@ export async function seedDatabase(force = false) {
         order: 11,
         isSpecial: false,
         subServices: [
-          { title: 'PLA / Resin Model Print', description: 'Custom 3D model printing per gram', price: 65 },
+          { title: { ar: 'مجسم 3D بخامة PLA / Resin', en: 'PLA / Resin Model Print', fr: 'Impression Modèle PLA / Résine', de: 'PLA / Harz Modell Druck' }, description: { ar: 'طباعة دقيقة للمجسمات 3D حسب الوزن بالشمع أو الرزين', en: 'Custom 3D model printing per gram', fr: 'Impression 3D sur mesure au gramme', de: 'Individueller 3D-Modelldruck pro Gramm' }, price: 65 },
         ]
       },
       {
@@ -249,7 +249,7 @@ export async function seedDatabase(force = false) {
         order: 12,
         isSpecial: false,
         subServices: [
-          { title: 'Domain Registration (.com)', description: '1 year registration with WHOIS privacy', price: 12.99 },
+          { title: { ar: 'حجز نطاق .com', en: 'Domain Registration (.com)', fr: 'Enregistrement de Domaine (.com)', de: 'Domain-Registrierung (.com)' }, description: { ar: 'حجز سنة مع حماية خصوصية WHOIS', en: '1 year registration with WHOIS privacy', fr: 'Enregistrement 1 an avec protection WHOIS', de: '1 Jahr Registrierung mit WHOIS-Schutz' }, price: 12.99 },
         ]
       },
       {
@@ -260,7 +260,7 @@ export async function seedDatabase(force = false) {
         order: 13,
         isSpecial: false,
         subServices: [
-          { title: 'Server Maintenance Ticket', description: 'Priority technical troubleshooting', price: 49 },
+          { title: { ar: 'تذكرة صيانة وحل مشكلات', en: 'Server Maintenance Ticket', fr: 'Ticket de Maintenance Serveur', de: 'Server-Wartungsticket' }, description: { ar: 'دعم فني فوري وتصحيح أعطال السيرفرات والمواقع', en: 'Priority technical troubleshooting', fr: 'Dépannage technique prioritaire', de: 'Prioritäre technische Fehlerbehebung' }, price: 49 },
         ]
       },
     ];
@@ -269,6 +269,28 @@ export async function seedDatabase(force = false) {
     const locales = ['ar', 'en', 'fr', 'de'];
     for (const item of rawServices) {
       for (const loc of locales) {
+        const localizedSubServices = (item.subServices || []).map((sub: any) => ({
+          ...sub,
+          title: typeof sub.title === 'object' ? (sub.title[loc] || sub.title.en || sub.title.ar) : sub.title,
+          description: typeof sub.description === 'object' ? (sub.description[loc] || sub.description.en || sub.description.ar) : sub.description,
+          badge: typeof sub.badge === 'object' ? (sub.badge[loc] || sub.badge.en || sub.badge.ar) : (sub.badge || '★ الأكثر طلباً'),
+          priceFrom: sub.priceFrom || sub.price || 20,
+          priceTo: sub.priceTo || sub.priceFrom || sub.price || 35,
+          deliveryDuration: typeof sub.deliveryDuration === 'object' ? (sub.deliveryDuration[loc] || sub.deliveryDuration.en || sub.deliveryDuration.ar) : (sub.deliveryDuration || '24 — 48 ساعة'),
+          deliveryAndRevisions: sub.deliveryAndRevisions || [
+            'يشمل السعر ما يصل إلى 3 جولات مراجعة.',
+            'يُحسب وقت التسليم من استلام جميع المواد.',
+            'يُسلَّم بصيغ عالية الدقة جاهزة للطباعة أو الاستخدام.',
+            'التعديلات الإضافية تُحتسب خارج الباقة.'
+          ],
+          ownershipAndRights: sub.ownershipAndRights || [
+            'يُدفع 50% مقدماً عند تأكيد الطلب.',
+            'لا يُسترد المبلغ المقدم بعد بدء العمل.',
+            'يتغير السعر النهائي حسب تعقيد الخدمة.',
+            'التأخر في تسليم المواد يؤجل موعد التسليم.'
+          ]
+        }));
+
         docsToInsert.push({
           serviceKey: item.serviceKey,
           locale: loc,
@@ -278,7 +300,7 @@ export async function seedDatabase(force = false) {
           iconType: 'react-icon',
           order: item.order,
           isSpecial: item.isSpecial,
-          subServices: item.subServices,
+          subServices: localizedSubServices,
         });
       }
     }

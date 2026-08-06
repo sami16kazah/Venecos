@@ -14,6 +14,7 @@ import {
   MdCalendarToday, MdFilterList, MdWarning, MdSettings, MdAdd, 
   MdDelete, MdArrowUpward, MdArrowDownward, MdBlock, MdEmail, MdSend 
 } from 'react-icons/md';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 import { useSession } from 'next-auth/react';
 
 type AppStatus = 'pending' | 'reviewing' | 'accepted' | 'rejected' | 'banned';
@@ -143,23 +144,29 @@ export default function ApplicationsPage() {
     setBanModalOpen(true);
   };
 
-  const handleBanIp = async (ip: string, email: string) => {
-    if (!confirm(`هل تريد حظر عنوان IP (${ip}) والبريد (${email})؟`)) return;
+  const [banTarget, setBanTarget] = useState<{ ip: string; email: string } | null>(null);
+  const [banLoading, setBanLoading] = useState(false);
+
+  const confirmBanIp = async () => {
+    if (!banTarget) return;
     try {
+      setBanLoading(true);
       await fetch('/api/ban-list', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'ip', value: ip, reason: `Ban applicant ${email}` }),
+        body: JSON.stringify({ type: 'ip', value: banTarget.ip, reason: `Ban applicant ${banTarget.email}` }),
       });
       await fetch('/api/ban-list', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'email', value: email, reason: `Ban applicant email` }),
+        body: JSON.stringify({ type: 'email', value: banTarget.email, reason: `Ban applicant email` }),
       });
-      alert('تم إضافة الحظر بنجاح!');
       fetchApplications();
     } catch (err) {
       console.error(err);
+    } finally {
+      setBanLoading(false);
+      setBanTarget(null);
     }
   };
 
@@ -362,8 +369,9 @@ export default function ApplicationsPage() {
                   </button>
 
                   <button
-                    onClick={() => app.ipAddress && handleBanIp(app.ipAddress, app.email)}
-                    className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl text-xs font-bold flex items-center gap-1 transition-all"
+                    onClick={() => app.ipAddress && setBanTarget({ ip: app.ipAddress, email: app.email })}
+                    className="p-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold flex items-center gap-1 text-[11px]"
+                    title="Ban IP & Email"
                   >
                     <MdBlock /> حظر
                   </button>
@@ -502,6 +510,16 @@ export default function ApplicationsPage() {
           </div>
         </div>
       )}
+      {/* Ban Confirmation Modal */}
+      <DeleteConfirmModal
+        isOpen={!!banTarget}
+        title="تأكيد الحظر النهائي"
+        description={`هل أنت متأكد من حظر عنوان الـ IP (${banTarget?.ip}) والبريد الإلكتروني (${banTarget?.email})؟`}
+        confirmText="نعم، حظر الآن"
+        onConfirm={confirmBanIp}
+        onCancel={() => setBanTarget(null)}
+        loading={banLoading}
+      />
     </div>
   );
 }
