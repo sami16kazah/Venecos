@@ -66,6 +66,11 @@ export default function OrderChat({ orderId, onClose, stripeUrl, isStaff, custom
     }
   };
 
+  const isNearBottomRef = useRef(true);
+  useEffect(() => {
+    isNearBottomRef.current = isNearBottom;
+  }, [isNearBottom]);
+
   const fetchMessages = useCallback(async (isInitial = false) => {
     try {
       const res = await fetch(`/api/orders/${orderId}/messages`, { cache: 'no-store' });
@@ -79,7 +84,7 @@ export default function OrderChat({ orderId, onClose, stripeUrl, isStaff, custom
           return [...data, ...filteredPending];
         });
 
-        if (isInitial || isNearBottom) {
+        if (isInitial || isNearBottomRef.current) {
           setTimeout(() => scrollToBottom(isInitial ? 'auto' : 'smooth'), 50);
         }
       }
@@ -88,7 +93,7 @@ export default function OrderChat({ orderId, onClose, stripeUrl, isStaff, custom
     } finally {
       if (isInitial) setLoading(false);
     }
-  }, [orderId, isNearBottom]);
+  }, [orderId]);
 
   useEffect(() => {
     fetchMessages(true);

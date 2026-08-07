@@ -54,6 +54,8 @@ export default function AdminOrdersPage() {
 
   const role = (session?.user as any)?.role;
 
+  const locale = params?.locale || 'en';
+
   useEffect(() => {
     if (session) {
       if (role === 'admin') {
@@ -63,7 +65,7 @@ export default function AdminOrdersPage() {
         fetchCustomerOrders();
       }
     }
-  }, [session, role, router, params?.locale]);
+  }, [session?.user?.email, role, locale]);
 
   const fetchCustomerOrders = async () => {
     setLoading(true);
