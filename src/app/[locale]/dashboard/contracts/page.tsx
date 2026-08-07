@@ -401,60 +401,171 @@ export default function ContractsPage() {
                 </div>
               </div>
 
-              {/* Languages tabs */}
-              <div>
-                <label className="block text-xs font-bold text-white/70 mb-2">{tUi('multiLangClausesTitle')}</label>
-                <div className="flex gap-2 border-b border-white/10 pb-2 mb-4">
-                  {(['ar', 'en', 'fr', 'de'] as const).map((lang) => (
-                    <button
-                      key={lang}
-                      type="button"
-                      onClick={() => setActiveLangTab(lang)}
-                      className={`px-4 py-1.5 rounded-lg text-xs font-bold ${
-                        activeLangTab === lang ? 'bg-venecos-gold text-black' : 'bg-white/5 text-white/60'
-                      }`}
-                    >
-                      {lang === 'ar' ? '🇸🇦 عربي' : lang === 'en' ? '🇬🇧 EN' : lang === 'fr' ? '🇫🇷 FR' : '🇩🇪 DE'}
-                    </button>
-                  ))}
-                </div>
+              {/* Section 1: 4 Languages Grid */}
+              <div className="bg-neutral-900/90 border border-white/10 rounded-2xl p-5 space-y-4 shadow-xl">
+                <h3 className="text-sm font-bold text-venecos-gold border-b border-white/10 pb-3 flex items-center gap-2">
+                  🌐 {tUi('multiLangClausesTitle')}
+                </h3>
 
-                <div className="space-y-3 bg-white/5 p-4 rounded-xl border border-white/10">
-                  <div>
-                    <label className="block text-xs font-semibold text-white/60 mb-1">
-                      {tUi('customClausesLabel')} ({activeLangTab.toUpperCase()})
-                    </label>
-                    <textarea
-                      rows={3}
-                      value={formData.customClauses[activeLangTab]}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          customClauses: { ...formData.customClauses, [activeLangTab]: e.target.value },
-                        })
-                      }
-                      className="w-full bg-black/50 border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-venecos-gold"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {/* Arabic */}
+                  <div className="bg-[#202127] border border-amber-500/30 rounded-2xl p-4 space-y-3" dir="rtl">
+                    <div className="bg-amber-500/20 border border-amber-500/40 text-amber-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                      SA العربية (AR)
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('customClausesLabel')}</label>
+                      <textarea
+                        rows={3}
+                        value={formData.customClauses.ar}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            customClauses: { ...formData.customClauses, ar: e.target.value },
+                          })
+                        }
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-amber-400 resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('chatSuspensionLabel')}</label>
+                      <textarea
+                        rows={2}
+                        value={formData.autoChatSuspensionMessages.ar}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            autoChatSuspensionMessages: {
+                              ...formData.autoChatSuspensionMessages,
+                              ar: e.target.value,
+                            },
+                          })
+                        }
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-amber-400 resize-none"
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-white/60 mb-1">
-                      {tUi('chatSuspensionLabel')} ({activeLangTab.toUpperCase()})
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={formData.autoChatSuspensionMessages[activeLangTab]}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          autoChatSuspensionMessages: {
-                            ...formData.autoChatSuspensionMessages,
-                            [activeLangTab]: e.target.value,
-                          },
-                        })
-                      }
-                      className="w-full bg-black/50 border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-venecos-gold"
-                    />
+                  {/* English */}
+                  <div className="bg-[#202127] border border-blue-500/30 rounded-2xl p-4 space-y-3" dir="ltr">
+                    <div className="bg-blue-500/20 border border-blue-500/40 text-blue-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                      GB English (EN)
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Custom Clauses</label>
+                      <textarea
+                        rows={3}
+                        value={formData.customClauses.en}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            customClauses: { ...formData.customClauses, en: e.target.value },
+                          })
+                        }
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-blue-400 resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Chat Suspension Message</label>
+                      <textarea
+                        rows={2}
+                        value={formData.autoChatSuspensionMessages.en}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            autoChatSuspensionMessages: {
+                              ...formData.autoChatSuspensionMessages,
+                              en: e.target.value,
+                            },
+                          })
+                        }
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-blue-400 resize-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* French */}
+                  <div className="bg-[#202127] border border-emerald-500/30 rounded-2xl p-4 space-y-3" dir="ltr">
+                    <div className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                      FR Français (FR)
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Clauses spécifiques</label>
+                      <textarea
+                        rows={3}
+                        value={formData.customClauses.fr}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            customClauses: { ...formData.customClauses, fr: e.target.value },
+                          })
+                        }
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-emerald-400 resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Message de suspension de chat</label>
+                      <textarea
+                        rows={2}
+                        value={formData.autoChatSuspensionMessages.fr}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            autoChatSuspensionMessages: {
+                              ...formData.autoChatSuspensionMessages,
+                              fr: e.target.value,
+                            },
+                          })
+                        }
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-emerald-400 resize-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* German */}
+                  <div className="bg-[#202127] border border-purple-500/30 rounded-2xl p-4 space-y-3" dir="ltr">
+                    <div className="bg-purple-500/20 border border-purple-500/40 text-purple-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                      DE Deutsch (DE)
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Spezifische Klauseln</label>
+                      <textarea
+                        rows={3}
+                        value={formData.customClauses.de}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            customClauses: { ...formData.customClauses, de: e.target.value },
+                          })
+                        }
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-purple-400 resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Chat-Sperrnachricht</label>
+                      <textarea
+                        rows={2}
+                        value={formData.autoChatSuspensionMessages.de}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            autoChatSuspensionMessages: {
+                              ...formData.autoChatSuspensionMessages,
+                              de: e.target.value,
+                            },
+                          })
+                        }
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-purple-400 resize-none"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

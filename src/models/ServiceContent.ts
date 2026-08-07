@@ -1,17 +1,29 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+export interface ISubServiceAddon {
+  title: any;
+  price: number;
+}
+
 export interface ISubService {
   _id?: string;
-  title: string;
-  description: string;
+  title: any;
+  description: any;
   price: number;
-  badge?: string;
+  originalPrice?: number;
+  badge?: any;
   priceFrom?: number;
   priceTo?: number;
-  deliveryDuration?: string;
-  deliveryAndRevisions?: string[];
-  ownershipAndRights?: string[];
+  deliveryDuration?: any;
+  deliveryAndRevisions?: any;
+  ownershipAndRights?: any;
   image?: string;
+  images?: string[];
+  rating?: number;
+  ratingCount?: number;
+  highlights?: any;
+  addons?: ISubServiceAddon[];
+  deliveryEstimate?: any;
 }
 
 export interface IServiceContent extends Document {
@@ -40,16 +52,26 @@ const ServiceContentSchema: Schema = new Schema({
   order: { type: Number, default: 0 },
   isSpecial: { type: Boolean, default: false },
   subServices: [{
-    title: { type: String, required: true },
-    description: { type: String, default: '' },
+    title: { type: Schema.Types.Mixed, required: true },
+    description: { type: Schema.Types.Mixed, default: '' },
     price: { type: Number, default: 0 },
-    badge: { type: String, default: '' },
+    originalPrice: { type: Number, default: 0 },
+    badge: { type: Schema.Types.Mixed, default: '' },
     priceFrom: { type: Number, default: 0 },
     priceTo: { type: Number, default: 0 },
-    deliveryDuration: { type: String, default: '' },
-    deliveryAndRevisions: [{ type: String }],
-    ownershipAndRights: [{ type: String }],
-    image: { type: String, default: '' }
+    deliveryDuration: { type: Schema.Types.Mixed, default: '' },
+    deliveryAndRevisions: { type: Schema.Types.Mixed },
+    ownershipAndRights: { type: Schema.Types.Mixed },
+    image: { type: String, default: '' },
+    images: [{ type: String }],
+    rating: { type: Number, default: 4.8 },
+    ratingCount: { type: Number, default: 24 },
+    highlights: { type: Schema.Types.Mixed },
+    addons: [{
+      title: { type: Schema.Types.Mixed },
+      price: { type: Number, default: 0 }
+    }],
+    deliveryEstimate: { type: Schema.Types.Mixed, default: '' }
   }]
 }, {
   timestamps: true

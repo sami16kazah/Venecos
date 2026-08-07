@@ -556,69 +556,207 @@ export default function SliderPage() {
                 </div>
               </div>
 
-              {/* Multi-language Texts */}
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                  <h3 className="text-sm font-bold text-venecos-gold">{tUi('multiLangTitle')}</h3>
-                  <div className="flex gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                    {(['ar', 'en', 'fr', 'de'] as const).map((lang) => (
-                      <button
-                        key={lang}
-                        type="button"
-                        onClick={() => setActiveLangTab(lang)}
-                        className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${
-                          activeLangTab === lang
-                            ? 'bg-venecos-gold text-black shadow-md'
-                            : 'text-white/60 hover:text-white'
-                        }`}
-                      >
-                        {lang === 'ar' ? '🇸🇦 العربية' : lang === 'en' ? '🇬🇧 English' : lang === 'fr' ? '🇫🇷 Français' : '🇩🇪 Deutsch'}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+              {/* Multi-language Texts 4-Languages 2x2 Grid */}
+              <div className="bg-neutral-900/90 border border-white/10 rounded-2xl p-5 space-y-4 shadow-xl">
+                <h3 className="text-sm font-bold text-venecos-gold border-b border-white/10 pb-3 flex items-center gap-2">
+                  🌐 {tUi('multiLangTitle')}
+                </h3>
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('mainTitleLabel')} ({activeLangTab.toUpperCase()})</label>
-                    <input
-                      type="text"
-                      value={formData.title[activeLangTab]}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        title: { ...formData.title, [activeLangTab]: e.target.value }
-                      })}
-                      placeholder="Title..."
-                      className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {/* Arabic */}
+                  <div className="bg-[#202127] border border-amber-500/30 rounded-2xl p-4 space-y-3" dir="rtl">
+                    <div className="bg-amber-500/20 border border-amber-500/40 text-amber-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                      SA العربية (AR)
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('mainTitleLabel')} *</label>
+                      <input
+                        type="text"
+                        value={formData.title.ar}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          title: { ...formData.title, ar: e.target.value }
+                        })}
+                        placeholder="العنوان الرئيسية..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('subtitleLabel')}</label>
+                      <textarea
+                        rows={2}
+                        value={formData.subtitle.ar}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          subtitle: { ...formData.subtitle, ar: e.target.value }
+                        })}
+                        placeholder="الوصف الفرعي..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-amber-400 resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('ctaTextLabel')}</label>
+                      <input
+                        type="text"
+                        value={formData.btnText.ar}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          btnText: { ...formData.btnText, ar: e.target.value }
+                        })}
+                        placeholder="نص الزر..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-amber-400"
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('subtitleLabel')} ({activeLangTab.toUpperCase()})</label>
-                    <textarea
-                      rows={2}
-                      value={formData.subtitle[activeLangTab]}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        subtitle: { ...formData.subtitle, [activeLangTab]: e.target.value }
-                      })}
-                      placeholder="Subtitle..."
-                      className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none resize-none"
-                    />
+                  {/* English */}
+                  <div className="bg-[#202127] border border-blue-500/30 rounded-2xl p-4 space-y-3" dir="ltr">
+                    <div className="bg-blue-500/20 border border-blue-500/40 text-blue-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                      GB English (EN)
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Main Title *</label>
+                      <input
+                        type="text"
+                        value={formData.title.en}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          title: { ...formData.title, en: e.target.value }
+                        })}
+                        placeholder="Main Slide Title..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-blue-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Subtitle</label>
+                      <textarea
+                        rows={2}
+                        value={formData.subtitle.en}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          subtitle: { ...formData.subtitle, en: e.target.value }
+                        })}
+                        placeholder="Slide Subtitle..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-blue-400 resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">CTA Button Text</label>
+                      <input
+                        type="text"
+                        value={formData.btnText.en}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          btnText: { ...formData.btnText, en: e.target.value }
+                        })}
+                        placeholder="Button Label..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-blue-400"
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('ctaTextLabel')} ({activeLangTab.toUpperCase()})</label>
-                    <input
-                      type="text"
-                      value={formData.btnText[activeLangTab]}
-                      onChange={(e) => setFormData({
-                        ...formData,
-                        btnText: { ...formData.btnText, [activeLangTab]: e.target.value }
-                      })}
-                      placeholder="Explore Services..."
-                      className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
-                    />
+                  {/* French */}
+                  <div className="bg-[#202127] border border-emerald-500/30 rounded-2xl p-4 space-y-3" dir="ltr">
+                    <div className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                      FR Français (FR)
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Titre principal</label>
+                      <input
+                        type="text"
+                        value={formData.title.fr}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          title: { ...formData.title, fr: e.target.value }
+                        })}
+                        placeholder="Titre principal..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-emerald-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Sous-titre</label>
+                      <textarea
+                        rows={2}
+                        value={formData.subtitle.fr}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          subtitle: { ...formData.subtitle, fr: e.target.value }
+                        })}
+                        placeholder="Sous-titre..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-emerald-400 resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Texte du bouton</label>
+                      <input
+                        type="text"
+                        value={formData.btnText.fr}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          btnText: { ...formData.btnText, fr: e.target.value }
+                        })}
+                        placeholder="Texte du bouton..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-emerald-400"
+                      />
+                    </div>
+                  </div>
+
+                  {/* German */}
+                  <div className="bg-[#202127] border border-purple-500/30 rounded-2xl p-4 space-y-3" dir="ltr">
+                    <div className="bg-purple-500/20 border border-purple-500/40 text-purple-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                      DE Deutsch (DE)
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Haupttitel</label>
+                      <input
+                        type="text"
+                        value={formData.title.de}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          title: { ...formData.title, de: e.target.value }
+                        })}
+                        placeholder="Haupttitel..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-purple-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Untertitel</label>
+                      <textarea
+                        rows={2}
+                        value={formData.subtitle.de}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          subtitle: { ...formData.subtitle, de: e.target.value }
+                        })}
+                        placeholder="Untertitel..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-purple-400 resize-none"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Button-Text</label>
+                      <input
+                        type="text"
+                        value={formData.btnText.de}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          btnText: { ...formData.btnText, de: e.target.value }
+                        })}
+                        placeholder="Button-Text..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-purple-400"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

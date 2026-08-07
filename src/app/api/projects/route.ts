@@ -11,8 +11,30 @@ export async function GET() {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
+    const userId = (session.user as any)?.id;
+    const role = (session.user as any)?.role || 'client';
+    const userEmail = session.user?.email;
+
     await connectToDatabase();
-    const projects = await Project.find().sort({ createdAt: -1 });
+
+    let query: any = {};
+    if (role === 'client') {
+      query = {
+        $or: [
+          { clientId: userId },
+          { clientName: session.user?.name },
+        ]
+      };
+    } else if (role === 'employee') {
+      query = {
+        $or: [
+          { employeeId: userId },
+          { employeeName: session.user?.name },
+        ]
+      };
+    }
+
+    const projects = await Project.find(query).sort({ createdAt: -1 }).lean();
     return NextResponse.json(projects, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ message: error.message }, { status: 500 });

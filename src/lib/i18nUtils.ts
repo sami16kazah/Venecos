@@ -2,10 +2,49 @@
  * Unified Localization Helper for Venecos Platform
  * Safely parses and extracts localized strings from multi-language JSON objects, DB entries, or strings.
  */
+const COMMON_DICTIONARY: Record<string, Record<string, string>> = {
+  'طباعة 3D احترافية': { en: 'Professional 3D Printing', fr: 'Impression 3D Professionnelle', de: 'Professioneller 3D-Druck', ar: 'طباعة 3D احترافية' },
+  'خدمة طباعة 3D احترافية': { en: 'Professional 3D Printing Service', fr: 'Service d\'Impression 3D', de: 'Professioneller 3D-Druckdienst', ar: 'خدمة طباعة 3D احترافية' },
+  'باقة النماذج الأولية': { en: 'Prototyping Package', fr: 'Forfait Prototypage', de: 'Prototyping-Paket', ar: 'باقة النماذج الأولية' },
+  'باقة الإنتاج التجاري': { en: 'Commercial Production Package', fr: 'Forfait Production Commerciale', de: 'Kommerzielle Produktion', ar: 'باقة الإنتاج التجاري' },
+  'باقة التصميم الصناعي المعقد': { en: 'Complex Industrial Design Package', fr: 'Design Industriel Complexe', de: 'Industriedesign Paket', ar: 'باقة التصميم الصناعي المعقد' },
+  'جاهز للتسليم في خلال 3-5 أيام عمل': { en: 'Deliverable in 3-5 business days', fr: 'Livrable en 3-5 jours ouvrables', de: 'Lieferbar in 3-5 Werktagen', ar: 'جاهز للتسليم في خلال 3-5 أيام عمل' },
+  'جاهز للتسليم خلال 3-5 أيام عمل': { en: 'Deliverable in 3-5 business days', fr: 'Livrable en 3-5 jours ouvrables', de: 'Lieferbar in 3-5 Werktagen', ar: 'جاهز للتسليم خلال 3-5 أيام عمل' },
+  '24 — 48 ساعة': { en: '24 — 48 Hours', fr: '24 — 48 Heures', de: '24 — 48 Stunden', ar: '24 — 48 ساعة' },
+  '12 — 24 ساعة': { en: '12 — 24 Hours', fr: '12 — 24 Heures', de: '12 — 24 Stunden', ar: '12 — 24 ساعة' },
+  'حماية وضمان ممتد للخدمة': { en: 'Extended Service Warranty & Protection', fr: 'Garantie et protection étendue', de: '24 Monate Produktschutz', ar: 'حماية وضمان ممتد للخدمة' },
+  '24 شهر حماية وضمان ممتد للخدمة': { en: '24 Months Extended Warranty & Service Protection', fr: '24 Mois Garantie et protection étendue', de: '24 Monate Produktschutz & Garantie', ar: '24 شهر حماية وضمان ممتد للخدمة' },
+  'يشمل السعر ما يصل إلى 3 جولات مراجعة.\nيُحسب وقت التسليم من استلام جميع المواد.': {
+    en: 'Includes up to 3 revision rounds.\nDelivery time starts upon receiving all materials.',
+    fr: 'Comprend jusqu\'à 3 tours de révision.\nLe délai commence à la réception des éléments.',
+    de: 'Enthält bis zu 3 Überarbeitungsrunden.\nLieferzeit beginnt nach Erhalt aller Unterlagen.',
+    ar: 'يشمل السعر ما يصل إلى 3 جولات مراجعة.\nيُحسب وقت التسليم من استلام جميع المواد.'
+  },
+  'يُدفع 50% مقدماً عند تأكيد الطلب.\nلا يُسترد المبلغ المقدم بعد بدء العمل.': {
+    en: '50% deposit required upon order confirmation.\nDeposit is non-refundable once work begins.',
+    fr: 'Acompte de 50% requis à la confirmation.\nAcompte non remboursable après le début des travaux.',
+    de: '50% Anzahlung bei Auftragsbestätigung erforderlich.\nAnzahlung nach Arbeitsbeginn nicht erstattungsfähig.',
+    ar: 'يُدفع 50% مقدماً عند تأكيد الطلب.\nلا يُسترد المبلغ المقدم بعد بدء العمل.'
+  },
+  'جودة عالية, حماية مضاعفة, جاهزية للتسليم': {
+    en: 'High Quality, Extra Protection, Ready for Delivery',
+    fr: 'Haute Qualité, Protection Réglable, Prêt à Livrer',
+    de: 'Hohe Qualität, Extra Schutz, Lieferbereit',
+    ar: 'جودة عالية, حماية مضاعفة, جاهزية للتسليم'
+  }
+};
+
+function hasArabic(str: string): boolean {
+  return /[\u0600-\u06FF]/.test(str);
+}
+
 export function getLocString(val: any, lang: string): string {
   if (val === null || val === undefined) return '';
 
+  const cleanLang = (lang || 'ar').toLowerCase();
+
   let targetObj: Record<string, string> | null = null;
+  let rawStr = '';
 
   if (typeof val === 'object' && !Array.isArray(val)) {
     targetObj = val;
@@ -15,43 +54,68 @@ export function getLocString(val: any, lang: string): string {
       try {
         targetObj = JSON.parse(trimmed);
       } catch (e) {
-        return val;
+        rawStr = val;
       }
     } else {
-      return val;
+      rawStr = val;
     }
   } else {
-    return String(val);
+    rawStr = String(val);
   }
 
-  if (!targetObj) return String(val);
-
-  // 1. Try requested language
-  if (targetObj[lang] && typeof targetObj[lang] === 'string' && targetObj[lang].trim() !== '') {
-    return targetObj[lang];
+  // Check common dictionary if rawStr exists
+  if (rawStr && COMMON_DICTIONARY[rawStr]) {
+    return COMMON_DICTIONARY[rawStr][cleanLang] || COMMON_DICTIONARY[rawStr]['en'] || rawStr;
   }
 
-  // 2. Try English fallback
+  if (rawStr) {
+    // If raw string is Arabic but requested lang is non-Arabic, don't display raw Arabic string
+    if (cleanLang !== 'ar' && hasArabic(rawStr)) {
+      return '';
+    }
+    return rawStr;
+  }
+
+  if (!targetObj) return '';
+
+  // 1. Direct requested language match
+  const requestedVal = targetObj[cleanLang];
+  if (typeof requestedVal === 'string' && requestedVal.trim() !== '') {
+    if (cleanLang !== 'ar' && hasArabic(requestedVal)) {
+      // Contaminated key from old bad save; check dictionary or fallback
+      if (COMMON_DICTIONARY[requestedVal]) {
+        return COMMON_DICTIONARY[requestedVal][cleanLang] || COMMON_DICTIONARY[requestedVal]['en'] || '';
+      }
+      // If targetObj['en'] is clean, use it
+      if (cleanLang !== 'en' && targetObj['en'] && !hasArabic(targetObj['en'])) {
+        return targetObj['en'];
+      }
+      return '';
+    }
+    return requestedVal;
+  }
+
+  // 2. English fallback (if clean)
   if (targetObj['en'] && typeof targetObj['en'] === 'string' && targetObj['en'].trim() !== '') {
-    return targetObj['en'];
+    if (cleanLang === 'ar' || !hasArabic(targetObj['en'])) {
+      return targetObj['en'];
+    }
   }
 
-  // 3. Try Arabic fallback
-  if (targetObj['ar'] && typeof targetObj['ar'] === 'string' && targetObj['ar'].trim() !== '') {
+  // 3. Arabic fallback (only if cleanLang === 'ar' or no other clean string)
+  if (cleanLang === 'ar' && targetObj['ar'] && typeof targetObj['ar'] === 'string') {
     return targetObj['ar'];
   }
 
-  // 4. Try French / German fallback
-  if (targetObj['fr'] && typeof targetObj['fr'] === 'string' && targetObj['fr'].trim() !== '') {
-    return targetObj['fr'];
-  }
-  if (targetObj['de'] && typeof targetObj['de'] === 'string' && targetObj['de'].trim() !== '') {
-    return targetObj['de'];
+  // 4. Other language fallbacks
+  for (const l of ['fr', 'de', 'ar']) {
+    if (targetObj[l] && typeof targetObj[l] === 'string' && targetObj[l].trim() !== '') {
+      if (cleanLang !== 'ar' && hasArabic(targetObj[l])) continue;
+      return targetObj[l];
+    }
   }
 
-  // 5. First non-empty value
-  const firstVal = Object.values(targetObj).find((v) => typeof v === 'string' && v.trim() !== '');
-  return firstVal || '';
+  return '';
 }
 
 /**
@@ -60,14 +124,25 @@ export function getLocString(val: any, lang: string): string {
 export function getLocArray(val: any, lang: string): string[] {
   if (!val) return [];
 
+  const cleanLang = (lang || 'ar').toLowerCase();
+
   if (Array.isArray(val)) {
-    return val.map((item) => getLocString(item, lang)).filter(Boolean);
+    return val.map((item) => getLocString(item, cleanLang)).filter(Boolean);
   }
 
   if (typeof val === 'object') {
-    const arr = val[lang] || val['en'] || val['ar'] || val['fr'] || val['de'];
+    const arr = val[cleanLang];
     if (Array.isArray(arr)) {
-      return arr.map(String).filter(Boolean);
+      return arr.map((item) => getLocString(item, cleanLang)).filter(Boolean);
+    }
+    // Fallback to English array if clean
+    if (cleanLang !== 'en' && Array.isArray(val['en'])) {
+      const enRes = val['en'].map((item) => getLocString(item, cleanLang)).filter(Boolean);
+      if (enRes.length > 0) return enRes;
+    }
+    // Fallback to Arabic array only if cleanLang is 'ar'
+    if (cleanLang === 'ar' && Array.isArray(val['ar'])) {
+      return val['ar'].map(String).filter(Boolean);
     }
   }
 

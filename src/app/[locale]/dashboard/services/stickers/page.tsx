@@ -382,54 +382,70 @@ export default function StickersServicePage() {
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
-        {/* Multilingual Text Content */}
-        <div className="bg-venecos-black/70 border border-white/10 rounded-2xl p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-white/10 pb-3">
-            <h3 className="text-sm font-bold text-venecos-gold">{tUi('multiLangTitle')}</h3>
-            <div className="flex gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-              {(['ar', 'en', 'fr', 'de'] as const).map((lang) => (
-                <button
-                  key={lang}
-                  type="button"
-                  onClick={() => setActiveLangTab(lang)}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${
-                    activeLangTab === lang ? 'bg-venecos-gold text-black shadow' : 'text-white/60 hover:text-white'
-                  }`}
-                >
-                  {lang === 'ar' ? '🇸🇦 العربية' : lang === 'en' ? '🇬🇧 English' : lang === 'fr' ? '🇫🇷 Français' : '🇩🇪 Deutsch'}
-                </button>
-              ))}
-            </div>
+        {/* Multilingual Text (4 Simultaneous Forms) */}
+        <div className="bg-venecos-black/70 border border-white/10 rounded-2xl p-6 space-y-5">
+          <div className="border-b border-white/10 pb-3">
+            <h3 className="text-sm font-bold text-venecos-gold flex items-center gap-2">
+              🌐 Service Text & Description (4 Languages Forms)
+            </h3>
           </div>
 
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-bold text-white/80 mb-1">{tUi('titleLabel')} ({activeLangTab.toUpperCase()})</label>
-              <input
-                type="text"
-                value={formData.title[activeLangTab]}
-                onChange={(e) => setFormData({ ...formData, title: { ...formData.title, [activeLangTab]: e.target.value } })}
-                className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2 text-white text-sm focus:border-venecos-gold outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-white/80 mb-1">{tUi('shortDescLabel')} ({activeLangTab.toUpperCase()})</label>
-              <textarea
-                rows={2}
-                value={formData.shortDesc[activeLangTab]}
-                onChange={(e) => setFormData({ ...formData, shortDesc: { ...formData.shortDesc, [activeLangTab]: e.target.value } })}
-                className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2 text-white text-sm resize-none focus:border-venecos-gold outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-white/80 mb-1">{tUi('fullDescLabel')} ({activeLangTab.toUpperCase()})</label>
-              <textarea
-                rows={3}
-                value={formData.fullDesc[activeLangTab] || ''}
-                onChange={(e) => setFormData({ ...formData, fullDesc: { ...formData.fullDesc, [activeLangTab]: e.target.value } })}
-                className="w-full bg-white/5 border border-white/15 rounded-xl px-4 py-2 text-white text-sm resize-none focus:border-venecos-gold outline-none"
-              />
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {(['ar', 'en', 'fr', 'de'] as const).map((langKey) => {
+              const langNames = {
+                ar: '🇸🇦 العربية (AR)',
+                en: '🇬🇧 English (EN)',
+                fr: '🇫🇷 Français (FR)',
+                de: '🇩🇪 Deutsch (DE)',
+              };
+
+              const borderColor = langKey === 'ar' ? 'border-amber-500/30' : langKey === 'en' ? 'border-blue-500/30' : langKey === 'fr' ? 'border-emerald-500/30' : 'border-purple-500/30';
+              const badgeColor = langKey === 'ar' ? 'bg-amber-500/20 text-amber-400 border-amber-500/40' : langKey === 'en' ? 'bg-blue-500/20 text-blue-400 border-blue-500/40' : langKey === 'fr' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40' : 'bg-purple-500/20 text-purple-400 border-purple-500/40';
+
+              return (
+                <div key={langKey} className={`bg-[#202127] border ${borderColor} rounded-2xl p-4 space-y-3`} dir={langKey === 'ar' ? 'rtl' : 'ltr'}>
+                  <div className={`${badgeColor} border px-3 py-1 rounded-full text-xs font-bold inline-block`}>
+                    {langNames[langKey]}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-white/80 mb-1">
+                      {tUi('titleLabel')} ({langKey.toUpperCase()})
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.title[langKey] || ''}
+                      onChange={(e) => setFormData({ ...formData, title: { ...formData.title, [langKey]: e.target.value } })}
+                      className="w-full bg-[#141519] border border-white/15 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-venecos-gold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-white/80 mb-1">
+                      {tUi('shortDescLabel')} ({langKey.toUpperCase()})
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={formData.shortDesc[langKey] || ''}
+                      onChange={(e) => setFormData({ ...formData, shortDesc: { ...formData.shortDesc, [langKey]: e.target.value } })}
+                      className="w-full bg-[#141519] border border-white/15 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-venecos-gold resize-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-white/80 mb-1">
+                      {tUi('fullDescLabel')} ({langKey.toUpperCase()})
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={formData.fullDesc[langKey] || ''}
+                      onChange={(e) => setFormData({ ...formData, fullDesc: { ...formData.fullDesc, [langKey]: e.target.value } })}
+                      className="w-full bg-[#141519] border border-white/15 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-venecos-gold resize-none"
+                    />
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

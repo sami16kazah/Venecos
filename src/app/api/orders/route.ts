@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import connectToDatabase from '@/lib/mongodb';
 import Order from '@/models/Order';
+import ServiceContent from '@/models/ServiceContent';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
@@ -38,13 +40,22 @@ export async function POST(req: Request) {
     }
 
     await connectToDatabase();
+
+    let resolvedServiceId = serviceId;
+    if (!mongoose.Types.ObjectId.isValid(serviceId)) {
+      const foundSvc = await ServiceContent.findOne({ serviceKey: serviceId }).lean();
+      if (foundSvc) {
+        resolvedServiceId = foundSvc._id;
+      }
+    }
+
     const newOrder = await Order.create({ 
       userId: (session.user as any).id,
-      serviceId,
-      subServiceId,
-      serviceName,
-      subServiceName,
-      price,
+      serviceId: resolvedServiceId,
+      subServiceId: String(subServiceId),
+      serviceName: typeof serviceName === 'object' ? (serviceName.en || serviceName.ar || 'Service') : serviceName,
+      subServiceName: typeof subServiceName === 'object' ? (subServiceName.en || subServiceName.ar || 'Sub Service') : subServiceName,
+      price: Number(price) || 0,
       customerDetails,
       status: 'pending',
       paymentStatus: 'unpaid'

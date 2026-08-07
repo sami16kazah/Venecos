@@ -359,73 +359,187 @@ export default function OffersPage() {
                 </div>
               </div>
 
-              {/* Multi-language inputs */}
-              <div>
-                <div className="flex gap-2 border-b border-white/10 pb-2 mb-4">
-                  {(['ar', 'en', 'fr', 'de'] as const).map((lang) => (
-                    <button
-                      key={lang}
-                      type="button"
-                      onClick={() => setActiveLangTab(lang)}
-                      className={`px-4 py-1.5 rounded-lg text-xs font-bold ${
-                        activeLangTab === lang ? 'bg-venecos-gold text-black' : 'bg-white/5 text-white/60'
-                      }`}
-                    >
-                      {lang === 'ar' ? '🇸🇦 عربي' : lang === 'en' ? '🇬🇧 EN' : lang === 'fr' ? '🇫🇷 FR' : '🇩🇪 DE'}
-                    </button>
-                  ))}
-                </div>
+              {/* Section: 4 Languages Grid */}
+              <div className="bg-neutral-900/90 border border-white/10 rounded-2xl p-5 space-y-4 shadow-xl">
+                <h3 className="text-sm font-bold text-venecos-gold border-b border-white/10 pb-3 flex items-center gap-2">
+                  🌐 Offer Title & Texts (4 Languages)
+                </h3>
 
-                <div className="space-y-4 bg-white/5 p-4 rounded-xl border border-white/10">
-                  <div>
-                    <label className="block text-xs font-semibold text-white/60 mb-1">
-                      {tUi('titleLabel')} ({activeLangTab.toUpperCase()})
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.title[activeLangTab]}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          title: { ...formData.title, [activeLangTab]: e.target.value },
-                        })
-                      }
-                      className="w-full bg-black/50 border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-venecos-gold"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  {/* Arabic */}
+                  <div className="bg-[#202127] border border-amber-500/30 rounded-2xl p-4 space-y-3" dir="rtl">
+                    <div className="bg-amber-500/20 border border-amber-500/40 text-amber-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                      SA العربية (AR)
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('titleLabel')} *</label>
+                      <input
+                        type="text"
+                        value={formData.title.ar}
+                        onChange={(e) => setFormData({ ...formData, title: { ...formData.title, ar: e.target.value } })}
+                        placeholder="عنوان العرض..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('badgeLabel')}</label>
+                      <input
+                        type="text"
+                        value={typeof formData.badge === 'object' ? (formData.badge.ar || '') : (formData.badge || '')}
+                        onChange={(e) => {
+                          const cur = typeof formData.badge === 'object' && formData.badge ? { ...formData.badge } : { ar: '', en: '', fr: '', de: '' };
+                          cur.ar = e.target.value;
+                          setFormData({ ...formData, badge: cur });
+                        }}
+                        placeholder="خصم 40% لفترة محدودة"
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-amber-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">{tUi('descLabel')}</label>
+                      <textarea
+                        rows={2}
+                        value={formData.description.ar}
+                        onChange={(e) => setFormData({ ...formData, description: { ...formData.description, ar: e.target.value } })}
+                        placeholder="تفاصيل العرض..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-amber-400 resize-none"
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-white/60 mb-1">
-                      {tUi('badgeLabel')} ({activeLangTab.toUpperCase()})
-                    </label>
-                    <input
-                      type="text"
-                      value={typeof formData.badge === 'object' ? (formData.badge[activeLangTab] || '') : (formData.badge || '')}
-                      onChange={(e) => {
-                        const curBadge = typeof formData.badge === 'object' && formData.badge ? { ...formData.badge } : { ar: '', en: '', fr: '', de: '' };
-                        curBadge[activeLangTab] = e.target.value;
-                        setFormData({ ...formData, badge: curBadge });
-                      }}
-                      placeholder="40% OFF / خصم 40%"
-                      className="w-full bg-black/50 border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-venecos-gold"
-                    />
+                  {/* English */}
+                  <div className="bg-[#202127] border border-blue-500/30 rounded-2xl p-4 space-y-3" dir="ltr">
+                    <div className="bg-blue-500/20 border border-blue-500/40 text-blue-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                      GB English (EN)
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Offer Title *</label>
+                      <input
+                        type="text"
+                        value={formData.title.en}
+                        onChange={(e) => setFormData({ ...formData, title: { ...formData.title, en: e.target.value } })}
+                        placeholder="Special Offer Title..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-blue-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Offer Badge Tag</label>
+                      <input
+                        type="text"
+                        value={typeof formData.badge === 'object' ? (formData.badge.en || '') : (formData.badge || '')}
+                        onChange={(e) => {
+                          const cur = typeof formData.badge === 'object' && formData.badge ? { ...formData.badge } : { ar: '', en: '', fr: '', de: '' };
+                          cur.en = e.target.value;
+                          setFormData({ ...formData, badge: cur });
+                        }}
+                        placeholder="40% OFF Limited Time"
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-blue-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Offer Description</label>
+                      <textarea
+                        rows={2}
+                        value={formData.description.en}
+                        onChange={(e) => setFormData({ ...formData, description: { ...formData.description, en: e.target.value } })}
+                        placeholder="Offer details..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-blue-400 resize-none"
+                      />
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-white/60 mb-1">
-                      {tUi('descLabel')} ({activeLangTab.toUpperCase()})
-                    </label>
-                    <textarea
-                      rows={2}
-                      value={formData.description[activeLangTab]}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          description: { ...formData.description, [activeLangTab]: e.target.value },
-                        })
-                      }
-                      className="w-full bg-black/50 border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-venecos-gold"
-                    />
+                  {/* French */}
+                  <div className="bg-[#202127] border border-emerald-500/30 rounded-2xl p-4 space-y-3" dir="ltr">
+                    <div className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                      FR Français (FR)
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Titre de l'offre</label>
+                      <input
+                        type="text"
+                        value={formData.title.fr}
+                        onChange={(e) => setFormData({ ...formData, title: { ...formData.title, fr: e.target.value } })}
+                        placeholder="Titre de l'offre..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-emerald-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Badge / Tag</label>
+                      <input
+                        type="text"
+                        value={typeof formData.badge === 'object' ? (formData.badge.fr || '') : (formData.badge || '')}
+                        onChange={(e) => {
+                          const cur = typeof formData.badge === 'object' && formData.badge ? { ...formData.badge } : { ar: '', en: '', fr: '', de: '' };
+                          cur.fr = e.target.value;
+                          setFormData({ ...formData, badge: cur });
+                        }}
+                        placeholder="40% de réduction - Durée limitée"
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-emerald-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Description</label>
+                      <textarea
+                        rows={2}
+                        value={formData.description.fr}
+                        onChange={(e) => setFormData({ ...formData, description: { ...formData.description, fr: e.target.value } })}
+                        placeholder="Détails de l'offre..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-emerald-400 resize-none"
+                      />
+                    </div>
+                  </div>
+
+                  {/* German */}
+                  <div className="bg-[#202127] border border-purple-500/30 rounded-2xl p-4 space-y-3" dir="ltr">
+                    <div className="bg-purple-500/20 border border-purple-500/40 text-purple-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                      DE Deutsch (DE)
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Angebots-Titel</label>
+                      <input
+                        type="text"
+                        value={formData.title.de}
+                        onChange={(e) => setFormData({ ...formData, title: { ...formData.title, de: e.target.value } })}
+                        placeholder="Angebots-Titel..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-purple-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Badge / Tag</label>
+                      <input
+                        type="text"
+                        value={typeof formData.badge === 'object' ? (formData.badge.de || '') : (formData.badge || '')}
+                        onChange={(e) => {
+                          const cur = typeof formData.badge === 'object' && formData.badge ? { ...formData.badge } : { ar: '', en: '', fr: '', de: '' };
+                          cur.de = e.target.value;
+                          setFormData({ ...formData, badge: cur });
+                        }}
+                        placeholder="40% Rabatt - Begrenzte Zeit"
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-purple-400"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-white/80 mb-1.5">Beschreibung</label>
+                      <textarea
+                        rows={2}
+                        value={formData.description.de}
+                        onChange={(e) => setFormData({ ...formData, description: { ...formData.description, de: e.target.value } })}
+                        placeholder="Angebotsdetails..."
+                        className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-purple-400 resize-none"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>

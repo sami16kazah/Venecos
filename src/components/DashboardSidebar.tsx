@@ -121,17 +121,41 @@ export default function DashboardSidebar({ locale, role, userName }: DashboardSi
       dir={isRtl ? 'rtl' : 'ltr'}
     >
       <div>
-        <div className="mb-6 flex flex-col">
-          <img src="/Venecos.png" alt="Venecos" className="h-10 w-auto object-contain self-start" />
-          <span className="block text-[10px] font-bold text-venecos-gold tracking-widest mt-2 border-t border-white/10 pt-1">
+        <Link
+          href={`/${locale}`}
+          onClick={() => setMobileOpen(false)}
+          className="mb-6 flex flex-col group cursor-pointer"
+        >
+          <img src="/Venecos.png" alt="Venecos" className="h-10 w-auto object-contain self-start transition-transform group-hover:scale-105" />
+          <span className="block text-[10px] font-bold text-venecos-gold tracking-widest mt-2 border-t border-white/10 pt-1 group-hover:text-white transition-colors">
             {role.toUpperCase()} PANEL
           </span>
-        </div>
+        </Link>
         
         <nav className="flex flex-col gap-1">
           {/* General Section */}
           {renderSectionHeader(t('general').toUpperCase())}
           {renderLink(`/${locale}/dashboard`, t('overview'), <MdDashboard />)}
+
+          {/* Client Navigation */}
+          {role === 'client' && (
+            <>
+              {renderSectionHeader(t('operations').toUpperCase())}
+              {renderLink(`/${locale}/dashboard/orders`, isRtl ? 'طلباتي' : 'My Orders', <MdAssignment />)}
+              {renderLink(`/${locale}/dashboard/projects`, t('projects'), <MdAccountTree />)}
+              {renderLink(`/${locale}/dashboard/invoices`, t('invoices'), <MdReceipt />)}
+            </>
+          )}
+
+          {/* Employee Navigation */}
+          {role === 'employee' && (
+            <>
+              {renderSectionHeader(t('operations').toUpperCase())}
+              {renderLink(`/${locale}/dashboard/assigned-orders`, t('assignedOrders'), <MdAssignmentInd />)}
+              {renderLink(`/${locale}/dashboard/projects`, t('projects'), <MdAccountTree />)}
+              {renderLink(`/${locale}/dashboard/invoices`, t('invoices'), <MdReceipt />)}
+            </>
+          )}
 
           {role === 'admin' && (
             <>

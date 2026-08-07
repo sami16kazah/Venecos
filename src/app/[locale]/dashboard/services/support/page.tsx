@@ -322,81 +322,171 @@ export default function SupportServicePage() {
           </div>
         </div>
 
-        {/* 4 Languages Section */}
-        <div className="bg-venecos-black/80 border border-white/10 rounded-2xl p-6 space-y-4 shadow-xl">
-          <div className="flex items-center justify-between border-b border-white/10 pb-3">
-            <h3 className="text-sm font-bold text-venecos-gold">{tUi('multiLangTextsTitle')}</h3>
-            <div className="flex gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-              {(['ar', 'en', 'fr', 'de'] as const).map((lang) => (
-                <button
-                  key={lang}
-                  type="button"
-                  onClick={() => setActiveLangTab(lang)}
-                  className={`px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all ${
-                    activeLangTab === lang
-                      ? 'bg-venecos-gold text-black shadow-md'
-                      : 'text-white/60 hover:text-white'
-                  }`}
-                >
-                  {lang === 'ar' ? 'SA العربية' : lang === 'en' ? 'GB English' : lang === 'fr' ? 'FR Français' : 'DE Deutsch'}
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* 4 Languages Section 2x2 Grid */}
+        <div className="bg-neutral-900/90 border border-white/10 rounded-2xl p-5 space-y-4 shadow-xl">
+          <h3 className="text-sm font-bold text-venecos-gold border-b border-white/10 pb-3 flex items-center gap-2">
+            🌐 {tUi('multiLangTextsTitle')}
+          </h3>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-white/80 mb-1.5">
-                {tUi('titleLabel')} ({activeLangTab.toUpperCase()})
-              </label>
-              <input
-                type="text"
-                value={formData.title[activeLangTab] || ''}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    title: { ...formData.title, [activeLangTab]: e.target.value },
-                  })
-                }
-                placeholder={tUi('titlePlaceholder')}
-                className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
-              />
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Arabic */}
+            <div className="bg-[#202127] border border-amber-500/30 rounded-2xl p-4 space-y-3" dir="rtl">
+              <div className="bg-amber-500/20 border border-amber-500/40 text-amber-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                SA العربية (AR)
+              </div>
 
-            <div>
-              <label className="block text-xs font-bold text-white/80 mb-1.5">
-                {tUi('shortDescLabel')} ({activeLangTab.toUpperCase()})
-              </label>
-              <input
-                type="text"
-                value={formData.shortDesc[activeLangTab] || ''}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    shortDesc: { ...formData.shortDesc, [activeLangTab]: e.target.value },
-                  })
-                }
-                placeholder={tUi('shortDescPlaceholder')}
-                className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none"
-              />
+              <div>
+                <label className="block text-xs font-bold text-white/80 mb-1">{tUi('titleLabel')} *</label>
+                <input
+                  type="text"
+                  value={formData.title.ar || ''}
+                  onChange={(e) => setFormData({ ...formData, title: { ...formData.title, ar: e.target.value } })}
+                  placeholder="الدعم الفني والتقني..."
+                  className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-amber-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-white/80 mb-1">{tUi('shortDescLabel')}</label>
+                <input
+                  type="text"
+                  value={formData.shortDesc.ar || ''}
+                  onChange={(e) => setFormData({ ...formData, shortDesc: { ...formData.shortDesc, ar: e.target.value } })}
+                  placeholder="وصف الدعم الفني..."
+                  className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-amber-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-white/80 mb-1">{tUi('fullDescLabel')}</label>
+                <textarea
+                  rows={3}
+                  value={formData.fullContent.ar || ''}
+                  onChange={(e) => setFormData({ ...formData, fullContent: { ...formData.fullContent, ar: e.target.value } })}
+                  placeholder="تفاصيل الخدمات والحلول..."
+                  className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-amber-400 resize-none"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-bold text-white/80 mb-1.5">
-                {tUi('fullDescLabel')} ({activeLangTab.toUpperCase()})
-              </label>
-              <textarea
-                rows={5}
-                value={formData.fullContent[activeLangTab] || ''}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    fullContent: { ...formData.fullContent, [activeLangTab]: e.target.value },
-                  })
-                }
-                placeholder={tUi('fullDescPlaceholder')}
-                className="w-full bg-black/40 border border-white/15 rounded-xl px-4 py-2.5 text-white text-sm focus:border-venecos-gold outline-none resize-none"
-              />
+            {/* English */}
+            <div className="bg-[#202127] border border-blue-500/30 rounded-2xl p-4 space-y-3" dir="ltr">
+              <div className="bg-blue-500/20 border border-blue-500/40 text-blue-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                GB English (EN)
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-white/80 mb-1">Service Title *</label>
+                <input
+                  type="text"
+                  value={formData.title.en || ''}
+                  onChange={(e) => setFormData({ ...formData, title: { ...formData.title, en: e.target.value } })}
+                  placeholder="Technical Support..."
+                  className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-blue-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-white/80 mb-1">Short Description</label>
+                <input
+                  type="text"
+                  value={formData.shortDesc.en || ''}
+                  onChange={(e) => setFormData({ ...formData, shortDesc: { ...formData.shortDesc, en: e.target.value } })}
+                  placeholder="Support description..."
+                  className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-blue-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-white/80 mb-1">Full Specifications</label>
+                <textarea
+                  rows={3}
+                  value={formData.fullContent.en || ''}
+                  onChange={(e) => setFormData({ ...formData, fullContent: { ...formData.fullContent, en: e.target.value } })}
+                  placeholder="Full specifications..."
+                  className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-blue-400 resize-none"
+                />
+              </div>
+            </div>
+
+            {/* French */}
+            <div className="bg-[#202127] border border-emerald-500/30 rounded-2xl p-4 space-y-3" dir="ltr">
+              <div className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                FR Français (FR)
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-white/80 mb-1">Nom du service</label>
+                <input
+                  type="text"
+                  value={formData.title.fr || ''}
+                  onChange={(e) => setFormData({ ...formData, title: { ...formData.title, fr: e.target.value } })}
+                  placeholder="Support Technique..."
+                  className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-emerald-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-white/80 mb-1">Description courte</label>
+                <input
+                  type="text"
+                  value={formData.shortDesc.fr || ''}
+                  onChange={(e) => setFormData({ ...formData, shortDesc: { ...formData.shortDesc, fr: e.target.value } })}
+                  placeholder="Description..."
+                  className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-emerald-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-white/80 mb-1">Spécifications détaillées</label>
+                <textarea
+                  rows={3}
+                  value={formData.fullContent.fr || ''}
+                  onChange={(e) => setFormData({ ...formData, fullContent: { ...formData.fullContent, fr: e.target.value } })}
+                  placeholder="Spécifications..."
+                  className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-emerald-400 resize-none"
+                />
+              </div>
+            </div>
+
+            {/* German */}
+            <div className="bg-[#202127] border border-purple-500/30 rounded-2xl p-4 space-y-3" dir="ltr">
+              <div className="bg-purple-500/20 border border-purple-500/40 text-purple-400 px-3 py-1 rounded-full text-xs font-bold inline-block">
+                DE Deutsch (DE)
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-white/80 mb-1">Dienstname</label>
+                <input
+                  type="text"
+                  value={formData.title.de || ''}
+                  onChange={(e) => setFormData({ ...formData, title: { ...formData.title, de: e.target.value } })}
+                  placeholder="Technischer Support..."
+                  className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-purple-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-white/80 mb-1">Kurzbeschreibung</label>
+                <input
+                  type="text"
+                  value={formData.shortDesc.de || ''}
+                  onChange={(e) => setFormData({ ...formData, shortDesc: { ...formData.shortDesc, de: e.target.value } })}
+                  placeholder="Kurzbeschreibung..."
+                  className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-purple-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-white/80 mb-1">Detaillierte Spezifikationen</label>
+                <textarea
+                  rows={3}
+                  value={formData.fullContent.de || ''}
+                  onChange={(e) => setFormData({ ...formData, fullContent: { ...formData.fullContent, de: e.target.value } })}
+                  placeholder="Spezifikationen..."
+                  className="w-full bg-[#141519] border border-white/15 rounded-xl px-4 py-2 text-white text-sm outline-none focus:border-purple-400 resize-none"
+                />
+              </div>
             </div>
           </div>
         </div>
