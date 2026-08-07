@@ -1,10 +1,10 @@
 'use client';
 import { useState } from 'react';
 import { Button, IconButton, Drawer, List, Box } from '@mui/material';
-import { MdMenu, MdClose } from 'react-icons/md';
+import { MdMenu, MdClose, MdLanguage } from 'react-icons/md';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 interface HomeNavbarProps {
   locale: string;
@@ -12,10 +12,18 @@ interface HomeNavbarProps {
   session: any;
 }
 
+const LANGUAGE_LABELS: Record<string, string> = {
+  ar: 'العربية (AR)',
+  en: 'English (EN)',
+  fr: 'Français (FR)',
+  de: 'Deutsch (DE)',
+};
+
 export default function HomeNavbar({ locale, locales, session }: HomeNavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const tNav = useTranslations('Navigation');
   const pathname = usePathname();
+  const router = useRouter();
 
   const getPathForLocale = (newLocale: string) => {
     if (!pathname) return `/${newLocale}`;
@@ -30,7 +38,8 @@ export default function HomeNavbar({ locale, locales, session }: HomeNavbarProps
   const navLinks = [
     { label: tNav('home'), href: `/${locale}` },
     { label: tNav('services'), href: `/${locale}/services` },
-    { label: tNav('join'), href: '#join' },
+    { label: tNav('about') || 'About Us', href: `/${locale}/about` },
+    { label: tNav('join'), href: `/${locale}#join` },
   ];
 
   return (
@@ -62,12 +71,21 @@ export default function HomeNavbar({ locale, locales, session }: HomeNavbarProps
           </Link>
         )}
         
-        <div className="flex gap-3 text-base border-gray-600 border-s-2 ps-4 ms-2">
-          {locales.map((l) => (
-            <Link key={l} href={getPathForLocale(l)} className={`transition-colors hover:text-venecos-yellow ${locale === l ? 'text-venecos-gold border-b-2 border-venecos-gold pb-1' : 'text-gray-400'}`}>
-              {l.toUpperCase()}
-            </Link>
-          ))}
+        {/* Language Dropdown Select */}
+        <div className="relative border-gray-600 border-s-2 ps-4 ms-2 flex items-center gap-1.5">
+          <MdLanguage className="text-venecos-gold text-xl shrink-0" />
+          <select
+            aria-label="Select Language"
+            value={locale}
+            onChange={(e) => router.push(getPathForLocale(e.target.value))}
+            className="bg-venecos-black text-white border border-gray-700 hover:border-venecos-gold focus:border-venecos-gold rounded-lg px-2.5 py-1 text-xs font-bold uppercase cursor-pointer outline-none transition-colors"
+          >
+            {locales.map((l) => (
+              <option key={l} value={l} className="bg-venecos-black text-white py-1">
+                {LANGUAGE_LABELS[l] || l.toUpperCase()}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -117,12 +135,26 @@ export default function HomeNavbar({ locale, locales, session }: HomeNavbarProps
               </Link>
             )}
 
-            <div className="flex justify-center gap-4 border-t border-white/10 pt-6 mt-2">
-              {locales.map((l) => (
-                <Link key={l} href={getPathForLocale(l)} onClick={() => setMobileOpen(false)} className={`text-lg font-bold ${locale === l ? 'text-venecos-gold' : 'text-gray-500'}`}>
-                  {l.toUpperCase()}
-                </Link>
-              ))}
+            {/* Mobile Language Dropdown */}
+            <div className="flex flex-col gap-2 border-t border-white/10 pt-6 mt-2">
+              <label className="text-xs text-gray-400 font-semibold flex items-center gap-1">
+                <MdLanguage className="text-venecos-gold text-base" /> Select Language / اختر اللغة
+              </label>
+              <select
+                aria-label="Select Language Mobile"
+                value={locale}
+                onChange={(e) => {
+                  setMobileOpen(false);
+                  router.push(getPathForLocale(e.target.value));
+                }}
+                className="w-full bg-[#1A1A1A] text-white border border-gray-700 focus:border-venecos-gold rounded-xl px-4 py-2.5 text-sm font-bold cursor-pointer outline-none"
+              >
+                {locales.map((l) => (
+                  <option key={l} value={l} className="bg-[#1A1A1A] text-white">
+                    {LANGUAGE_LABELS[l] || l.toUpperCase()}
+                  </option>
+                ))}
+              </select>
             </div>
           </Box>
         </List>

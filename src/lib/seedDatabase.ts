@@ -12,6 +12,7 @@ import Contract from '@/models/Contract';
 import Dispute from '@/models/Dispute';
 import Application from '@/models/Application';
 import BanList from '@/models/BanList';
+import AboutContent from '@/models/AboutContent';
 
 let hasSeeded = false;
 
@@ -35,6 +36,7 @@ export async function seedDatabase(force = false) {
       Dispute.deleteMany({}),
       Application.deleteMany({}),
       BanList.deleteMany({}),
+      AboutContent.deleteMany({}),
     ]);
   }
 
@@ -499,6 +501,138 @@ export async function seedDatabase(force = false) {
       { currency: 'AED', rateToEUR: 0.25, updatedAt: new Date() },
       { currency: 'SAR', rateToEUR: 0.245, updatedAt: new Date() },
       { currency: 'SYP', rateToEUR: 0.000065, updatedAt: new Date() },
+    ]);
+  }
+
+  // 8. Seed About Us dynamic content across all 4 locales
+  const aboutCount = await AboutContent.countDocuments();
+  if (aboutCount === 0 || force) {
+    await AboutContent.deleteMany({});
+    await AboutContent.insertMany([
+      {
+        locale: 'en',
+        badge: 'INNOVATION & CREATIVITY',
+        title: 'Building World-Class Software & High-Impact Digital Experiences',
+        subtitle: 'Venecos is a full-service technology platform delivering custom web & mobile engineering, photorealistic 3D visual design, cinema video editing, and printing solutions.',
+        heroImage: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop',
+        heroVideo: 'https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-42890-large.mp4',
+        storyTitle: 'Our Journey & Story',
+        content: `Founded with a mission to bridge high-end engineering with artistic excellence, Venecos empowers brands globally.\n\nFrom web and mobile applications to 3D animations and commercial printing, our multidisciplinary team of engineers, designers, and media architects turn ambitious ideas into reality.`,
+        missionTitle: 'Our Mission',
+        missionDesc: 'To empower organizations and creators with cutting-edge tech, seamless UX, and standout media production.',
+        visionTitle: 'Our Vision',
+        visionDesc: 'To be the globally recognized benchmark for software craftsmanship, digital innovation, and creative branding.',
+        stats: [
+          { label: 'Projects Completed', value: '850+', icon: 'MdCheckCircle' },
+          { label: 'Global Clients', value: '320+', icon: 'MdPeople' },
+          { label: 'Countries Served', value: '18+', icon: 'MdPublic' },
+          { label: 'Client Satisfaction', value: '99.4%', icon: 'MdStar' }
+        ],
+        features: [
+          { title: 'Full-Stack Software Engineering', description: 'React, Next.js, Cloud APIs, and high-load backend architecture.', icon: 'MdCode' },
+          { title: '3D Modeling & Product Design', description: 'Hyper-realistic 3D rendering, motion graphics, and UI/UX design.', icon: 'MdPalette' },
+          { title: 'Video & Audio Studio Production', description: 'Commercial editing, multi-language voiceovers, and promotional films.', icon: 'MdMovie' },
+          { title: 'Dedicated 24/7 Support', description: 'Proactive project management and ongoing infrastructure support.', icon: 'MdHeadset' }
+        ],
+        galleryImages: [
+          'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1542744094-3a3172720177?q=80&w=800&auto=format&fit=crop'
+        ],
+        showcaseVideoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-working-on-a-laptop-42888-large.mp4'
+      },
+      {
+        locale: 'ar',
+        badge: 'الابتكار والإبداع الرقمي',
+        title: 'نبني برمجيات فائقة الأداء وتجارب إبداعية تصنع الفارق',
+        subtitle: 'منصة Venecos رائدة في تطوير تطبيقات الويب والموبايل، تصميم الـ 3D والموشن جرافيك، وإنتاج الفيديو، وخدمات الطباعة والدعاية.',
+        heroImage: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop',
+        heroVideo: 'https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-42890-large.mp4',
+        storyTitle: 'مسيرتنا وقصتنا',
+        content: `تأسست منصة Venecos لتقديم مفهوم جديد يجمع بين الدقة البرمجية والإبداع البصري الاستثنائي.\n\nنضم نخبة من الهندسيين، المصممين، وصناع المحتوى الذين يعملون بروح الفريق الواحد لتحويل الأفكار إلى منتجات رقمية قيادية تحقق أعلى العوائد.`,
+        missionTitle: 'رسالتنا',
+        missionDesc: 'تمكين الأعمال والمؤسسات عبر العالم بتقنيات متقدمة وهويات بصريّة مبتكرة تضمن التفوق والريادة في السوق.',
+        visionTitle: 'رؤيتنا',
+        visionDesc: 'أن نكون الخيار الأول عالمياً للحلول التقنية المتكاملة وصناعة المحتوى عالي الجودة والطباعة الرقمية.',
+        stats: [
+          { label: 'مشروع منجز', value: '+850', icon: 'MdCheckCircle' },
+          { label: 'عميل سعيد', value: '+320', icon: 'MdPeople' },
+          { label: 'دولة نخدمها', value: '+18', icon: 'MdPublic' },
+          { label: 'نسبة الرضا', value: '99.4%', icon: 'MdStar' }
+        ],
+        features: [
+          { title: 'البرمجة والتطوير المتكامل', description: 'مواقع وتطبيقات سريعة يعتمد عليها باستخدام أفضل وأحدث التقنيات.', icon: 'MdCode' },
+          { title: 'تصميم 3D والموشن جرافيك', description: 'رندر واقعي ثلاثي الأبعاد وهويات بصرية مميزة تعزز علامتك التجاريّة.', icon: 'MdPalette' },
+          { title: 'إنتاج الفيديو والصوتيات', description: 'مونتاج سينمائي وتسجيلات صوتية احترافية بمختلف اللهجات واللغات.', icon: 'MdMovie' },
+          { title: 'دعم ومتابعة 24/7', description: 'إدارة مشاريع مخصصة لضمان سرعة التسليم وجودة التنفيذ.', icon: 'MdHeadset' }
+        ],
+        galleryImages: [
+          'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1542744094-3a3172720177?q=80&w=800&auto=format&fit=crop'
+        ],
+        showcaseVideoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-working-on-a-laptop-42888-large.mp4'
+      },
+      {
+        locale: 'fr',
+        badge: 'INNOVATION & CRÉATIVITÉ',
+        title: 'Solutions Logiciel & Expériences Numériques Sur-Mesure',
+        subtitle: 'Venecos est une plateforme technologique mondiale spécialisée dans le développement web, le design 3D, la vidéo et la communication.',
+        heroImage: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop',
+        heroVideo: 'https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-42890-large.mp4',
+        storyTitle: 'Notre Histoire',
+        content: `Fondée avec l'ambition d'allier ingénierie de pointe et excellence artistique, Venecos accompagne les entreprises à l'international.\n\nNos ingénieurs et créatifs conçoivent des applications haute performance et des visuels captivants.`,
+        missionTitle: 'Notre Mission',
+        missionDesc: 'Propulser la croissance des entreprises grâce à des outils digitaux modernes et une identité visuelle percutante.',
+        visionTitle: 'Notre Vision',
+        visionDesc: 'Devenir le partenaire technologique et créatif de référence à l\'échelle internationale.',
+        stats: [
+          { label: 'Projets Réalisés', value: '850+', icon: 'MdCheckCircle' },
+          { label: 'Clients Satisfaits', value: '320+', icon: 'MdPeople' },
+          { label: 'Pays Desservis', value: '18+', icon: 'MdPublic' },
+          { label: 'Taux de Satisfaction', value: '99.4%', icon: 'MdStar' }
+        ],
+        features: [
+          { title: 'Ingénierie Logicielle', description: 'Applications web & mobiles Next.js, React et architectures cloud sécurisées.', icon: 'MdCode' },
+          { title: 'Design 3D & Graphisme', description: 'Rendu 3D réaliste, motion design et création de marque.', icon: 'MdPalette' }
+        ],
+        galleryImages: [
+          'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=800&auto=format&fit=crop'
+        ],
+        showcaseVideoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-working-on-a-laptop-42888-large.mp4'
+      },
+      {
+        locale: 'de',
+        badge: 'INNOVATION & KREATIVITÄT',
+        title: 'Erstklassige Software & Digitale Markenerlebnisse',
+        subtitle: 'Venecos ist Ihre globale Plattform für individuelle Webentwicklung, 3D-Design, Videoproduktion und Druckmedien.',
+        heroImage: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=1600&auto=format&fit=crop',
+        heroVideo: 'https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-42890-large.mp4',
+        storyTitle: 'Unsere Geschichte',
+        content: `Venecos verbindet technologische Expertise mit künstlerischer Exzellenz.\n\nUnser internationales Team entwickelt leistungsstarke Anwendungen und beeindruckendes Mediendesign für weltweiten Erfolg.`,
+        missionTitle: 'Unsere Mission',
+        missionDesc: 'Unternehmen durch hochmoderne Software und überzeugendes Design zu nachhaltigem Wachstum zu verhelfen.',
+        visionTitle: 'Unsere Vision',
+        visionDesc: 'Weltweit der führende Partner für digitale Transformation und maßgeschneiderte Medienproduktion zu sein.',
+        stats: [
+          { label: 'Projekte Abgeschlossen', value: '850+', icon: 'MdCheckCircle' },
+          { label: 'Zufriedene Kunden', value: '320+', icon: 'MdPeople' },
+          { label: 'Länder Weltweit', value: '18+', icon: 'MdPublic' },
+          { label: 'Zufriedenheitsrate', value: '99.4%', icon: 'MdStar' }
+        ],
+        features: [
+          { title: 'Software-Entwicklung', description: 'Hochmoderne Web- & Mobile-Anwendungen mit Next.js und Cloud-Technologien.', icon: 'MdCode' },
+          { title: '3D-Visualisierung & Design', description: 'Fotorealistisches 3D-Rendering, Motion Graphics und Brand Identity.', icon: 'MdPalette' }
+        ],
+        galleryImages: [
+          'https://images.unsplash.com/photo-1531482615713-2afd69097998?q=80&w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=800&auto=format&fit=crop'
+        ],
+        showcaseVideoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-hands-working-on-a-laptop-42888-large.mp4'
+      }
     ]);
   }
 }

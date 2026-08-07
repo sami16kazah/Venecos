@@ -16,6 +16,20 @@ interface DashboardPackageManagerProps {
 
 type LangTab = 'ar' | 'en' | 'fr' | 'de';
 
+const DELIVERY_PRESETS = [
+  { id: '24h', ar: '24 ساعة (يوم واحد)', en: '1 Day (24 Hours)', fr: '1 Jour (24 Heures)', de: '1 Tag (24 Stunden)' },
+  { id: '2-3d', ar: '2 — 3 أيام عمل', en: '2 — 3 Business Days', fr: '2 — 3 Jours ouvrables', de: '2 — 3 Werktage' },
+  { id: '3-5d', ar: '3 — 5 أيام عمل', en: '3 — 5 Business Days', fr: '3 — 5 Jours ouvrables', de: '3 — 5 Werktage' },
+  { id: '1w', ar: 'أسبوع واحد (7 أيام)', en: '1 Week (7 Days)', fr: '1 Semaine (7 Jours)', de: '1 Woche (7 Tage)' },
+  { id: '2w', ar: 'أسبوعين (14 يوم)', en: '2 Weeks (14 Days)', fr: '2 Semaines (14 Jours)', de: '2 Wochen (14 Tage)' },
+  { id: '3w', ar: '3 أسابيع', en: '3 Weeks', fr: '3 Semaines', de: '3 Wochen' },
+  { id: '1m', ar: 'شهر واحد (30 يوم)', en: '1 Month (30 Days)', fr: '1 Mois (30 Jours)', de: '1 Monat (30 Tage)' },
+  { id: '2m', ar: 'شهرين (60 يوم)', en: '2 Months (60 Days)', fr: '2 Mois (60 Jours)', de: '2 Monate (60 Tage)' },
+  { id: '3m', ar: '3 أشهر', en: '3 Months', fr: '3 Mois', de: '3 Monate' },
+  { id: '6m', ar: '6 أشهر', en: '6 Months', fr: '6 Mois', de: '6 Monate' },
+  { id: 'custom', ar: '✍️ مخصص / Custom Text', en: '✍️ Custom Text', fr: '✍️ Texte Personnalisé', de: '✍️ Benutzerdefinierter Text' },
+];
+
 export default function DashboardPackageManager({
   serviceKey,
   packages,
@@ -621,13 +635,43 @@ export default function DashboardPackageManager({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-white/80 mb-1">مدة التسليم</label>
+                    <label className="block text-xs font-bold text-white/80 mb-1">مدة التسليم (Delivery Time Select)</label>
+                    <select
+                      value={
+                        DELIVERY_PRESETS.find(p => p.ar === pkgForm.deliveryDuration.ar)?.id || 'custom'
+                      }
+                      onChange={(e) => {
+                        const selectedId = e.target.value;
+                        if (selectedId !== 'custom') {
+                          const preset = DELIVERY_PRESETS.find(p => p.id === selectedId);
+                          if (preset) {
+                            setPkgForm({
+                              ...pkgForm,
+                              deliveryDuration: {
+                                ar: preset.ar,
+                                en: preset.en,
+                                fr: preset.fr,
+                                de: preset.de,
+                              }
+                            });
+                          }
+                        }
+                      }}
+                      className="w-full bg-[#141519] border border-white/15 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-amber-400 mb-1.5 cursor-pointer font-bold"
+                    >
+                      <option value="" disabled>اختر مدة التسليم (أيام / أسابيع / أشهر)...</option>
+                      {DELIVERY_PRESETS.map((p) => (
+                        <option key={p.id} value={p.id} className="bg-[#141519] text-white">
+                          {p.ar} ({p.en})
+                        </option>
+                      ))}
+                    </select>
                     <input
                       type="text"
                       value={pkgForm.deliveryDuration.ar}
                       onChange={(e) => setPkgForm({ ...pkgForm, deliveryDuration: { ...pkgForm.deliveryDuration, ar: e.target.value } })}
-                      placeholder="24 — 48 ساعة"
-                      className="w-full bg-[#141519] border border-white/15 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-amber-400"
+                      placeholder="24 — 48 ساعة أو تخصيص..."
+                      className="w-full bg-[#141519]/70 border border-white/10 rounded-xl px-3 py-1.5 text-white/90 text-xs outline-none focus:border-amber-400"
                     />
                   </div>
 
@@ -715,13 +759,43 @@ export default function DashboardPackageManager({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-white/80 mb-1">Delivery Time</label>
+                    <label className="block text-xs font-bold text-white/80 mb-1">Delivery Time (Select Input)</label>
+                    <select
+                      value={
+                        DELIVERY_PRESETS.find(p => p.en === pkgForm.deliveryDuration.en)?.id || 'custom'
+                      }
+                      onChange={(e) => {
+                        const selectedId = e.target.value;
+                        if (selectedId !== 'custom') {
+                          const preset = DELIVERY_PRESETS.find(p => p.id === selectedId);
+                          if (preset) {
+                            setPkgForm({
+                              ...pkgForm,
+                              deliveryDuration: {
+                                ar: preset.ar,
+                                en: preset.en,
+                                fr: preset.fr,
+                                de: preset.de,
+                              }
+                            });
+                          }
+                        }
+                      }}
+                      className="w-full bg-[#141519] border border-white/15 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-blue-400 mb-1.5 cursor-pointer font-bold"
+                    >
+                      <option value="" disabled>Select Delivery Duration (Days / Weeks / Months)...</option>
+                      {DELIVERY_PRESETS.map((p) => (
+                        <option key={p.id} value={p.id} className="bg-[#141519] text-white">
+                          {p.en} ({p.ar})
+                        </option>
+                      ))}
+                    </select>
                     <input
                       type="text"
                       value={pkgForm.deliveryDuration.en}
                       onChange={(e) => setPkgForm({ ...pkgForm, deliveryDuration: { ...pkgForm.deliveryDuration, en: e.target.value } })}
-                      placeholder="24 — 48 Hours"
-                      className="w-full bg-[#141519] border border-white/15 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-blue-400"
+                      placeholder="24 — 48 Hours or custom..."
+                      className="w-full bg-[#141519]/70 border border-white/10 rounded-xl px-3 py-1.5 text-white/90 text-xs outline-none focus:border-blue-400"
                     />
                   </div>
 
@@ -809,13 +883,43 @@ export default function DashboardPackageManager({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-white/80 mb-1">Délai de livraison</label>
+                    <label className="block text-xs font-bold text-white/80 mb-1">Délai de livraison (Select Input)</label>
+                    <select
+                      value={
+                        DELIVERY_PRESETS.find(p => p.fr === pkgForm.deliveryDuration.fr)?.id || 'custom'
+                      }
+                      onChange={(e) => {
+                        const selectedId = e.target.value;
+                        if (selectedId !== 'custom') {
+                          const preset = DELIVERY_PRESETS.find(p => p.id === selectedId);
+                          if (preset) {
+                            setPkgForm({
+                              ...pkgForm,
+                              deliveryDuration: {
+                                ar: preset.ar,
+                                en: preset.en,
+                                fr: preset.fr,
+                                de: preset.de,
+                              }
+                            });
+                          }
+                        }
+                      }}
+                      className="w-full bg-[#141519] border border-white/15 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-emerald-400 mb-1.5 cursor-pointer font-bold"
+                    >
+                      <option value="" disabled>Choisir le délai (Jours / Semaines / Mois)...</option>
+                      {DELIVERY_PRESETS.map((p) => (
+                        <option key={p.id} value={p.id} className="bg-[#141519] text-white">
+                          {p.fr} ({p.en})
+                        </option>
+                      ))}
+                    </select>
                     <input
                       type="text"
                       value={pkgForm.deliveryDuration.fr}
                       onChange={(e) => setPkgForm({ ...pkgForm, deliveryDuration: { ...pkgForm.deliveryDuration, fr: e.target.value } })}
-                      placeholder="24 — 48 Heures"
-                      className="w-full bg-[#141519] border border-white/15 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-emerald-400"
+                      placeholder="24 — 48 Heures ou personnalisé..."
+                      className="w-full bg-[#141519]/70 border border-white/10 rounded-xl px-3 py-1.5 text-white/90 text-xs outline-none focus:border-emerald-400"
                     />
                   </div>
 
@@ -903,13 +1007,43 @@ export default function DashboardPackageManager({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-white/80 mb-1">Lieferzeit</label>
+                    <label className="block text-xs font-bold text-white/80 mb-1">Lieferzeit (Select Input)</label>
+                    <select
+                      value={
+                        DELIVERY_PRESETS.find(p => p.de === pkgForm.deliveryDuration.de)?.id || 'custom'
+                      }
+                      onChange={(e) => {
+                        const selectedId = e.target.value;
+                        if (selectedId !== 'custom') {
+                          const preset = DELIVERY_PRESETS.find(p => p.id === selectedId);
+                          if (preset) {
+                            setPkgForm({
+                              ...pkgForm,
+                              deliveryDuration: {
+                                ar: preset.ar,
+                                en: preset.en,
+                                fr: preset.fr,
+                                de: preset.de,
+                              }
+                            });
+                          }
+                        }
+                      }}
+                      className="w-full bg-[#141519] border border-white/15 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-purple-400 mb-1.5 cursor-pointer font-bold"
+                    >
+                      <option value="" disabled>Lieferzeit auswählen (Tage / Wochen / Monate)...</option>
+                      {DELIVERY_PRESETS.map((p) => (
+                        <option key={p.id} value={p.id} className="bg-[#141519] text-white">
+                          {p.de} ({p.en})
+                        </option>
+                      ))}
+                    </select>
                     <input
                       type="text"
                       value={pkgForm.deliveryDuration.de}
                       onChange={(e) => setPkgForm({ ...pkgForm, deliveryDuration: { ...pkgForm.deliveryDuration, de: e.target.value } })}
-                      placeholder="24 — 48 Stunden"
-                      className="w-full bg-[#141519] border border-white/15 rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-purple-400"
+                      placeholder="24 — 48 Stunden oder angepasst..."
+                      className="w-full bg-[#141519]/70 border border-white/10 rounded-xl px-3 py-1.5 text-white/90 text-xs outline-none focus:border-purple-400"
                     />
                   </div>
 

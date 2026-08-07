@@ -133,10 +133,18 @@ function AboutContentManager() {
         <Alert severity={feedback.type} onClose={() => setFeedback(null)} sx={{ borderRadius: 3 }}>{feedback.msg}</Alert>
       )}
 
-      <DashboardContentLocaleSelector 
-        selectedLocale={editingLocale} 
-        onLocaleChange={setEditingLocale} 
-      />
+      <div className="flex flex-wrap justify-between items-center gap-4">
+        <DashboardContentLocaleSelector 
+          selectedLocale={editingLocale} 
+          onLocaleChange={setEditingLocale} 
+        />
+        <a 
+          href={`/dashboard/about`}
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-venecos-black text-venecos-gold font-bold text-xs rounded-2xl hover:bg-black transition-all shadow-md"
+        >
+          Manage Advanced Media, Videos & Stats →
+        </a>
+      </div>
 
       {loading ? (
         <div className="flex justify-center p-20"><CircularProgress size={40} /></div>

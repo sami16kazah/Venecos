@@ -8,8 +8,9 @@
   "Navigation": {
     "home": "Startseite",
     "services": "Dienste",
+    "about": "Über uns",
     "contact": "Kontakt",
-    "join": "Mach mit",
+    "join": "Mitmachen",
     "signIn": "Anmelden",
     "dashboard": "Dashboard",
     "aboutContent": "Über Uns Inhalt"

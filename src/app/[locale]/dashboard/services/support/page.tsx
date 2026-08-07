@@ -308,9 +308,11 @@ export default function SupportServicePage() {
                     onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
                     className="w-full bg-venecos-black border border-white/15 rounded-xl px-2 py-2 text-center text-white text-xs font-bold outline-none"
                   >
-                    <option value="يوم">{tUi('unitDay')}</option>
                     <option value="ساعة">{tUi('unitHour')}</option>
+                    <option value="يوم">{tUi('unitDay')}</option>
+                    <option value="أسبوع">أسبوع / Week</option>
                     <option value="شهر">{tUi('unitMonth')}</option>
+                    <option value="سنة">سنة / Year</option>
                   </select>
                 </div>
               </div>

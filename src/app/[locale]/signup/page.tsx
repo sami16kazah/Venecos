@@ -2,11 +2,18 @@
 import { useSession } from "next-auth/react";
 import { useState, useEffect, Suspense } from "react";
 import { Button, TextField, IconButton, InputAdornment, Alert, CircularProgress } from "@mui/material";
-import { MdVisibility, MdVisibilityOff } from "react-icons/md";
+import { MdVisibility, MdVisibilityOff, MdLanguage } from "react-icons/md";
 import { MuiTelInput } from 'mui-tel-input';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useParams, useSearchParams } from 'next/navigation';
+
+const LANGUAGE_LABELS: Record<string, string> = {
+  ar: 'AR - العربية',
+  en: 'EN - English',
+  fr: 'FR - Français',
+  de: 'DE - Deutsch',
+};
 
 const countryCodes = [
   { code: '+1', label: 'US/CA (+1)' },
@@ -120,18 +127,24 @@ function SignUpForm({ status, locale }: { status: string, locale: string }) {
 
   return (
     <div className="min-h-screen flex justify-center bg-gray-50 p-4 py-12 relative">
-      <div className="absolute top-4 right-4 flex gap-2 md:gap-3 text-[10px] md:text-sm bg-white px-3 md:px-4 py-1.5 md:py-2 rounded-full shadow-sm z-10">
-        {['en', 'ar', 'fr', 'de'].map((l) => (
-          <button
-            key={l}
-            onClick={() => {
-              const currentPath = window.location.pathname;
-              const newPath = currentPath.replace(`/${locale}`, `/${l}`);
-              window.location.href = newPath + window.location.search;
-            }}
-            className={`uppercase font-bold hover:text-venecos-gold transition-colors ${locale === l ? 'text-venecos-gold' : 'text-gray-400'}`}
-          >{l}</button>
-        ))}
+      <div className="absolute top-4 right-4 flex items-center gap-1.5 bg-white px-3 py-1.5 rounded-full shadow-sm border border-gray-200 z-10">
+        <MdLanguage className="text-venecos-gold text-base shrink-0" />
+        <select
+          aria-label="Select Language"
+          value={locale}
+          onChange={(e) => {
+            const currentPath = window.location.pathname;
+            const newPath = currentPath.replace(`/${locale}`, `/${e.target.value}`);
+            window.location.href = newPath + window.location.search;
+          }}
+          className="bg-transparent text-gray-800 text-xs font-bold uppercase cursor-pointer outline-none pe-1"
+        >
+          {['en', 'ar', 'fr', 'de'].map((l) => (
+            <option key={l} value={l} className="bg-white text-gray-800 font-semibold">
+              {LANGUAGE_LABELS[l] || l.toUpperCase()}
+            </option>
+          ))}
+        </select>
       </div>
       <div className="bg-white max-w-2xl w-full p-6 sm:p-12 rounded-2xl shadow-xl border border-gray-100 mt-16 sm:mt-0 relative z-0">
         <div className="flex justify-center mb-6">

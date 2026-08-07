@@ -653,6 +653,8 @@ export default function VoiceOverServicePage() {
                           <option value="ساعة">ساعة / Hour</option>
                           <option value="يوم">يوم / Day</option>
                           <option value="أسبوع">أسبوع / Week</option>
+                          <option value="شهر">شهر / Month</option>
+                          <option value="سنة">سنة / Year</option>
                         </select>
                       </div>
                     </td>
