@@ -7,6 +7,7 @@ import { MdVideoLibrary, MdArrowBack, MdCheckCircle, MdImage, MdPlayCircle, MdTu
 import CloudinaryUploader from '@/components/CloudinaryUploader';
 import DashboardPackageManager from '@/components/DashboardPackageManager';
 import { ISubService } from '@/models/ServiceContent';
+import { combineMultiLangSubServices } from '@/lib/i18nUtils';
 
 const dbVideoUi: Record<string, Record<string, string>> = {
   pageTitle: {
@@ -198,8 +199,8 @@ export default function VideoProductionServicePage() {
             const frDoc = items.find((i: any) => i.locale === 'fr');
             const deDoc = items.find((i: any) => i.locale === 'de');
 
-            if (arDoc && arDoc.subServices) {
-              setPackages(arDoc.subServices);
+            if (items) {
+              setPackages(combineMultiLangSubServices(items));
             }
 
             setFormData(prev => ({

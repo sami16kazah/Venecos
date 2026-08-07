@@ -7,6 +7,7 @@ import { MdCode, MdArrowBack, MdSave, MdCheckCircle } from 'react-icons/md';
 import CloudinaryUploader from '@/components/CloudinaryUploader';
 import DashboardPackageManager from '@/components/DashboardPackageManager';
 import { ISubService } from '@/models/ServiceContent';
+import { combineMultiLangSubServices } from '@/lib/i18nUtils';
 
 const dbProgUi: Record<string, Record<string, string>> = {
   pageTitle: {
@@ -158,8 +159,8 @@ export default function ProgrammingServicePage() {
             const frDoc = items.find((i: any) => i.locale === 'fr');
             const deDoc = items.find((i: any) => i.locale === 'de');
 
-            if (arDoc && arDoc.subServices) {
-              setPackages(arDoc.subServices);
+            if (items) {
+              setPackages(combineMultiLangSubServices(items));
             }
 
             setFormData(prev => ({

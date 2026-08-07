@@ -110,18 +110,12 @@ export default function DashboardPackageManager({
     if (typeof val === 'object' && !Array.isArray(val)) {
       const specific = val[lang];
       if (typeof specific === 'string' && specific.trim()) {
-        if (lang !== 'ar' && /[\u0600-\u06FF]/.test(specific) && !/[\u0600-\u06FF]/.test(val['en'] || '')) {
-          return '';
-        }
         return specific;
       }
-      return '';
+      return val.ar || val.en || val.fr || val.de || '';
     }
     if (typeof val === 'string') {
-      if (/[\u0600-\u06FF]/.test(val)) {
-        return lang === 'ar' ? val : '';
-      }
-      return lang === 'en' ? val : '';
+      return val;
     }
     return '';
   };
@@ -131,27 +125,19 @@ export default function DashboardPackageManager({
     if (typeof val === 'object' && !Array.isArray(val)) {
       const arr = val[lang];
       if (Array.isArray(arr)) {
-        const text = arr.join('\n').trim();
-        if (lang !== 'ar' && /[\u0600-\u06FF]/.test(text)) {
-          return '';
-        }
-        return text;
+        return arr.join('\n').trim();
       }
       if (typeof arr === 'string') return arr;
+      const fallback = val.ar || val.en || val.fr || val.de;
+      if (Array.isArray(fallback)) return fallback.join('\n').trim();
+      if (typeof fallback === 'string') return fallback;
       return '';
     }
     if (Array.isArray(val)) {
-      const text = val.join('\n');
-      if (/[\u0600-\u06FF]/.test(text)) {
-        return lang === 'ar' ? text : '';
-      }
-      return lang === 'en' ? text : '';
+      return val.join('\n').trim();
     }
     if (typeof val === 'string') {
-      if (/[\u0600-\u06FF]/.test(val)) {
-        return lang === 'ar' ? val : '';
-      }
-      return lang === 'en' ? val : '';
+      return val;
     }
     return '';
   };

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { MdLanguage, MdArrowBack, MdCheckCircle } from 'react-icons/md';
 import DashboardPackageManager from '@/components/DashboardPackageManager';
 import { ISubService } from '@/models/ServiceContent';
+import { combineMultiLangSubServices } from '@/lib/i18nUtils';
 
 // ... dbDomainsUi ...
 
@@ -89,10 +90,7 @@ export default function DomainServicePage() {
         if (res.ok) {
           const items = await res.json();
           if (Array.isArray(items) && items.length > 0) {
-            const arDoc = items.find((i: any) => i.locale === 'ar');
-            if (arDoc && arDoc.subServices) {
-              setPackages(arDoc.subServices);
-            }
+            setPackages(combineMultiLangSubServices(items));
           }
         }
       } catch (err) {

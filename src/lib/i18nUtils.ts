@@ -148,3 +148,73 @@ export function getLocArray(val: any, lang: string): string[] {
 
   return [];
 }
+
+/**
+ * Combines subServices from all 4 locale documents (ar, en, fr, de) into unified multi-language subService objects.
+ */
+export function combineMultiLangSubServices(items: any[]): any[] {
+  if (!Array.isArray(items) || items.length === 0) return [];
+  
+  const docByLoc: Record<string, any> = {};
+  items.forEach(doc => {
+    if (doc && doc.locale) docByLoc[doc.locale] = doc;
+  });
+
+  const primaryDoc = docByLoc['ar'] || docByLoc['en'] || items[0];
+  const primarySubServices = primaryDoc?.subServices || [];
+
+  return primarySubServices.map((baseSub: any, idx: number) => {
+    const titles: Record<string, string> = {};
+    const descriptions: Record<string, string> = {};
+    const badges: Record<string, string> = {};
+    const durations: Record<string, string> = {};
+    const estimates: Record<string, string> = {};
+    const deliveryRules: Record<string, string[]> = {};
+    const rightsRules: Record<string, string[]> = {};
+    const highlightRules: Record<string, string[]> = {};
+    const warrantyTitles: Record<string, string> = {};
+
+    ['ar', 'en', 'fr', 'de'].forEach(loc => {
+      const locDoc = docByLoc[loc];
+      const locSub = locDoc?.subServices?.[idx] || (baseSub.title?.[loc] ? baseSub : null);
+      
+      titles[loc] = typeof locSub?.title === 'object' ? (locSub.title[loc] || locSub.title.ar || '') : (locSub?.title || (typeof baseSub.title === 'object' ? baseSub.title[loc] : ''));
+      descriptions[loc] = typeof locSub?.description === 'object' ? (locSub.description[loc] || '') : (locSub?.description || '');
+      badges[loc] = typeof locSub?.badge === 'object' ? (locSub.badge[loc] || '') : (locSub?.badge || '');
+      durations[loc] = typeof locSub?.deliveryDuration === 'object' ? (locSub.deliveryDuration[loc] || '') : (locSub?.deliveryDuration || '');
+      estimates[loc] = typeof locSub?.deliveryEstimate === 'object' ? (locSub.deliveryEstimate[loc] || '') : (locSub?.deliveryEstimate || '');
+
+      deliveryRules[loc] = Array.isArray(locSub?.deliveryAndRevisions) 
+        ? locSub.deliveryAndRevisions 
+        : (locSub?.deliveryAndRevisions?.[loc] || []);
+      
+      rightsRules[loc] = Array.isArray(locSub?.ownershipAndRights) 
+        ? locSub.ownershipAndRights 
+        : (locSub?.ownershipAndRights?.[loc] || []);
+
+      highlightRules[loc] = Array.isArray(locSub?.highlights) 
+        ? locSub.highlights 
+        : (locSub?.highlights?.[loc] || []);
+
+      const addon = locSub?.addons?.[0] || baseSub?.addons?.[0];
+      warrantyTitles[loc] = typeof addon?.title === 'object' ? (addon.title[loc] || '') : (addon?.title || '');
+    });
+
+    return {
+      ...baseSub,
+      title: titles,
+      description: descriptions,
+      badge: badges,
+      deliveryDuration: durations,
+      deliveryEstimate: estimates,
+      deliveryAndRevisions: deliveryRules,
+      ownershipAndRights: rightsRules,
+      highlights: highlightRules,
+      addons: [{
+        title: warrantyTitles,
+        price: baseSub?.addons?.[0]?.price || 41.99
+      }]
+    };
+  });
+}
+

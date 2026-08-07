@@ -7,6 +7,7 @@ import { MdArrowBack, MdCheckCircle } from 'react-icons/md';
 import { FaServer } from 'react-icons/fa';
 import DashboardPackageManager from '@/components/DashboardPackageManager';
 import { ISubService } from '@/models/ServiceContent';
+import { combineMultiLangSubServices } from '@/lib/i18nUtils';
 
 const dbHostingUi: Record<string, Record<string, string>> = {
   pageTitle: {
@@ -52,10 +53,7 @@ export default function SharedHostingServicePage() {
         if (res.ok) {
           const items = await res.json();
           if (Array.isArray(items) && items.length > 0) {
-            const arDoc = items.find((i: any) => i.locale === 'ar');
-            if (arDoc && arDoc.subServices) {
-              setPackages(arDoc.subServices);
-            }
+            setPackages(combineMultiLangSubServices(items));
           }
         }
       } catch (err) {

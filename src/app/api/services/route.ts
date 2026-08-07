@@ -72,26 +72,51 @@ export async function POST(req: Request) {
         const locDesc = (descriptions && descriptions[loc]) ? descriptions[loc] : (typeof description === 'object' ? description[loc] || description.en || description.ar : description);
 
         const locSubServices = subServices.map((sub: any) => {
-          const subTitle = (sub.title && typeof sub.title === 'object') ? (sub.title[loc] || sub.title.en || sub.title.ar) : sub.title;
-          const subDesc = (sub.description && typeof sub.description === 'object') ? (sub.description[loc] || sub.description.en || sub.description.ar) : sub.description;
-          const subBadge = (sub.badge && typeof sub.badge === 'object') ? (sub.badge[loc] || sub.badge.en || sub.badge.ar) : (sub.badge || '');
-          const subDuration = (sub.deliveryDuration && typeof sub.deliveryDuration === 'object') ? (sub.deliveryDuration[loc] || sub.deliveryDuration.en || sub.deliveryDuration.ar) : (sub.deliveryDuration || '');
+          const getLocVal = (val: any, fallbackKey = 'en') => {
+            if (!val) return '';
+            if (typeof val === 'object' && !Array.isArray(val)) {
+              return val[loc] || val[fallbackKey] || val.ar || val.en || '';
+            }
+            return String(val);
+          };
 
-          const deliveryRules = Array.isArray(sub.deliveryAndRevisions) ? sub.deliveryAndRevisions : (sub.deliveryAndRevisions?.[loc] || sub.deliveryAndRevisions?.en || sub.deliveryAndRevisions?.ar || []);
-          const rightsRules = Array.isArray(sub.ownershipAndRights) ? sub.ownershipAndRights : (sub.ownershipAndRights?.[loc] || sub.ownershipAndRights?.en || sub.ownershipAndRights?.ar || []);
+          const getLocArrVal = (val: any) => {
+            if (!val) return [];
+            if (Array.isArray(val)) return val.map(String);
+            if (typeof val === 'object') {
+              const arr = val[loc] || val.en || val.ar || [];
+              if (Array.isArray(arr)) return arr.map(String);
+              if (typeof arr === 'string' && arr.trim()) return [arr];
+              return [];
+            }
+            return [String(val)];
+          };
+
+          const firstAddon = sub.addons?.[0];
+          const addonTitle = getLocVal(firstAddon?.title, 'en');
 
           return {
             _id: sub._id,
-            title: subTitle || '',
-            description: subDesc || '',
+            title: getLocVal(sub.title, 'en'),
+            description: getLocVal(sub.description, 'en'),
             price: Number(sub.price) || Number(sub.priceFrom) || 0,
-            badge: subBadge,
+            originalPrice: Number(sub.originalPrice) || 0,
+            badge: getLocVal(sub.badge, 'en'),
             priceFrom: Number(sub.priceFrom) || Number(sub.price) || 0,
             priceTo: Number(sub.priceTo) || Number(sub.priceFrom) || Number(sub.price) || 0,
-            deliveryDuration: subDuration,
-            deliveryAndRevisions: Array.isArray(deliveryRules) ? deliveryRules : [String(deliveryRules)],
-            ownershipAndRights: Array.isArray(rightsRules) ? rightsRules : [String(rightsRules)],
-            image: sub.image || ''
+            deliveryDuration: getLocVal(sub.deliveryDuration, 'en'),
+            deliveryEstimate: getLocVal(sub.deliveryEstimate, 'en'),
+            deliveryAndRevisions: getLocArrVal(sub.deliveryAndRevisions),
+            ownershipAndRights: getLocArrVal(sub.ownershipAndRights),
+            highlights: getLocArrVal(sub.highlights),
+            addons: firstAddon ? [{
+              title: addonTitle,
+              price: Number(firstAddon.price) || 41.99
+            }] : [],
+            image: sub.image || '',
+            images: Array.isArray(sub.images) ? sub.images : (sub.image ? [sub.image] : []),
+            rating: Number(sub.rating) || 4.8,
+            ratingCount: Number(sub.ratingCount) || 24,
           };
         });
 

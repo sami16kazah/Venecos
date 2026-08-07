@@ -7,6 +7,7 @@ import { MdEditDocument, MdArrowBack, MdCheckCircle, MdTune, MdSave } from 'reac
 import CloudinaryUploader from '@/components/CloudinaryUploader';
 import DashboardPackageManager from '@/components/DashboardPackageManager';
 import { ISubService } from '@/models/ServiceContent';
+import { combineMultiLangSubServices } from '@/lib/i18nUtils';
 
 // ... dbContentUi ...
 
@@ -169,10 +170,7 @@ export default function ContentWritingServicePage() {
         if (res.ok) {
           const items = await res.json();
           if (Array.isArray(items) && items.length > 0) {
-            const arDoc = items.find((i: any) => i.locale === 'ar');
-            if (arDoc && arDoc.subServices) {
-              setPackages(arDoc.subServices);
-            }
+            setPackages(combineMultiLangSubServices(items));
           }
         }
       } catch (err) {
