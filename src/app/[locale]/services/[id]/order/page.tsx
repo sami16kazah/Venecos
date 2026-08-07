@@ -48,23 +48,42 @@ export default function OrderPage() {
   });
 
   useEffect(() => {
-    async function fetchRates() {
+    async function fetchRatesAndLocation() {
       try {
-        const res = await fetch('/api/exchange-rates');
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            setRates(data);
-            const defaultCode = locale === 'ar' ? 'AED' : locale === 'de' || locale === 'fr' ? 'EUR' : 'USD';
-            const foundDefault = data.find((r: any) => r.currencyCode === defaultCode);
-            if (foundDefault) setSelectedCurrency(foundDefault);
+        const [ratesRes, geoRes] = await Promise.all([
+          fetch('/api/exchange-rates'),
+          fetch('/api/geo/location').catch(() => null)
+        ]);
+
+        let availableRates: any[] = [];
+        if (ratesRes.ok) {
+          availableRates = await ratesRes.json();
+          if (Array.isArray(availableRates) && availableRates.length > 0) {
+            setRates(availableRates);
           }
+        }
+
+        let autoCode = '';
+        if (geoRes && geoRes.ok) {
+          const geoData = await geoRes.json();
+          if (geoData.currency) {
+            autoCode = geoData.currency;
+          }
+        }
+
+        if (!autoCode) {
+          autoCode = locale === 'ar' ? 'AED' : locale === 'de' || locale === 'fr' ? 'EUR' : 'USD';
+        }
+
+        if (availableRates.length > 0) {
+          const matched = availableRates.find((r: any) => r.currencyCode === autoCode);
+          if (matched) setSelectedCurrency(matched);
         }
       } catch (err) {
         console.error(err);
       }
     }
-    fetchRates();
+    fetchRatesAndLocation();
   }, [locale]);
 
   // Protect Route
